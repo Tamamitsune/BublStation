@@ -1,3 +1,5 @@
+#define NIGHTSHIFT_COLOR_MODIFIER 0.15 // BUBBER EDIT ADDITION - LIGHTING
+
 // the standard tube light fixture
 /obj/machinery/light
 	name = "light fixture"
@@ -5,7 +7,6 @@
 	icon_state = "tube"
 	desc = "A lighting fixture."
 	layer = WALL_OBJ_LAYER
-	plane = GAME_PLANE_UPPER
 	max_integrity = 100
 	use_power = ACTIVE_POWER_USE
 	idle_power_usage = BASE_MACHINE_IDLE_CONSUMPTION * 0.02
@@ -38,7 +39,7 @@
 	///Count of number of times switched on/off, this is used to calculate the probability the light burns out
 	var/switchcount = 0
 	///Cell reference
-	var/obj/item/stock_parts/cell/cell
+	var/obj/item/stock_parts/power_store/cell
 	/// If TRUE, then cell is null, but one is pretending to exist.
 	/// This is to defer emergency cell creation unless necessary, as it is very expensive.
 	var/has_mock_cell = TRUE
@@ -78,12 +79,13 @@
 	var/fire_power = 0.5
 	///The Light colour to use when working in fire alarm status
 	var/fire_colour = COLOR_FIRE_LIGHT_RED
-
 	///Power usage - W per unit of luminosity
 	var/power_consumption_rate = 20
+	///break if moved, if false also makes it ignore if the wall its on breaks
+	var/break_if_moved = TRUE
 
 /obj/machinery/light/Move()
-	if(status != LIGHT_BROKEN)
+	if(status != LIGHT_BROKEN && break_if_moved)
 		break_light_tube(TRUE)
 	return ..()
 
@@ -99,7 +101,7 @@
 				continue
 			if(on_turf.dir != dir)
 				continue
-			stack_trace("Conflicting double stacked light [on_turf.type] found at ([our_location.x],[our_location.y],[our_location.z])")
+			stack_trace("Conflicting double stacked light [on_turf.type] found at [get_area(our_location)] ([our_location.x],[our_location.y],[our_location.z])")
 			qdel(on_turf)
 
 	if(!mapload) //sync up nightshift lighting for player made lights
@@ -116,13 +118,18 @@
 	// Light projects out backwards from the dir of the light
 	set_light(l_dir = REVERSE_DIR(dir))
 	RegisterSignal(src, COMSIG_LIGHT_EATER_ACT, PROC_REF(on_light_eater))
-	RegisterSignal(src, COMSIG_HIT_BY_SABOTEUR, PROC_REF(on_saboteur))
 	AddElement(/datum/element/atmos_sensitive, mapload)
-	find_and_hang_on_wall(custom_drop_callback = CALLBACK(src, PROC_REF(knock_down)))
-	return INITIALIZE_HINT_LATELOAD
+	AddElement(/datum/element/contextual_screentip_bare_hands, rmb_text = "Remove bulb")
+	if(mapload)
+		find_and_hang_on_wall()
 
-/obj/machinery/light/LateInitialize()
+/obj/machinery/light/find_and_hang_on_wall()
+	if(break_if_moved)
+		return ..()
+
+/obj/machinery/light/post_machine_initialize()
 	. = ..()
+#ifndef MAP_TEST
 	switch(fitting)
 		if("tube")
 			if(prob(2))
@@ -130,6 +137,7 @@
 		if("bulb")
 			if(prob(5))
 				break_light_tube(TRUE)
+#endif
 	update(trigger = FALSE)
 
 /obj/machinery/light/Destroy()
@@ -138,6 +146,11 @@
 		on = FALSE
 	QDEL_NULL(cell)
 	return ..()
+
+/obj/machinery/light/Exited(atom/movable/gone, direction)
+	. = ..()
+	if(gone == cell)
+		cell = null
 
 /obj/machinery/light/setDir(newdir)
 	. = ..()
@@ -178,6 +191,9 @@
 
 	var/area/local_area = get_room_area()
 
+	if(flickering)
+		. += mutable_appearance(overlay_icon, "[base_state]_flickering")
+		return
 	if(low_power_mode || major_emergency || (local_area?.fire))
 		. += mutable_appearance(overlay_icon, "[base_state]_emergency")
 		return
@@ -185,12 +201,6 @@
 		. += mutable_appearance(overlay_icon, "[base_state]_nightshift")
 		return
 	. += mutable_appearance(overlay_icon, base_state)
-
-
-//SKYRAT EDIT ADDITION BEGIN - AESTHETICS
-#define LIGHT_ON_DELAY_UPPER (2 SECONDS)
-#define LIGHT_ON_DELAY_LOWER (0.25 SECONDS)
-//SKYRAT EDIT END
 
 // Area sensitivity is traditionally tied directly to power use, as an optimization
 // But since we want it for fire reacting, we disregard that
@@ -212,16 +222,15 @@
 
 /obj/machinery/light/proc/handle_fire(area/source, new_fire)
 	SIGNAL_HANDLER
-	update(instant = TRUE, play_sound = FALSE) //SKYRAT EDIT CHANGE
+	update(play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - ORIGINAL: update()
 
 // update the icon_state and luminosity of the light depending on its state
-/obj/machinery/light/proc/update(trigger = TRUE, instant = FALSE, play_sound = TRUE) //SKYRAT EDIT CHANGE
+/obj/machinery/light/proc/update(trigger = TRUE, play_sound = TRUE) // BUBBER EDIT CHANGE - LIGHTING - add play_sound
 	switch(status)
 		if(LIGHT_BROKEN,LIGHT_BURNED,LIGHT_EMPTY)
 			on = FALSE
 	low_power_mode = FALSE
 	if(on)
-	/* SKYRAT EDIT ORIGINAL
 		var/brightness_set = brightness
 		var/power_set = bulb_power
 		var/color_set = bulb_colour
@@ -230,18 +239,39 @@
 		if(reagents)
 			START_PROCESSING(SSmachines, src)
 		var/area/local_area = get_room_area()
-		if (local_area?.fire)
+		if (flickering)
+			brightness_set = brightness * 0.25 // BUBBER EDIT CHANGE - LIGHTING - Original: brightness * bulb_low_power_brightness_mul
+			power_set = bulb_low_power_pow_mul
+			color_set = nightshift_light_color
+		else if (local_area?.fire)
 			color_set = fire_colour
 			power_set = fire_power
 			brightness_set = fire_brightness
+		else if (major_emergency)
+			color_set = bulb_emergency_colour
+			brightness_set = brightness * bulb_major_emergency_brightness_mul
 		else if (nightshift_enabled)
 			brightness_set = nightshift_brightness
 			power_set = nightshift_light_power
 			if(!color)
-				color_set = nightshift_light_color
-		else if (major_emergency)
-			color_set = bulb_low_power_colour
-			brightness_set = brightness * bulb_major_emergency_brightness_mul
+				// BUBBER EDIT CHANGE START - Dynamic nightshift color
+				// color_set = nightshift_light_color
+				// Adjust light values to be warmer. I doubt caching would speed this up by any worthwhile amount, as it's all very fast number and string operations.
+				// Convert to numbers for easier manipulation.
+				var/list/color_parts = rgb2num(bulb_colour)
+				var/red = color_parts[1]
+				var/green = color_parts[2]
+				var/blue = color_parts[3]
+
+				red += round(red * NIGHTSHIFT_COLOR_MODIFIER)
+				green -= round(green * NIGHTSHIFT_COLOR_MODIFIER * 0.3)
+				red = clamp(red, 0, 255) // clamp to be safe, or you can end up with an invalid hex value
+				green = clamp(green, 0, 255)
+				blue = clamp(blue, 0, 255)
+				color_set = rgb(red, green, blue) // Splice the numbers together and turn them back to hex.
+				// BUBBER EDIT ADDITION END
+		if (cached_color_filter)
+			color_set = apply_matrix_to_color(color_set, cached_color_filter["color"], cached_color_filter["space"] || COLORSPACE_RGB)
 		var/matching = light && brightness_set == light.light_range && power_set == light.light_power && color_set == light.light_color
 		if(!matching)
 			switchcount++
@@ -255,17 +285,10 @@
 					l_power = power_set,
 					l_color = color_set
 					)
-		*/
-		//SKYRAT EDIT CHANGE BEGIN - AESTHETICS
-		if(instant)
-			turn_on(trigger, play_sound)
-		else if(maploaded)
-			turn_on(trigger, play_sound)
-			maploaded = FALSE
-		else if(!turning_on)
-			turning_on = TRUE
-			addtimer(CALLBACK(src, PROC_REF(turn_on), trigger, play_sound), rand(LIGHT_ON_DELAY_LOWER, LIGHT_ON_DELAY_UPPER))
-		//SKYRAT EDIT END
+				// BUBBER EDIT ADDITION BEGIN - LIGHTING
+				if(play_sound)
+					playsound(src.loc, 'modular_skyrat/modules/aesthetics/lights/sound/light_on.ogg', 65, 1)
+				// BUBBER EDIT ADDITION END
 	else if(has_emergency_power(LIGHT_EMERGENCY_POWER_USE) && !turned_off())
 		use_power = IDLE_POWER_USE
 		low_power_mode = TRUE
@@ -276,12 +299,6 @@
 	update_appearance()
 	update_current_power_usage()
 	broken_sparks(start_only=TRUE)
-
-
-//SKYRAT EDIT ADDITION BEGIN - AESTHETICS
-#undef LIGHT_ON_DELAY_UPPER
-#undef LIGHT_ON_DELAY_LOWER
-//SKYRAT EDIT END
 
 /obj/machinery/light/update_current_power_usage()
 	if(!on && static_power_used > 0) //Light is off but still powered
@@ -301,7 +318,7 @@
 
 /obj/machinery/light/update_atom_colour()
 	..()
-	update()
+	update(play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - ORIGINAL: update()
 
 /obj/machinery/light/proc/broken_sparks(start_only=FALSE)
 	if(!QDELETED(src) && status == LIGHT_BROKEN && has_power() && MC_RUNNING())
@@ -310,17 +327,23 @@
 		var/delay = rand(BROKEN_SPARKS_MIN, BROKEN_SPARKS_MAX)
 		addtimer(CALLBACK(src, PROC_REF(broken_sparks)), delay, TIMER_UNIQUE | TIMER_NO_HASH_WAIT)
 
+/obj/machinery/light/proc/is_full_charge()
+	if(cell)
+		return cell.charge == cell.maxcharge
+	return TRUE
+
 /obj/machinery/light/process(seconds_per_tick)
-	if(has_power()) //If the light is being powered by the station.
+	if(has_power())
+		// If the cell is done mooching station power, and reagents don't need processing, stop processing
+		if(is_full_charge() && !reagents)
+			return PROCESS_KILL
 		if(cell)
-			if(cell.charge == cell.maxcharge && !reagents) //If the cell is done mooching station power, and reagents don't need processing, stop processing
-				return PROCESS_KILL
-			cell.charge = min(cell.maxcharge, cell.charge + LIGHT_EMERGENCY_POWER_USE) //Recharge emergency power automatically while not using it
+			charge_cell(LIGHT_EMERGENCY_POWER_USE * seconds_per_tick, cell = cell) //Recharge emergency power automatically while not using it
 	if(reagents) //with most reagents coming out at 300, and with most meaningful reactions coming at 370+, this rate gives a few seconds of time to place it in and get out of dodge regardless of input.
 		reagents.adjust_thermal_energy(8 * reagents.total_volume * SPECIFIC_HEAT_DEFAULT * seconds_per_tick)
 		reagents.handle_reactions()
-	if(low_power_mode && !use_emergency_power(LIGHT_EMERGENCY_POWER_USE))
-		update(FALSE) //Disables emergency mode and sets the color to normal
+	if(low_power_mode && !use_emergency_power(LIGHT_EMERGENCY_POWER_USE * seconds_per_tick))
+		update(trigger = FALSE, play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - Original: update(FALSE) //Disables emergency mode and sets the color to normal
 
 /obj/machinery/light/proc/burn_out()
 	if(status == LIGHT_OK)
@@ -337,7 +360,7 @@
 
 /obj/machinery/light/get_cell()
 	if (has_mock_cell)
-		cell = new /obj/item/stock_parts/cell/emergency_light(src)
+		cell = new /obj/item/stock_parts/power_store/cell/emergency_light(src)
 		has_mock_cell = FALSE
 
 	return cell
@@ -347,25 +370,19 @@
 	. = ..()
 	switch(status)
 		if(LIGHT_OK)
-			. += "It is turned [on? "on" : "off"]."
+			. += span_notice("It is turned [on? "on" : "off"].")
 		if(LIGHT_EMPTY)
-			. += "The [fitting] has been removed."
+			. +=  span_notice("The [fitting] has been removed.")
 		if(LIGHT_BURNED)
-			. += "The [fitting] is burnt out."
+			. +=  span_danger("The [fitting] is burnt out.")
 		if(LIGHT_BROKEN)
-			. += "The [fitting] has been smashed."
+			. += span_danger("The [fitting] has been smashed.")
 	if(cell || has_mock_cell)
-		. += "Its backup power charge meter reads [has_mock_cell ? 100 : round((cell.charge / cell.maxcharge) * 100, 0.1)]%."
-	//SKYRAT EDIT ADDITION
-	if(constant_flickering)
-		. += span_danger("The lighting ballast appears to be damaged, this could be fixed with a multitool.")
-	//SKYRAT EDIT END
-
-
+		. +=  span_notice("Its backup power charge meter reads [has_mock_cell ? 100 : round((cell.charge / cell.maxcharge) * 100, 0.1)]%.")
 
 // attack with item - insert light (if right type), otherwise try to break the light
 
-/obj/machinery/light/attackby(obj/item/tool, mob/living/user, params)
+/obj/machinery/light/attackby(obj/item/tool, mob/living/user, list/modifiers, list/attack_modifiers)
 	// attempt to insert light
 	if(istype(tool, /obj/item/light))
 		if(status == LIGHT_OK)
@@ -399,7 +416,7 @@
 		return
 
 	// attempt to stick weapon into light socket
-	if(status != LIGHT_EMPTY)
+	if(status != LIGHT_EMPTY || user.combat_mode)
 		return ..()
 	if(tool.tool_behaviour == TOOL_SCREWDRIVER) //If it's a screwdriver open it.
 		tool.play_tool_sound(src, 75)
@@ -407,54 +424,49 @@
 			span_notice("You open [src]'s casing."), span_hear("You hear a noise."))
 		deconstruct()
 		return
+
+	if(tool.item_flags & ABSTRACT)
+		return
+
 	to_chat(user, span_userdanger("You stick \the [tool] into the light socket!"))
 	if(has_power() && (tool.obj_flags & CONDUCTS_ELECTRICITY))
 		do_sparks(3, TRUE, src)
 		if (prob(75))
 			electrocute_mob(user, get_area(src), src, (rand(7,10) * 0.1), TRUE)
 
-/obj/machinery/light/deconstruct(disassembled = TRUE)
-	if(obj_flags & NO_DECONSTRUCTION)
-		qdel(src)
-		return
-	var/obj/structure/light_construct/new_light = null
-	var/current_stage = 2
-	if(!disassembled)
-		current_stage = 1
+/obj/machinery/light/on_deconstruction(disassembled)
+	var/atom/drop_point = drop_location()
+
+	var/obj/item/wallframe/light_fixture/frame = null
 	switch(fitting)
 		if("tube")
-			new_light = new /obj/structure/light_construct(loc)
-			new_light.icon_state = "tube-construct-stage[current_stage]"
-
+			frame = new /obj/item/wallframe/light_fixture(drop_point)
 		if("bulb")
-			new_light = new /obj/structure/light_construct/small(loc)
-			new_light.icon_state = "bulb-construct-stage[current_stage]"
-	new_light.setDir(dir)
-	new_light.stage = current_stage
+			frame = new /obj/item/wallframe/light_fixture/small(drop_point)
 	if(!disassembled)
-		new_light.take_damage(new_light.max_integrity * 0.5, sound_effect=FALSE)
+		frame.take_damage(frame.max_integrity * 0.5, sound_effect = FALSE)
 		if(status != LIGHT_BROKEN)
 			break_light_tube()
 		if(status != LIGHT_EMPTY)
 			drop_light_tube()
 		new /obj/item/stack/cable_coil(loc, 1, "red")
-	transfer_fingerprints_to(new_light)
+	transfer_fingerprints_to(frame)
 
-	var/obj/item/stock_parts/cell/real_cell = get_cell()
+	var/obj/item/stock_parts/power_store/real_cell = get_cell()
 	if(!QDELETED(real_cell))
-		new_light.cell = real_cell
-		real_cell.forceMove(new_light)
-		cell = null
-	qdel(src)
+		real_cell.forceMove(drop_point)
 
-/obj/machinery/light/attacked_by(obj/item/attacking_object, mob/living/user)
-	..()
+/obj/machinery/light/attacked_by(obj/item/attacking_object, mob/living/user, list/modifiers, list/attack_modifiers)
+	. = ..()
+	if(. <= 0)
+		return
 	if(status != LIGHT_BROKEN && status != LIGHT_EMPTY)
 		return
 	if(!on || !(attacking_object.obj_flags & CONDUCTS_ELECTRICITY))
 		return
-	if(prob(12))
-		electrocute_mob(user, get_area(src), src, 0.3, TRUE)
+	if(!prob(12))
+		return
+	electrocute_mob(user, get_area(src), src, 0.3, TRUE)
 
 /obj/machinery/light/take_damage(damage_amount, damage_type = BRUTE, damage_flag = "", sound_effect = TRUE, attack_dir, armour_penetration = 0)
 	. = ..()
@@ -467,28 +479,24 @@
 		if(BRUTE)
 			switch(status)
 				if(LIGHT_EMPTY)
-					playsound(loc, 'sound/weapons/smash.ogg', 50, TRUE)
+					playsound(loc, 'sound/items/weapons/smash.ogg', 50, TRUE)
 				if(LIGHT_BROKEN)
 					playsound(loc, 'sound/effects/hit_on_shattered_glass.ogg', 90, TRUE)
 				else
-					playsound(loc, 'sound/effects/glasshit.ogg', 90, TRUE)
+					playsound(loc, 'sound/effects/glass/glasshit.ogg', 90, TRUE)
 		if(BURN)
-			playsound(loc, 'sound/items/welder.ogg', 100, TRUE)
+			playsound(loc, 'sound/items/tools/welder.ogg', 100, TRUE)
 
 // returns if the light has power /but/ is manually turned off
 // if a light is turned off, it won't activate emergency power
 /obj/machinery/light/proc/turned_off()
 	var/area/local_area = get_room_area()
-	return !local_area.lightswitch && local_area.power_light || flickering || constant_flickering //SKYRAT EDIT CHANGE - ORIGINAL : return !local_area.lightswitch && local_area.power_light || flickering
+	return !local_area.lightswitch && local_area.power_light || flickering
 
 // returns whether this light has power
 // true if area has power and lightswitch is on
 /obj/machinery/light/proc/has_power()
 	var/area/local_area = get_room_area()
-	//SKYRAT EDIT ADDITION BEGIN
-	if(isnull(local_area))
-		return FALSE
-	//SKYRAT EDIT END
 	return local_area.lightswitch && local_area.power_light
 
 // returns whether this light has emergency power
@@ -506,8 +514,8 @@
 /obj/machinery/light/proc/use_emergency_power(power_usage_amount = LIGHT_EMERGENCY_POWER_USE)
 	if(!has_emergency_power(power_usage_amount))
 		return FALSE
-	var/obj/item/stock_parts/cell/real_cell = get_cell()
-	if(real_cell.charge > 300) //it's meant to handle 120 W, ya doofus
+	var/obj/item/stock_parts/power_store/real_cell = get_cell()
+	if(real_cell.charge > 2.5 * /obj/item/stock_parts/power_store/cell/emergency_light::maxcharge) //it's meant to handle 120 W, ya doofus
 		visible_message(span_warning("[src] short-circuits from too powerful of a power cell!"))
 		burn_out()
 		return FALSE
@@ -519,41 +527,51 @@
 		)
 	return TRUE
 
-
-/obj/machinery/light/proc/flicker(amount = rand(10, 20))
+/obj/machinery/light/proc/flicker(amount = 1)
 	set waitfor = FALSE
-	if(flickering)
+	if(flickering || !on || status != LIGHT_OK)
 		return
-	flickering = TRUE
-	if(on && status == LIGHT_OK)
-		for(var/i in 1 to amount)
-			if(status != LIGHT_OK || !has_power())
-				break
-			on = !on
-			update(FALSE, TRUE) //SKYRAT EDIT CHANGE
-			sleep(rand(5, 15))
-		if(has_power())
-			on = (status == LIGHT_OK)
-		else
-			on = FALSE
-		update(FALSE, TRUE) // SKYRAT EDIT CHANGE
-		. = TRUE //did we actually flicker?
+
+	. = TRUE // did we actually flicker? Send this now because we expect immediate response, before sleeping.
+	set_light(
+		l_range = brightness * 0.25, // BUBBER EDIT CHANGE - LIGHTING - Original: brightness * bulb_low_power_brightness_mul,
+		l_power = bulb_low_power_pow_mul,
+		l_color = nightshift_light_color,
+	)
+	cut_overlays(src)
+	stoplag(0.7 SECONDS)
+	if(prob(30))
+		do_sparks(number = 2, cardinal_only = TRUE, source = src)
+
+	for(var/i in 1 to amount)
+		if(status != LIGHT_OK || !has_power())
+			break
+		flickering = !flickering
+		update(trigger = FALSE, play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - Original: update(FALSE)
+		stoplag(pick(list(2 SECONDS, 4 SECONDS, 6 SECONDS)))
+
+	if(has_power())
+		on = (status == LIGHT_OK)
+	else
+		on = FALSE
+
 	flickering = FALSE
+	update(trigger = FALSE, play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - Original: update(FALSE)
 
 // ai attack - make lights flicker, because why not
 
 /obj/machinery/light/attack_ai(mob/user)
 	no_low_power = !no_low_power
 	to_chat(user, span_notice("Emergency lights for this fixture have been [no_low_power ? "disabled" : "enabled"]."))
-	update(FALSE)
+	update(trigger = FALSE, play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - Original: update(FALSE)
 	return
 
 // attack with hand - remove tube/bulb
 // if hands aren't protected and the light is on, burn the player
 
-/obj/machinery/light/attack_hand(mob/living/carbon/human/user, list/modifiers)
+/obj/machinery/light/attack_hand_secondary(mob/living/carbon/human/user, list/modifiers)
 	. = ..()
-	if(.)
+	if(. == SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN)
 		return
 	user.changeNext_move(CLICK_CD_MELEE)
 	add_fingerprint(user)
@@ -572,9 +590,9 @@
 	var/protected = FALSE
 
 	if(istype(user))
-		var/obj/item/organ/internal/stomach/maybe_stomach = user.get_organ_slot(ORGAN_SLOT_STOMACH)
-		if(istype(maybe_stomach, /obj/item/organ/internal/stomach/ethereal))
-			var/obj/item/organ/internal/stomach/ethereal/stomach = maybe_stomach
+		var/obj/item/organ/stomach/maybe_stomach = user.get_organ_slot(ORGAN_SLOT_STOMACH)
+		if(istype(maybe_stomach, /obj/item/organ/stomach/ethereal))
+			var/obj/item/organ/stomach/ethereal/stomach = maybe_stomach
 			if(stomach.drain_time > world.time)
 				return
 			to_chat(user, span_notice("You start channeling some power through the [fitting] into your body."))
@@ -597,18 +615,16 @@
 
 	if(protected || HAS_TRAIT(user, TRAIT_RESISTHEAT) || HAS_TRAIT(user, TRAIT_RESISTHEATHANDS))
 		to_chat(user, span_notice("You remove the light [fitting]."))
-	else if(istype(user) && user.dna.check_mutation(/datum/mutation/human/telekinesis))
+	else if(istype(user) && user.dna.check_mutation(/datum/mutation/telekinesis))
 		to_chat(user, span_notice("You telekinetically remove the light [fitting]."))
 	else
-		var/obj/item/bodypart/affecting = user.get_bodypart("[(user.active_hand_index % 2 == 0) ? "r" : "l" ]_arm")
-		if(affecting?.receive_damage( 0, 5 )) // 5 burn damage
-			user.update_damage_overlays()
+		var/obj/item/bodypart/affecting = user.get_active_hand()
+		user.apply_damage(5, BURN, affecting, wound_bonus = CANT_WOUND)
 		if(HAS_TRAIT(user, TRAIT_LIGHTBULB_REMOVER))
-			to_chat(user, span_notice("You feel your [affecting] burning, and the light beginning to budge."))
+			to_chat(user, span_notice("You feel your [affecting.plaintext_zone] burning, but the light begins to budge..."))
 			if(!do_after(user, 5 SECONDS, target = src))
 				return
-			if(affecting?.receive_damage( 0, 10 )) // 10 more burn damage
-				user.update_damage_overlays()
+			user.apply_damage(10, BURN, user.get_active_hand(), wound_bonus = CANT_WOUND)
 			to_chat(user, span_notice("You manage to remove the light [fitting], shattering it in process."))
 			break_light_tube()
 		else
@@ -619,11 +635,11 @@
 
 /obj/machinery/light/proc/set_major_emergency_light()
 	major_emergency = TRUE
-	update()
+	update(trigger = FALSE, play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - Original: update()
 
 /obj/machinery/light/proc/unset_major_emergency_light()
 	major_emergency = FALSE
-	update()
+	update(trigger = FALSE, play_sound = FALSE) // BUBBER EDIT CHANGE - LIGHTING - Original: update()
 
 /obj/machinery/light/proc/drop_light_tube(mob/user)
 	var/obj/item/light/light_object = new light_type()
@@ -665,7 +681,7 @@
 
 	if(!skip_sound_and_sparks)
 		if(status == LIGHT_OK || status == LIGHT_BURNED)
-			playsound(loc, 'sound/effects/glasshit.ogg', 75, TRUE)
+			playsound(loc, 'sound/effects/glass/glasshit.ogg', 75, TRUE)
 		if(on)
 			do_sparks(3, TRUE, src)
 	status = LIGHT_BROKEN
@@ -704,17 +720,13 @@
 
 /obj/machinery/light/proc/on_light_eater(obj/machinery/light/source, datum/light_eater)
 	SIGNAL_HANDLER
-	. = COMPONENT_BLOCK_LIGHT_EATER
-	if(status == LIGHT_EMPTY)
-		return
-	var/obj/item/light/tube = drop_light_tube()
-	tube?.burn()
-	return
-
-/obj/machinery/light/proc/on_saboteur(datum/source, disrupt_duration)
-	SIGNAL_HANDLER
 	break_light_tube()
-	return COMSIG_SABOTEUR_SUCCESS
+	return COMPONENT_BLOCK_LIGHT_EATER
+
+/obj/machinery/light/on_saboteur(datum/source, disrupt_duration)
+	. = ..()
+	break_light_tube()
+	return TRUE
 
 /obj/machinery/light/proc/grey_tide(datum/source, list/grey_tide_areas)
 	SIGNAL_HANDLER
@@ -724,20 +736,6 @@
 			continue
 		INVOKE_ASYNC(src, PROC_REF(flicker))
 
-/**
- * All the effects that occur when a light falls off a wall that it was hung onto.
- */
-/obj/machinery/light/proc/knock_down()
-	new /obj/item/wallframe/light_fixture(drop_location())
-	new /obj/item/stack/cable_coil(drop_location(), 1, "red")
-	if(status != LIGHT_BROKEN)
-		break_light_tube(FALSE)
-	if(status != LIGHT_EMPTY)
-		drop_light_tube()
-	if(cell)
-		cell.forceMove(drop_location())
-	qdel(src)
-
 /obj/machinery/light/floor
 	name = "floor light"
 	desc = "A lightbulb you can walk on without breaking it, amazing."
@@ -746,11 +744,11 @@
 	icon_state = "floor"
 	brightness = 4
 	light_angle = 360
-	layer = LOW_OBJ_LAYER
+	layer = BELOW_CATWALK_LAYER
 	plane = FLOOR_PLANE
 	light_type = /obj/item/light/bulb
 	fitting = "bulb"
-	nightshift_brightness = 3
+	nightshift_brightness = 4
 	fire_brightness = 4.5
 
 /obj/machinery/light/floor/get_light_offset()
@@ -759,3 +757,12 @@
 /obj/machinery/light/floor/broken
 	status = LIGHT_BROKEN
 	icon_state = "floor-broken"
+
+/obj/machinery/light/floor/transport
+	name = "transport light"
+	break_if_moved = FALSE
+	// has to render above tram things (trams are stupid)
+	layer = BELOW_OPEN_DOOR_LAYER
+	plane = GAME_PLANE
+
+#undef NIGHTSHIFT_COLOR_MODIFIER // BUBBER EDIT ADDITION - LIGHTING

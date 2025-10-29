@@ -1,22 +1,23 @@
 // THIS IS A SKYRAT UI FILE
-import { toTitleCase } from 'common/string';
+import { toTitleCase } from 'tgui-core/string';
+import { useState } from 'react';
+
 import { useBackend, useSharedState } from '../backend';
 import {
   Box,
   Button,
-  NumberInput,
-  NoticeBox,
-  ProgressBar,
-  Section,
   Flex,
-  Stack,
+  NoticeBox,
+  NumberInput,
+  ProgressBar,
   RoundGauge,
-  Tabs,
+  Section,
+  Stack,
   Table,
+  Tabs,
   Tooltip,
-} from '../components';
+} from 'tgui-core/components';
 import { Window } from '../layouts';
-import { useState } from 'react';
 
 export const AmmoWorkbench = (props) => {
   const [tab, setTab] = useSharedState('tab', 1);
@@ -265,7 +266,7 @@ const MaterialRow = (props) => {
           minValue={1}
           maxValue={50}
           value={amount}
-          onChange={(e, value) => setAmount(value)}
+          onChange={setAmount}
         />
         <Button
           disabled={amountAvailable < 1}

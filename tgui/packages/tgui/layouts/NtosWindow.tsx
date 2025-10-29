@@ -4,22 +4,23 @@
  * @license MIT
  */
 
-import { BooleanLike } from 'common/react';
+import { Box, Button } from 'tgui-core/components';
+import type { BooleanLike } from 'tgui-core/react';
+
 import { resolveAsset } from '../assets';
 import { useBackend } from '../backend';
-import { Box, Button } from '../components';
 import { Window } from './Window';
 
 export type NTOSData = {
-  authenticatedUser: string | null;
-  authIDName: string;
   comp_light_color: string;
-  has_id: BooleanLike;
   has_light: BooleanLike;
   id_name: string;
   light_on: BooleanLike;
   login: Login;
   pai: string | null;
+  alert_style: number;
+  alert_color: string;
+  alert_name: string;
   PC_batteryicon: string | null;
   PC_batterypercent: string | null;
   PC_device_theme: string;
@@ -62,6 +63,7 @@ export const NtosWindow = (props) => {
     PC_stationtime,
     PC_programheaders = [],
     PC_showexitprogram,
+    PC_lowpower_mode,
   } = data;
 
   return (
@@ -83,6 +85,7 @@ export const NtosWindow = (props) => {
             </Box>
             <Box inline italic mr={2} opacity={0.33}>
               {(PC_device_theme === 'syndicate' && 'Syndix') || 'NtOS'}
+              {!!PC_lowpower_mode && ' - RUNNING ON LOW POWER MODE'}
             </Box>
           </div>
           <div className="NtosHeader__right">
@@ -108,7 +111,7 @@ export const NtosWindow = (props) => {
                   className="NtosHeader__icon"
                   src={resolveAsset(PC_batteryicon)}
                 />
-                {PC_batterypercent && PC_batterypercent}
+                {PC_batterypercent}
               </Box>
             )}
             {!!PC_showexitprogram && (

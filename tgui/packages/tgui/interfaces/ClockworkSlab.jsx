@@ -1,20 +1,19 @@
 // THIS IS A SKYRAT UI FILE
 import { Fragment } from 'react';
-import { useBackend } from '../backend';
 import {
-  Icon,
   Box,
   Button,
-  Section,
-  Table,
-  Divider,
-  Grid,
-  ProgressBar,
   Collapsible,
-} from '../components';
+  Divider,
+  Icon,
+  ProgressBar,
+  Section,
+  Stack,
+  Table,
+} from 'tgui-core/components';
+
+import { useBackend, useLocalState } from '../backend';
 import { Window } from '../layouts';
-import { TableRow } from '../components/Table';
-import { useState } from 'react';
 
 const brassColor = '#DFC69C';
 const tinkerCache = '#B5FD9D';
@@ -33,7 +32,10 @@ const convertPower = (power_in) => {
 };
 
 export const ClockworkSlab = (props) => {
-  const [selectedTab, setSelectedTab] = useState('Servitude');
+  const [selectedTab, setSelectedTab] = useLocalState(
+    'selectedTab',
+    'Servitude',
+  );
   return (
     <Window theme="clockwork" width={860} height={700}>
       <Window.Content>
@@ -218,7 +220,7 @@ const ClockworkSpellList = (props) => {
       {scriptures.map((script) =>
         script.type === selectedTab ? (
           <Fragment key={script}>
-            <TableRow>
+            <Table.Row>
               <Table.Cell bold>{script.name}</Table.Cell>
               <Table.Cell collapsing textAlign="right">
                 <Button
@@ -226,8 +228,8 @@ const ClockworkSpellList = (props) => {
                   color={script.purchased ? 'default' : 'average'}
                   content={
                     script.purchased
-                      ? 'Invoke ' + convertPower(script.cost)
-                      : script.cog_cost + ' Cogs'
+                      ? `Invoke ${convertPower(script.cost)}`
+                      : `${script.cog_cost} Cogs`
                   }
                   tooltip={
                     script.research_required
@@ -242,8 +244,8 @@ const ClockworkSpellList = (props) => {
                   }
                 />
               </Table.Cell>
-            </TableRow>
-            <TableRow>
+            </Table.Row>
+            <Table.Row>
               <Table.Cell>{script.desc}</Table.Cell>
               <Table.Cell collapsing textAlign="right">
                 <Button
@@ -257,7 +259,7 @@ const ClockworkSpellList = (props) => {
                   }
                 />
               </Table.Cell>
-            </TableRow>
+            </Table.Row>
             <Table.Cell>
               <Divider />
             </Table.Cell>
@@ -308,12 +310,12 @@ const ClockworkOverviewStat = (props) => {
   const { title, iconName, amount, maxAmount, unit, overrideText } = props;
   return (
     <Box height="22px" fontSize="16px">
-      <Grid>
-        <Grid.Column>
+      <Stack>
+        <Stack.Item width="8%">
           <Icon name={iconName} rotation={0} spin={0} />
-        </Grid.Column>
-        <Grid.Column size="2">{title}</Grid.Column>
-        <Grid.Column size="8">
+        </Stack.Item>
+        <Stack.Item width="20%">{title}</Stack.Item>
+        <Stack.Item width="80%">
           <ProgressBar
             value={amount}
             minValue={0}
@@ -324,28 +326,25 @@ const ClockworkOverviewStat = (props) => {
               bad: [-Infinity, maxAmount / 4],
             }}
           >
-            {overrideText ? overrideText : amount + ' ' + unit}
+            {overrideText ? overrideText : `${amount} ${unit}`}
           </ProgressBar>
-        </Grid.Column>
-      </Grid>
+        </Stack.Item>
+      </Stack>
     </Box>
   );
 };
 
 const ClockworkButtonSelection = (props) => {
-  const [selectedTab, setSelectedTab] = useState({});
+  const [selectedTab, setSelectedTab] = useLocalState('selectedTab', {});
   const tabs = ['Servitude', 'Preservation', 'Structures'];
   return (
     <Table>
       <Table.Row>
         {tabs.map((tab) => (
           <Table.Cell key={tab} collapsing>
-            <Button
-              key={tab}
-              fluid
-              content={tab}
-              onClick={() => setSelectedTab(tab)}
-            />
+            <Button key={tab} fluid onClick={() => setSelectedTab(tab)}>
+              {tab}
+            </Button>
           </Table.Cell>
         ))}
       </Table.Row>

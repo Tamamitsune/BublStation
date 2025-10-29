@@ -1,5 +1,4 @@
-import { toFixed } from 'common/math';
-import { useBackend } from '../backend';
+import { useState } from 'react';
 import {
   Button,
   Flex,
@@ -8,9 +7,11 @@ import {
   RoundGauge,
   Section,
   Stack,
-} from '../components';
+} from 'tgui-core/components';
+import { toFixed } from 'tgui-core/math';
+
+import { useBackend } from '../backend';
 import { Window } from '../layouts';
-import { useState } from 'react';
 
 const TAB2NAME = [
   {
@@ -300,13 +301,13 @@ const FunTab = (props) => {
             />
           </Stack.Item>
           <Stack.Item>
-            <NoticeBox
-              mb={0.0}
+            <Button
+              icon="plus"
+              lineHeight={lineHeightNormal}
               width={buttonWidthNormal}
-              height={lineHeightNormal}
-            >
-              Your admin button here, coder!
-            </NoticeBox>
+              content="Mass Heal everyone"
+              onClick={() => act('mass_heal')}
+            />
           </Stack.Item>
         </Stack>
       </Stack.Item>
@@ -353,13 +354,13 @@ const FunTab = (props) => {
             />
           </Stack.Item>
           <Stack.Item>
-            <NoticeBox
-              mb={0.0}
+            <Button
+              icon="robot"
+              lineHeight={lineHeightNormal}
               width={buttonWidthNormal}
-              height={lineHeightNormal}
-            >
-              Your admin button here, coder!
-            </NoticeBox>
+              content="Triple AI mode"
+              onClick={() => act('tripleAI')}
+            />
           </Stack.Item>
           <Stack.Item>
             <Button
@@ -424,13 +425,13 @@ const FunTab = (props) => {
             />
           </Stack.Item>
           <Stack.Item>
-            <NoticeBox
-              mb={-0.5}
+            <Button
+              icon="house"
+              lineHeight={lineHeightNormal}
               width={buttonWidthNormal}
-              height={lineHeightNormal}
-            >
-              Your admin button here, coder!
-            </NoticeBox>
+              content="Send Shuttle Back"
+              onClick={() => act('send_shuttle_back')}
+            />
           </Stack.Item>
         </Stack>
       </Stack.Item>
@@ -455,13 +456,13 @@ const FunTab = (props) => {
             />
           </Stack.Item>
           <Stack.Item>
-            <NoticeBox
-              mb={-0.5}
+            <Button
+              icon="dollar-sign"
+              lineHeight={lineHeightNormal}
               width={buttonWidthNormal}
-              height={lineHeightNormal}
-            >
-              Your admin button here, coder!
-            </NoticeBox>
+              content="Dpt Order Cooldown"
+              onClick={() => act('department_cooldown_override')}
+            />
           </Stack.Item>
         </Stack>
       </Stack.Item>
@@ -481,8 +482,8 @@ const FunForYouTab = (props) => {
                 color="red"
                 icon="user-secret"
                 fluid
-                content="Everyone is the traitor"
-                onClick={() => act('traitor_all')}
+                content="Everyone is the antag"
+                onClick={() => act('antag_all')}
               />
             </NoticeBox>
           </Stack.Item>
@@ -575,7 +576,7 @@ const FunForYouTab = (props) => {
       </Stack.Item>
       <Stack.Item>
         <Stack>
-          <Stack.Item grow>
+          <Stack.Item>
             <NoticeBox danger width={19.6} mb={0}>
               <Button
                 color="red"
@@ -586,7 +587,7 @@ const FunForYouTab = (props) => {
               />
             </NoticeBox>
           </Stack.Item>
-          <Stack.Item grow>
+          <Stack.Item>
             <NoticeBox info width={19.6} mb={0}>
               <Button
                 color="blue"
@@ -718,7 +719,7 @@ export const Secrets = (props) => {
                           average: [100 * 0.25, 100 * 0.75],
                           bad: [100 * 0.75, 100],
                         }}
-                        format={(value) => toFixed(value) + '%'}
+                        format={(value) => `${toFixed(value)}%`}
                       />
                     </LabeledControls.Item>
                   </LabeledControls>

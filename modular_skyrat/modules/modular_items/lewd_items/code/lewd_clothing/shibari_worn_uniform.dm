@@ -6,12 +6,13 @@
 	strip_delay = 100
 	can_adjust = FALSE
 	body_parts_covered = NONE
-	supports_variations_flags = CLOTHING_DIGITIGRADE_VARIATION|STYLE_TAUR_ALL
+	supports_variations_flags = CLOTHING_DIGITIGRADE_VARIATION
 	item_flags = DROPDEL
+	icon = 'icons/map_icons/clothing/under/_under.dmi'
 	greyscale_colors = "#bd8fcf"
 	has_sensor = NO_SENSORS
 
-	///Tightness of the ropes can be low, medium and hard. This var works as multiplier for arousal and pleasure recieved while wearing this item
+	///Tightness of the ropes can be low, medium and hard. This var works as multiplier for arousal and pleasure received while wearing this item
 	var/tightness = SHIBARI_TIGHTNESS_LOW
 
 	///should this clothing item use the emissive system
@@ -60,13 +61,12 @@
 	. = ..()
 	AddElement(/datum/element/update_icon_updates_onmob)
 
-/obj/item/clothing/under/shibari/AltClick(mob/user)
-	. = ..()
+/obj/item/clothing/under/shibari/click_alt(mob/user)
 	if(!ishuman(loc))
-		return
+		return CLICK_ACTION_BLOCKING
 	var/mob/living/carbon/human/hooman = loc
 	if(user == hooman)
-		return
+		return CLICK_ACTION_BLOCKING
 	switch(tightness)
 		if(SHIBARI_TIGHTNESS_LOW)
 			tightness = SHIBARI_TIGHTNESS_MED
@@ -74,6 +74,7 @@
 			tightness = SHIBARI_TIGHTNESS_HIGH
 		if(SHIBARI_TIGHTNESS_HIGH)
 			tightness = SHIBARI_TIGHTNESS_LOW
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/clothing/under/shibari/process(seconds_per_tick)
 	if(!ishuman(loc))
@@ -114,7 +115,9 @@
 /obj/item/clothing/under/shibari/torso
 	name = "shibari ropes"
 	desc = "Nice looking rope bondage."
-	icon_state = "shibari_body"
+
+	icon_state = "/obj/item/clothing/under/shibari/torso"
+	post_init_icon_state = "shibari_body"
 
 	greyscale_config = /datum/greyscale_config/shibari/body
 	greyscale_config_worn = /datum/greyscale_config/shibari/body/worn
@@ -122,6 +125,7 @@
 	greyscale_config_worn_taur_snake = /datum/greyscale_config/shibari/body/worn/taur_snake
 	greyscale_config_worn_taur_paw = /datum/greyscale_config/shibari/body/worn/taur_paw
 	greyscale_config_worn_taur_hoof = /datum/greyscale_config/shibari/body/worn/taur_hoof
+	greyscale_config_worn_teshari = /datum/greyscale_config/shibari/body/worn/teshari
 	greyscale_colors = "#bd8fcf"
 
 //processing stuff
@@ -136,7 +140,8 @@
 /obj/item/clothing/under/shibari/groin
 	name = "crotch rope shibari"
 	desc = "A rope that teases the wearer's genitals."
-	icon_state = "shibari_groin"
+	icon_state = "/obj/item/clothing/under/shibari/groin"
+	post_init_icon_state = "shibari_groin"
 
 	greyscale_config = /datum/greyscale_config/shibari/groin
 	greyscale_config_worn = /datum/greyscale_config/shibari/groin/worn
@@ -144,12 +149,13 @@
 	greyscale_config_worn_taur_snake = /datum/greyscale_config/shibari/groin/worn/taur_snake
 	greyscale_config_worn_taur_paw = /datum/greyscale_config/shibari/groin/worn/taur_paw
 	greyscale_config_worn_taur_hoof = /datum/greyscale_config/shibari/groin/worn/taur_hoof
+	greyscale_config_worn_teshari = /datum/greyscale_config/shibari/groin/worn/teshari
 	greyscale_colors = "#bd8fcf"
 
 //stuff to apply processing on equip and add mood event for perverts
 /obj/item/clothing/under/shibari/groin/equipped(mob/living/user, slot)
 	var/mob/living/carbon/human/hooman = user
-	slowdown = hooman?.bodytype & BODYTYPE_TAUR ? 4 : 0
+	slowdown = hooman?.bodyshape & BODYSHAPE_TAUR ? 4 : 0
 	return..()
 
 //processing stuff
@@ -168,7 +174,8 @@
 /obj/item/clothing/under/shibari/full
 	name = "shibari fullbody ropes"
 	desc = "Bondage ropes that cover the whole body."
-	icon_state = "shibari_fullbody"
+	icon_state = "/obj/item/clothing/under/shibari/full"
+	post_init_icon_state = "shibari_fullbody"
 
 	greyscale_config = /datum/greyscale_config/shibari/fullbody
 	greyscale_config_worn = /datum/greyscale_config/shibari/fullbody/worn
@@ -176,6 +183,7 @@
 	greyscale_config_worn_taur_snake = /datum/greyscale_config/shibari/fullbody/worn/taur_snake
 	greyscale_config_worn_taur_paw = /datum/greyscale_config/shibari/fullbody/worn/taur_paw
 	greyscale_config_worn_taur_hoof = /datum/greyscale_config/shibari/fullbody/worn/taur_hoof
+	greyscale_config_worn_teshari = /datum/greyscale_config/shibari/fullbody/worn/teshari
 	greyscale_colors = "#bd8fcf#bd8fcf"
 
 //processing stuff

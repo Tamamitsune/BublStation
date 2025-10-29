@@ -3,11 +3,11 @@
 	desc = "Summon a staff that is imbued with the power of the tendril. Requires permission from the mother tendril."
 	required_components = list(
 		"north" = /obj/item/stack/sheet/mineral/wood,
-		"south" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"south" = /obj/item/organ/monster_core/regenerative_core,
 	)
 	consumed_components = list(
 		/obj/item/stack/sheet/mineral/wood,
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 	)
 	ritual_success_items = list(
 		/obj/item/ash_staff,
@@ -18,13 +18,13 @@
 	desc = "Summons a necklace that imbues the wearer with the knowledge of our tongue."
 	required_components = list(
 		"north" = /obj/item/stack/sheet/bone,
-		"south" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"south" = /obj/item/organ/monster_core/regenerative_core,
 		"east" = /obj/item/stack/sheet/sinew,
 		"west" = /obj/item/stack/sheet/sinew,
 	)
 	consumed_components = list(
 		/obj/item/stack/sheet/bone,
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/obj/item/stack/sheet/sinew,
 	)
 	ritual_success_items = list(
@@ -51,13 +51,13 @@
 	name = "Summon Cursed Ash Knife"
 	desc = "Summons a knife that places a tracking curse on unsuspecting miners who destroy our marked tendrils."
 	required_components = list(
-		"north" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"north" = /obj/item/organ/monster_core/regenerative_core,
 		"south" = /obj/item/forging/reagent_weapon/dagger,
 		"east" = /obj/item/stack/sheet/bone,
 		"west" = /obj/item/stack/sheet/sinew,
 	)
 	consumed_components = list(
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/obj/item/forging/reagent_weapon/dagger,
 		/obj/item/stack/sheet/bone,
 		/obj/item/stack/sheet/sinew,
@@ -66,17 +66,36 @@
 		/obj/item/cursed_dagger,
 	)
 
+/datum/ash_ritual/summon_cursed_carver
+	name = "Summon Cursed Ash Carver"
+	desc = "Summons a weapon that mimics the invader's tools, allowing us to collect trophies from the hunt."
+	required_components = list(
+		"north" = /obj/item/organ/monster_core/regenerative_core,
+		"south" = /obj/item/cursed_dagger,
+		"east" = /obj/item/stack/sheet/bone,
+		"west" = /obj/item/stack/sheet/sinew,
+	)
+	consumed_components = list(
+		/obj/item/organ/monster_core/regenerative_core,
+		/obj/item/cursed_dagger,
+		/obj/item/stack/sheet/bone,
+		/obj/item/stack/sheet/sinew,
+	)
+	ritual_success_items = list(
+		/obj/item/kinetic_crusher/cursed,
+	)
+
 /datum/ash_ritual/summon_tendril_seed
 	name = "Summon Tendril Seed"
 	desc = "Summons a seed that, when used in the hand, will cause a tendril to come through at your location."
 	required_components = list(
-		"north" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"north" = /obj/item/organ/monster_core/regenerative_core,
 		"south" = /obj/item/cursed_dagger,
 		"east" = /obj/item/crusher_trophy/goliath_tentacle,
 		"west" = /obj/item/crusher_trophy/watcher_wing,
 	)
 	consumed_components = list(
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/obj/item/cursed_dagger,
 		/obj/item/crusher_trophy/goliath_tentacle,
 		/obj/item/crusher_trophy/watcher_wing,
@@ -106,7 +125,7 @@
 			continue
 
 		to_chat(select_mob, span_userdanger("The planet stirs... another monster has arrived!"))
-		playsound(get_turf(select_mob), 'sound/magic/demon_attack1.ogg', 50, TRUE)
+		playsound(get_turf(select_mob), 'sound/effects/magic/demon_attack1.ogg', 50, TRUE)
 		flash_color(select_mob, flash_color = "#FF0000", flash_time = 3 SECONDS)
 
 	var/megafauna_choice = pick(
@@ -138,13 +157,13 @@
 	desc = "Those who partake in the ceremony and are ready will age, increasing their value to the kin."
 	required_components = list(
 		"north" = /mob/living/carbon/human,
-		"south" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"south" = /obj/item/organ/monster_core/regenerative_core,
 		"east" = /obj/item/stack/sheet/bone,
 		"west" = /obj/item/stack/sheet/sinew,
 	)
 	consumed_components = list(
 		/mob/living/carbon/human,
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/obj/item/stack/sheet/bone,
 		/obj/item/stack/sheet/sinew,
 	)
@@ -158,15 +177,14 @@
 	name = "Summon Lavaland Creature"
 	desc = "Summons a random, wild monster from another region in space."
 	required_components = list(
-		"north" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"north" = /obj/item/organ/monster_core/regenerative_core,
 		"south" = /mob/living/basic/mining/ice_whelp,
 		"east" = /obj/item/stack/ore/bluespace_crystal,
 		"west" = /obj/item/stack/ore/bluespace_crystal,
 	)
 	consumed_components = list(
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/mob/living/basic/mining/ice_whelp,
-		/obj/item/stack/ore/bluespace_crystal,
 	)
 
 /datum/ash_ritual/summon_lavaland_creature/ritual_success(obj/effect/ash_rune/success_rune)
@@ -184,15 +202,14 @@
 	name = "Summon Icemoon Creature"
 	desc = "Summons a random, wild monster from another region in space."
 	required_components = list(
-		"north" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"north" = /obj/item/organ/monster_core/regenerative_core,
 		"south" = /obj/item/food/grown/surik,
 		"east" = /obj/item/stack/ore/bluespace_crystal,
 		"west" = /obj/item/stack/ore/bluespace_crystal,
 	)
 	consumed_components = list(
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/obj/item/food/grown/surik,
-		/obj/item/stack/ore/bluespace_crystal,
 	)
 
 /datum/ash_ritual/summon_icemoon_creature/ritual_success(obj/effect/ash_rune/success_rune)
@@ -216,7 +233,6 @@
 		"west" = /obj/item/xenoarch/useless_relic,
 	)
 	consumed_components = list(
-		/obj/item/stack/ore/bluespace_crystal,
 		/obj/item/stack/sheet/animalhide/goliath_hide,
 		/obj/item/xenoarch/useless_relic,
 	)
@@ -298,7 +314,7 @@
 
 		asked_voters += poll_human
 
-	var/list/yes_voters = poll_candidates("Do you wish to banish [find_banished]?", poll_time = 10 SECONDS, group = asked_voters)
+	var/list/yes_voters = SSpolling.poll_candidates("Do you wish to banish [find_banished.name]?", poll_time = 10 SECONDS, group = asked_voters)
 
 	if(length(yes_voters) < length(asked_voters))
 		find_banished.balloon_alert_to_viewers("banishment failed!")
@@ -318,13 +334,13 @@
 	name = "Revive Animal"
 	desc = "Revives a simple animal that will then become friendly."
 	required_components = list(
-		"north" = /obj/item/organ/internal/monster_core/regenerative_core,
-		"south" = /obj/item/organ/internal/monster_core/regenerative_core,
+		"north" = /obj/item/organ/monster_core/regenerative_core,
+		"south" = /obj/item/organ/monster_core/regenerative_core,
 		"east" = /obj/item/stack/sheet/bone,
 		"west" = /obj/item/stack/sheet/sinew,
 	)
 	consumed_components = list(
-		/obj/item/organ/internal/monster_core/regenerative_core,
+		/obj/item/organ/monster_core/regenerative_core,
 		/obj/item/stack/sheet/bone,
 		/obj/item/stack/sheet/sinew,
 	)

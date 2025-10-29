@@ -1,4 +1,4 @@
-/obj/item/organ/external/xenohead
+/obj/item/organ/xenohead
 	name = "xeno head"
 	desc = "How did you take that off?"
 	icon_state = "random_fly_2"
@@ -9,7 +9,6 @@
 	zone = BODY_ZONE_HEAD
 	slot = ORGAN_SLOT_EXTERNAL_XENOHEAD
 
-	preference = "feature_xenohead"
 	organ_flags = ORGAN_UNREMOVABLE
 
 	bodypart_overlay = /datum/bodypart_overlay/mutant/xenohead
@@ -23,4 +22,4 @@
 	return draw_color
 
 /datum/bodypart_overlay/mutant/xenohead/get_global_feature_list()
-	return GLOB.sprite_accessories["xenohead"]
+	return SSaccessories.sprite_accessories["xenohead"]

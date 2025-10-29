@@ -66,7 +66,7 @@
 		return
 
 	if(user.mind != owner)
-		if(user.mind?.special_role == ROLE_WIZARD_APPRENTICE)
+		if(IS_WIZARD_APPRENTICE(user))
 			to_chat(user, span_warning("If you got caught sneaking a peek from your teacher's spellbook, you'd likely be expelled from the Wizard Academy. Better not."))
 		else
 			to_chat(user, span_warning("[src] does not recognize you as its owner and refuses to open!"))
@@ -74,7 +74,7 @@
 
 	return ..()
 
-/obj/item/spellbook/attackby(obj/item/O, mob/user, params)
+/obj/item/spellbook/attackby(obj/item/O, mob/user, list/modifiers, list/attack_modifiers)
 	// This can be generalized in the future, but for now it stays
 	if(istype(O, /obj/item/antag_spawner/contract))
 		var/datum/spellbook_entry/item/contract/contract_entry = locate() in entries
@@ -172,7 +172,7 @@
 	data["full_random_bonus"] = initial(uses) + full_random_bonus
 	return data
 
-/obj/item/spellbook/ui_act(action, params)
+/obj/item/spellbook/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
 	. = ..()
 	if(.)
 		return
@@ -229,6 +229,10 @@
 		return FALSE
 
 	to_buy.times++
+	if(HAS_TRAIT(user, TRAIT_SPELLS_LOTTERY))
+		if(prob(50 / to_buy.cost))
+			to_chat(user, span_notice("This spell was given to you for free!"))
+			return TRUE
 	uses -= to_buy.cost
 	return TRUE
 
@@ -254,11 +258,13 @@
 			)
 		if(WIZARD_LOADOUT_WIZARMY) //(Soulstones>2, Staff of Change>2, A Necromantic Stone>2, Teleport>2, Ethereal Jaunt>2) = 10
 			wanted_spells = list(
-				/datum/spellbook_entry/item/soulstones = 1,
-				/datum/spellbook_entry/item/staffchange = 1,
+				// /datum/spellbook_entry/item/soulstones = 1, BUBBERSTATION CHANGE: NO MORE SOULSTONES. -2
+				// /datum/spellbook_entry/item/staffchange = 1, BUBBERSTATION CHANGE: NO MORE STAFF OF CHANGE. -2
 				/datum/spellbook_entry/item/necrostone = 1,
 				/datum/spellbook_entry/teleport = 1,
 				/datum/spellbook_entry/jaunt = 1,
+				/datum/spellbook_entry/lichdom = 1, //BUBBERSTATION ADDITION: ADDS LICHDOM. +2
+				/datum/spellbook_entry/item/vendormancer = 1, //BUBBERSTATION ADDITION: ADDS VENDORMANCER. +2
 			)
 		if(WIZARD_LOADOUT_SOULTAP) //(Soul Tap>1, Smite>2, Flesh to Stone>2, Mindswap>2, Knock>1, Teleport>2) = 10
 			wanted_spells = list(
@@ -276,7 +282,7 @@
 
 	for(var/entry in wanted_spells)
 		if(!ispath(entry, /datum/spellbook_entry))
-			stack_trace("Wizard Loadout \"[loadout]\" had an non-spellbook_entry type in its wanted spells list. ([entry])")
+			stack_trace("Wizard Loadout \"[loadout]\" had a non-spellbook_entry type in its wanted spells list. ([entry])")
 			continue
 
 		var/datum/spellbook_entry/to_buy = locate(entry) in entries

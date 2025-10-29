@@ -7,7 +7,8 @@
 		<b>not much quicker than unpowered tools</b>."
 	icon = 'modular_skyrat/modules/colony_fabricator/icons/tools.dmi'
 	icon_state = "drill"
-	belt_icon_state = null
+	post_init_icon_state = null
+	inside_belt_icon_state = null
 	inhand_icon_state = "drill"
 	worn_icon_state = "drill"
 	lefthand_file = 'icons/mob/inhands/equipment/tools_lefthand.dmi'
@@ -23,8 +24,8 @@
 	throw_range = 3
 	attack_verb_continuous = list("drills", "screws", "jabs", "whacks")
 	attack_verb_simple = list("drill", "screw", "jab", "whack")
-	hitsound = 'sound/items/drill_hit.ogg'
-	usesound = 'sound/items/drill_use.ogg'
+	hitsound = 'sound/items/tools/drill_hit.ogg'
+	usesound = 'sound/items/tools/drill_use.ogg'
 	w_class = WEIGHT_CLASS_SMALL
 	toolspeed = 1
 	random_color = FALSE
@@ -32,6 +33,11 @@
 	greyscale_config_belt = null
 	greyscale_config_inhand_left = null
 	greyscale_config_inhand_right = null
+	greyscale_colors = null
+	/// Used on Initialize, how much time to cut cable restraints and zipties.
+	var/snap_time_weak_handcuffs = 0 SECONDS
+	/// Used on Initialize, how much time to cut real handcuffs. Null means it can't.
+	var/snap_time_strong_handcuffs = null
 
 /obj/item/screwdriver/omni_drill/Initialize(mapload)
 	. = ..()
@@ -67,6 +73,7 @@
 	var/tool_result = show_radial_menu(user, src, tool_list, custom_check = CALLBACK(src, PROC_REF(check_menu), user), require_near = TRUE, tooltips = TRUE)
 	if(!check_menu(user) || !tool_result)
 		return
+	RemoveElement(/datum/element/cuffsnapping, snap_time_weak_handcuffs, snap_time_strong_handcuffs)
 	switch(tool_result)
 		if("Wrench")
 			tool_behaviour = TOOL_WRENCH
@@ -74,25 +81,25 @@
 		if("Wirecutters")
 			tool_behaviour = TOOL_WIRECUTTER
 			sharpness = NONE
+			AddElement(/datum/element/cuffsnapping, snap_time_weak_handcuffs, snap_time_strong_handcuffs)
 		if("Screwdriver")
 			tool_behaviour = TOOL_SCREWDRIVER
 			sharpness = SHARP_POINTY
-	playsound(src, 'sound/items/change_drill.ogg', 50, vary = TRUE)
+	playsound(src, 'sound/items/tools/change_drill.ogg', 50, vary = TRUE)
 	update_appearance(UPDATE_ICON)
 
 /obj/item/screwdriver/omni_drill/proc/check_menu(mob/user)
 	if(!istype(user))
 		return FALSE
-	if(user.incapacitated() || !user.Adjacent(src))
+	if(user.incapacitated || !user.Adjacent(src))
 		return FALSE
 	return TRUE
 
-// Just a completely normal crowbar except its normal sized and can force doors like jaws of life can
+// Just a completely normal crowbar except its normal sized
 
 /obj/item/crowbar/large/doorforcer
 	name = "prybar"
-	desc = "A large, sturdy crowbar, painted orange. This one just happens to be tough enough to \
-		survive <b>forcing doors open</b>."
+	desc = "A large, sturdy crowbar, painted orange. Nothing special, or unique about it. Waste of money, honestly."
 	icon = 'modular_skyrat/modules/colony_fabricator/icons/tools.dmi'
 	icon_state = "prybar"
 	toolspeed = 1.3
@@ -134,12 +141,7 @@
 		but it still gets the job done and chances are you printed this bad boy off for free."
 	icon = 'modular_skyrat/modules/colony_fabricator/icons/tools.dmi'
 	icon_state = "arc_welder"
-	usesound = list(
-		'modular_skyrat/modules/colony_fabricator/sound/arc_furnace/arc_furnace_mid_1.wav',
-		'modular_skyrat/modules/colony_fabricator/sound/arc_furnace/arc_furnace_mid_2.wav',
-		'modular_skyrat/modules/colony_fabricator/sound/arc_furnace/arc_furnace_mid_3.wav',
-		'modular_skyrat/modules/colony_fabricator/sound/arc_furnace/arc_furnace_mid_4.wav',
-	)
+	usesound = 'modular_skyrat/modules/colony_fabricator/sound/arc_welder/arc_welder.ogg'
 	light_range = 2
 	light_power = 0.75
 	toolspeed = 1

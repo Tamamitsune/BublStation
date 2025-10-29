@@ -5,15 +5,14 @@
 	actions_types = null
 
 /obj/item/implant/weapons_auth/get_data()
-	var/dat = {"<b>Implant Specifications:</b><BR>
-				<b>Name:</b> Firearms Authentication Implant<BR>
-				<b>Life:</b> 4 hours after death of host<BR>
-				<b>Implant Details:</b> <BR>
-				<b>Function:</b> Allows operation of implant-locked weaponry, preventing equipment from falling into enemy hands."}
-	return dat
+	return "<b>Implant Specifications:</b><BR> \
+		<b>Name:</b> Firearms Authentication Implant<BR> \
+		<b>Life:</b> 4 hours after death of host<BR> \
+		<b>Implant Details:</b> <BR> \
+		<b>Function:</b> Allows operation of implant-locked weaponry, preventing equipment from falling into enemy hands."
 
 /obj/item/implant/emp
-	name = "emp implant"
+	name = "\improper EMP implant"
 	desc = "Triggers an EMP."
 	icon_state = "emp"
 	uses = 3
@@ -30,6 +29,44 @@
 	imp_type = /obj/item/implant/emp
 	special_desc_requirement = EXAMINE_CHECK_SYNDICATE // Skyrat edit
 	special_desc = "A Syndicate implanter used for a EMP implant" // Skyrat edit
+
+/obj/item/implant/smoke
+	name = "smoke implant"
+	desc = "Releases a plume of smoke."
+	icon_state = "smoke"
+	uses = 3
+
+/obj/item/implant/smoke/activate()
+	. = ..()
+	uses--
+	var/datum/effect_system/fluid_spread/smoke/bad/smoke = new
+	smoke.set_up(6, holder = imp_in, location = imp_in)
+	smoke.start()
+	if(!uses)
+		qdel(src)
+
+/obj/item/implanter/smoke
+	name = "implanter (Smoke)"
+	imp_type = /obj/item/implant/smoke
+
+/obj/item/implant/smoke
+	name = "smoke implant"
+	desc = "Releases a plume of smoke."
+	icon_state = "smoke"
+	uses = 3
+
+/obj/item/implant/smoke/activate()
+	. = ..()
+	uses--
+	var/datum/effect_system/fluid_spread/smoke/bad/smoke = new
+	smoke.set_up(6, holder = imp_in, location = imp_in)
+	smoke.start()
+	if(!uses)
+		qdel(src)
+
+/obj/item/implanter/smoke
+	name = "implanter (Smoke)"
+	imp_type = /obj/item/implant/smoke
 
 /obj/item/implant/radio
 	name = "internal radio implant"
@@ -77,11 +114,10 @@
 	subspace_transmission = TRUE
 
 /obj/item/implant/radio/get_data()
-	var/dat = {"<b>Implant Specifications:</b><BR>
-				<b>Name:</b> Internal Radio Implant<BR>
-				<b>Life:</b> 24 hours<BR>
-				<b>Implant Details:</b> Allows user to use an internal radio, useful if user expects equipment loss, or cannot equip conventional radios."}
-	return dat
+	return "<b>Implant Specifications:</b><BR> \
+		<b>Name:</b> Internal Radio Implant<BR> \
+		<b>Life:</b> 24 hours<BR> \
+		<b>Implant Details:</b> Allows user to use an internal radio, useful if user expects equipment loss, or cannot equip conventional radios."
 
 /obj/item/implanter/radio
 	name = "implanter (internal radio)"

@@ -7,7 +7,6 @@
 /datum/reagent/drug/quaalude
 	name = "Quaalude"
 	description = "Relaxes the user, putting them in a hypnotic, drugged state. A favorite drug of kids from Brooklyn." //THAT WAS THE BEST FUCKIN DRUG EVER MADE
-	reagent_state = LIQUID
 	color = "#ffe669"
 	overdose_threshold = 20
 	ph = 8
@@ -16,6 +15,7 @@
 
 
 /datum/reagent/drug/quaalude/on_mob_metabolize(mob/living/carbon/affected_carbon)
+	. = ..()
 	if(affected_carbon.hud_used)
 		var/atom/movable/plane_master_controller/game_plane_master_controller = affected_carbon.hud_used.plane_master_controllers[PLANE_MASTERS_GAME]
 		game_plane_master_controller.add_filter("quaalude_wave", 10, wave_filter(300, 300, 3, 0, WAVE_SIDEWAYS))
@@ -43,6 +43,7 @@
 
 
 /datum/reagent/drug/quaalude/on_mob_end_metabolize(mob/living/carbon/affected_carbon)
+	. = ..()
 	if(affected_carbon.hud_used != null)
 		var/atom/movable/plane_master_controller/game_plane_master_controller = affected_carbon.hud_used.plane_master_controllers[PLANE_MASTERS_GAME]
 		game_plane_master_controller.remove_filter("quaalude_wave")

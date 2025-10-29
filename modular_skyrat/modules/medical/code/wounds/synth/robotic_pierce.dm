@@ -8,7 +8,7 @@
 /datum/wound_pregen_data/electrical_damage/pierce
 	abstract = TRUE
 	wound_series = WOUND_SERIES_WIRE_PIERCE_ELECTRICAL_DAMAGE
-	required_wounding_types = list(WOUND_PIERCE)
+	required_wounding_type = WOUND_PIERCE
 
 /datum/wound/burn/electrical_damage/pierce/get_limb_examine_description()
 	return span_warning("The metal on this limb is pierced open.")
@@ -41,8 +41,8 @@
 	process_shock_spark_count_max = 1
 	process_shock_spark_count_min = 1
 
-	wirecut_repair_percent = 0.065 // not even faster at this point
-	wire_repair_percent = 0.026
+	wirecut_repair_percent = 0.078
+	wire_repair_percent = 0.036
 
 	initial_sparks_amount = 1
 
@@ -84,12 +84,12 @@
 	process_shock_spark_count_max = 2
 	process_shock_spark_count_min = 1
 
-	wirecut_repair_percent = 0.068
-	wire_repair_percent = 0.02
+	wirecut_repair_percent = 0.046
+	wire_repair_percent = 0.024
 
 	initial_sparks_amount = 3
 
-	status_effect_type = /datum/status_effect/wound/electrical_damage/pierce/moderate
+	status_effect_type = /datum/status_effect/wound/electrical_damage/pierce/severe
 
 	a_or_from = "a"
 
@@ -129,12 +129,12 @@
 	process_shock_spark_count_max = 3
 	process_shock_spark_count_min = 2
 
-	wirecut_repair_percent = 0.067
-	wire_repair_percent = 0.018
+	wirecut_repair_percent = 0.032
+	wire_repair_percent = 0.017
 
 	initial_sparks_amount = 8
 
-	status_effect_type = /datum/status_effect/wound/electrical_damage/pierce/moderate
+	status_effect_type = /datum/status_effect/wound/electrical_damage/pierce/critical
 
 	a_or_from = "a"
 

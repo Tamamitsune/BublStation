@@ -18,16 +18,20 @@
 	new /obj/item/extinguisher/advanced(src)
 	new /obj/item/storage/photo_album/ce(src)
 	new /obj/item/storage/box/skillchips/engineering(src)
-	new /obj/item/storage/box/gas_miner_beacons(src) // SKYRAT EDIT ADDITION
-	new /obj/item/construction/plumbing/engineering(src) //SKYRAT EDIT ADDITION
-	new /obj/item/circuitboard/machine/rodstopper(src) //SKYRAT EDIT ADDITION
-	new /obj/item/card/id/departmental_budget/eng(src) //SKYRAT EDIT ADDITION
+	// BUBBER EDIT BEGIN
+	new /obj/item/storage/box/gas_miner_beacons(src)
+	new /obj/item/construction/plumbing/engineering(src)
+	new /obj/item/circuitboard/machine/rodstopper(src)
+	new /obj/item/card/id/departmental_budget/eng(src)
+	new /obj/item/construction/rcd/ce(src)
+	// BUBBER EDIT END
+	new /obj/item/storage/box/stickers/chief_engineer(src)
 
 /obj/structure/closet/secure_closet/engineering_chief/populate_contents_immediate()
 	. = ..()
 
 	// Traitor steal objective
-	new /obj/item/areaeditor/blueprints(src)
+	new /obj/item/blueprints(src)
 	new /obj/item/pipe_dispenser/bluespace(src) // SKYRAT EDIT -- BLUESPACE RPD -- ORIGINAL: new /obj/item/pipe_dispenser(src)
 
 /obj/structure/closet/secure_closet/engineering_electrical
@@ -79,7 +83,10 @@
 	new /obj/item/clothing/glasses/meson/engine(src)
 	new /obj/item/storage/box/emptysandbags(src)
 	new /obj/item/storage/bag/construction(src)
-	new /obj/item/construction/plumbing/engineering(src) //SKYRAT EDIT ADDITION
+	// BUBBER EDIT BEGIN
+	new /obj/item/construction/plumbing/engineering(src)
+	new /obj/item/construction/rcd(src)
+	// BUBBER EDIT END
 
 
 /obj/structure/closet/secure_closet/atmospherics

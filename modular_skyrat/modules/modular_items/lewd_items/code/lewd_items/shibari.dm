@@ -6,8 +6,9 @@
 /obj/item/stack/shibari_rope
 	name = "shibari ropes"
 	desc = "Coil of bondage ropes."
-	icon = 'modular_skyrat/modules/modular_items/lewd_items/icons/obj/lewd_items/lewd_items.dmi'
-	icon_state = "shibari_rope"
+	icon = 'icons/map_icons/items/_item.dmi'
+	icon_state = "/obj/item/stack/shibari_rope"
+	post_init_icon_state = "shibari_rope"
 	amount = 1
 	merge_type = /obj/item/stack/shibari_rope
 	singular_name = "rope"
@@ -40,8 +41,9 @@
 	name = "glowy shibari ropes"
 	singular_name = "glowy rope"
 	merge_type = /obj/item/stack/shibari_rope/glow
-	icon_state = "shibari_rope_glow"
-	light_system = MOVABLE_LIGHT
+	icon_state = "/obj/item/stack/shibari_rope/glow"
+	post_init_icon_state = "shibari_rope_glow"
+	light_system = OVERLAY_LIGHT
 	light_range = 1
 	light_on = TRUE
 	light_power = 3
@@ -74,7 +76,7 @@
 	set_greyscale(greyscale_colors, /datum/greyscale_config/shibari_rope/high)
 	return ..()
 
-/obj/item/stack/shibari_rope/split_stack(mob/user, amount)
+/obj/item/stack/shibari_rope/split_stack(amount)
 	. = ..()
 	if(.)
 		var/obj/item/stack/current_stack = .
@@ -96,7 +98,7 @@
 			new_color += num2hex(rand(0, 255), 2)
 		set_greyscale(colors = list(new_color))
 
-/obj/item/stack/shibari_rope/proc/handle_roping(datum/source, mob/living/carbon/attacked, mob/living/user)
+/obj/item/stack/shibari_rope/proc/handle_roping(datum/source, mob/living/carbon/attacked, mob/living/user, list/modifiers)
 	SIGNAL_HANDLER
 
 	if(get_dist(user, src) > 1)
@@ -141,25 +143,25 @@
 		return
 	var/obj/item/stack/shibari_rope/split_rope = null
 	var/slow = 0
-	if(them.bodytype & BODYTYPE_TAUR)
-		split_rope = split_stack(null, 2)
+	if(them.bodyshape & BODYSHAPE_TAUR)
+		split_rope = split_stack(2)
 		slow = 4
 	else
-		split_rope = split_stack(null, 1)
-	if(split_rope)
-		shibari_groin = new(src)
-		shibari_groin.slowdown = slow
-		shibari_groin.set_greyscale(greyscale_colors)
-		shibari_groin.glow = glow
-		split_rope.forceMove(shibari_groin)
-		if(them.equip_to_slot_if_possible(shibari_groin, ITEM_SLOT_ICLOTHING, TRUE, FALSE, TRUE))
-			shibari_groin.tightness = tightness
-			shibari_groin = null
-			them.visible_message(span_warning("[user] tied [them]'s groin!"),\
-				span_userdanger("[user] tied your groin!"),\
-				span_hear("You hear ropes being completely tightened."))
-	else
+		split_rope = split_stack(1)
+	if(!split_rope)
 		to_chat(user, span_warning("You don't have enough ropes!"))
+		return
+	shibari_groin = new(src)
+	shibari_groin.slowdown = slow
+	shibari_groin.set_greyscale(greyscale_colors)
+	shibari_groin.glow = glow
+	split_rope.forceMove(shibari_groin)
+	if(them.equip_to_slot_if_possible(shibari_groin, ITEM_SLOT_ICLOTHING, TRUE, FALSE, TRUE))
+		shibari_groin.tightness = tightness
+		shibari_groin = null
+		them.visible_message(span_warning("[user] tied [them]'s groin!"),\
+			span_userdanger("[user] tied your groin!"),\
+			span_hear("You hear ropes being completely tightened."))
 
 
 
@@ -218,7 +220,7 @@
 	if(them.shoes)
 		to_chat(user, span_warning("They're already wearing something on this slot!"))
 		return
-	if(them.bodytype & BODYTYPE_TAUR)
+	if(them.bodyshape & BODYSHAPE_TAUR)
 		to_chat(user, span_warning("You can't tie their feet, they're a taur!"))
 		return
 	them.visible_message(span_warning("[user] starts tying [them]'s feet!"),\
@@ -250,7 +252,7 @@
 			if(!do_after(user, HAS_TRAIT(user, TRAIT_RIGGER) ? 20 : 60, them))
 				return
 			var/slow = 0
-			if(them.bodytype & BODYTYPE_TAUR)
+			if(them.bodyshape & BODYSHAPE_TAUR)
 				slow = 4
 			var/obj/item/stack/shibari_rope/split_rope = split_stack(null, 1)
 			if(split_rope)
@@ -283,7 +285,7 @@
 				return
 			var/obj/item/stack/shibari_rope/split_rope = null
 			var/slow = 0
-			if(them.bodytype & BODYTYPE_TAUR)
+			if(them.bodyshape & BODYSHAPE_TAUR)
 				split_rope = split_stack(null, 2)
 				slow = 4
 			else
@@ -317,16 +319,16 @@
 	switch(tightness)
 		if(ROPE_TIGHTNESS_HIGH)
 			tightness = ROPE_TIGHTNESS_LOW
-			play_lewd_sound(loc, 'modular_skyrat/modules/modular_items/lewd_items/sounds/latex.ogg', 25)
-			balloon_alert(user, span_notice("You slightly tightened the ropes"))
+			conditional_pref_sound(loc, 'modular_skyrat/modules/modular_items/lewd_items/sounds/latex.ogg', 25)
+			balloon_alert(user, "you slightly tightened the ropes")
 		if(ROPE_TIGHTNESS_LOW)
 			tightness = ROPE_TIGHTNESS_MED
-			play_lewd_sound(loc, 'modular_skyrat/modules/modular_items/lewd_items/sounds/latex.ogg', 50)
-			balloon_alert(user, span_notice("You moderately tightened the ropes"))
+			conditional_pref_sound(loc, 'modular_skyrat/modules/modular_items/lewd_items/sounds/latex.ogg', 50)
+			balloon_alert(user, "you moderately tightened the ropes")
 		if(ROPE_TIGHTNESS_MED)
 			tightness = ROPE_TIGHTNESS_HIGH
-			play_lewd_sound(loc, 'modular_skyrat/modules/modular_items/lewd_items/sounds/latex.ogg', 75)
-			balloon_alert(user, span_notice("You strongly tightened the ropes"))
+			conditional_pref_sound(loc, 'modular_skyrat/modules/modular_items/lewd_items/sounds/latex.ogg', 75)
+			balloon_alert(user, "you strongly tightened the ropes")
 
 #undef ROPE_TIGHTNESS_LOW
 #undef ROPE_TIGHTNESS_MED

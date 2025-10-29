@@ -1,17 +1,18 @@
 // THIS IS A SKYRAT UI FILE
-import { useBackend, useSharedState } from '../backend';
-import { NtosWindow } from '../layouts';
 import {
   BlockQuote,
+  Box,
   Button,
   Collapsible,
   Flex,
+  Icon,
+  LabeledList,
   Section,
   Tabs,
-  LabeledList,
-  Box,
-  Icon,
-} from '../components';
+} from 'tgui-core/components';
+
+import { useBackend, useSharedState } from '../backend';
+import { NtosWindow } from '../layouts';
 
 export const NtosNifsoftCatalog = (props) => {
   const { act, data } = useBackend();
@@ -70,7 +71,7 @@ const ProductCategory = (props) => {
               title={
                 <span>
                   {<Icon name={product.ui_icon} />}
-                  {' ' + product.name}
+                  {` ${product.name}`}
                 </span>
               }
               fill={false}
@@ -114,12 +115,10 @@ const ProductCategory = (props) => {
                 Purchasing this item will give you:{' '}
                 {product.rewards_points_rate * product.price} rewards points
               </Box>
-              {product.keepable ? (
+              {product.keepable && (
                 <Box opacity={0.85} textAlign="center" bold>
                   This NIFSoft carries between shifts
                 </Box>
-              ) : (
-                <> </>
               )}
               <br />
             </Section>

@@ -11,13 +11,17 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 
 /// Builds the list of crew records for all crew members.
 /datum/manifest/proc/build()
-	for(var/i in GLOB.new_player_list)
-		var/mob/dead/new_player/readied_player = i
+	// List of mobs we want to mass insert into the manifest table at round start
+	var/list/players_to_log = list()
+	for(var/mob/dead/new_player/readied_player as anything in GLOB.new_player_list)
 		if(readied_player.new_character)
-			log_manifest(readied_player.ckey,readied_player.new_character.mind,readied_player.new_character)
+			log_manifest(readied_player.ckey, readied_player.new_character.mind, readied_player.new_character)
+			players_to_log[readied_player.ckey] = readied_player.new_character
 		if(ishuman(readied_player.new_character))
-			inject(readied_player.new_character, readied_player.client) // SKYRAT EDIT - RP Records - ORIGINAL: inject(readied_player.new_character)
+			inject(readied_player.new_character, null, readied_player.client) // SKYRAT EDIT - RP Records - ORIGINAL: inject(readied_player.new_character)
 		CHECK_TICK
+	if(length(players_to_log))
+		SSblackbox.ReportRoundstartManifest(players_to_log)
 
 /// Gets the current manifest.
 /datum/manifest/proc/get_manifest()
@@ -32,16 +36,16 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 		var/name = target.name
 		var/rank = target.rank // user-visible job
 		var/trim = target.trim // internal jobs by trim type
-		var/datum/job/job = SSjob.GetJob(trim)
+		var/datum/job/job = SSjob.get_job(trim)
 		if(!job || !(job.job_flags & JOB_CREW_MANIFEST) || !LAZYLEN(job.departments_list)) // In case an unlawful custom rank is added.
 			var/list/misc_list = manifest_out[DEPARTMENT_UNASSIGNED]
 			misc_list[++misc_list.len] = list(
 				"name" = name,
 				"rank" = rank,
-				"trim" = trim, // SKYRAT EDIT ADDITION - Alt Titles
+				"trim" = trim,
 				)
 			continue
-		for(var/department_type as anything in job.departments_list)
+		for(var/department_type in job.departments_list)
 			//Jobs under multiple departments should only be displayed if this is their first department or the command department
 			if(job.departments_list[1] != department_type && !(job.departments_bitflags & DEPARTMENT_BITFLAG_COMMAND))
 				continue
@@ -52,7 +56,7 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 			var/list/entry = list(
 				"name" = name,
 				"rank" = rank,
-				"trim" = trim, // SKYRAT EDIT ADDITION - Alt Titles
+				"trim" = trim,
 				)
 			var/list/department_list = manifest_out[department.department_name]
 			if(istype(job, department.department_head))
@@ -99,29 +103,33 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 
 
 /// Injects a record into the manifest.
-/datum/manifest/proc/inject(mob/living/carbon/human/person, client/person_client) // SKYRAT EDIT - RP Records - ORIGINAL: /datum/manifest/proc/inject(mob/living/carbon/human/person)
+/datum/manifest/proc/inject(mob/living/carbon/human/person, atom/appearance_proxy, client/person_client) // SKYRAT EDIT - RP Records - ORIGINAL: /datum/manifest/proc/inject(mob/living/carbon/human/person, atom/appearance_proxy)
 	set waitfor = FALSE
 	if(!(person.mind?.assigned_role.job_flags & JOB_CREW_MANIFEST))
 		return
 
-	var/assignment = person.mind.assigned_role.title
-	var/mutable_appearance/character_appearance = new(person.appearance)
+	// Attempt to get assignment from ID, otherwise default to mind.
+	var/obj/item/card/id/id_card = person.get_idcard(hand_first = FALSE)
+	var/assignment = id_card?.get_trim_assignment() || person.mind.assigned_role.title
+
+	var/mutable_appearance/character_appearance = new(appearance_proxy?.appearance || person.appearance)
 	var/person_gender = "Other"
 	if(person.gender == "male")
 		person_gender = "Male"
 	if(person.gender == "female")
 		person_gender = "Female"
-	var/datum/dna/record_dna = new()
+	var/datum/dna/stored/record_dna = new()
 	person.dna.copy_dna(record_dna)
 
 	// SKYRAT EDIT ADDITION BEGIN - ALTERNATIVE_JOB_TITLES
 	// The alt job title, if user picked one, or the default
-	var/chosen_assignment = person_client?.prefs.alt_job_titles[assignment] || assignment
+	var/chosen_assignment = id_card?.get_job_title() || assignment //BUBBER EDIT: Intern Job Tags
 	// SKYRAT EDIT ADDITION END - ALTERNATIVE_JOB_TITLES
 
 	var/datum/record/locked/lockfile = new(
 		age = person.age,
-		blood_type = record_dna.blood_type,
+		chrono_age = person.chrono_age, // SKYRAT EDIT ADDITION - Chronological age
+		blood_type = person.get_bloodtype()?.name || "UNKNOWN",
 		character_appearance = character_appearance,
 		dna_string = record_dna.unique_enzymes,
 		fingerprint = md5(record_dna.unique_identity),
@@ -134,11 +142,15 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 		// Locked specifics
 		locked_dna = record_dna,
 		mind_ref = person.mind,
+		// BUBBER EDIT ADDITION BEGIN - Records
+		exploitable_information = person_client?.prefs.read_preference(/datum/preference/text/security) || "",
+		// BUBBER EDIT END
 	)
 
 	new /datum/record/crew(
 		age = person.age,
-		blood_type = record_dna.blood_type,
+		chrono_age = person.chrono_age, // SKYRAT EDIT ADDITION - Chronological age
+		blood_type = person.get_bloodtype()?.name || "UNKNOWN",
 		character_appearance = character_appearance,
 		dna_string = record_dna.unique_enzymes,
 		fingerprint = md5(record_dna.unique_identity),
@@ -156,15 +168,11 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 		minor_disabilities_desc = person.get_quirk_string(TRUE, CAT_QUIRK_MINOR_DISABILITY),
 		quirk_notes = person.get_quirk_string(TRUE, CAT_QUIRK_NOTES),
 		// SKYRAT EDIT START - RP Records
-		background_information = person_client?.prefs.read_preference(/datum/preference/text/background) || "",
-		exploitable_information = person_client?.prefs.read_preference(/datum/preference/text/exploitable) || "",
 		past_general_records = person_client?.prefs.read_preference(/datum/preference/text/general) || "",
 		past_medical_records = person_client?.prefs.read_preference(/datum/preference/text/medical) || "",
 		past_security_records = person_client?.prefs.read_preference(/datum/preference/text/security) || "",
 		// SKYRAT EDIT END
 	)
-
-	return
 
 /// Edits the rank and trim of the found record.
 /datum/manifest/proc/modify(name, assignment, trim)
@@ -174,3 +182,59 @@ GLOBAL_DATUM_INIT(manifest, /datum/manifest, new)
 
 	target.rank = assignment
 	target.trim = trim
+
+///Removes a record based on its name.
+/datum/manifest/proc/remove(name)
+	var/datum/record/crew/target = find_record(name)
+	if(!target)
+		return
+	general -= target
+	qdel(target)
+
+/**
+ * Using the name to find the record, and person in reference to the body, we recreate photos for the manifest (and records).
+ * Args:
+ * - name - The name of the record we're looking for, which should be the name of the person.
+ * - person - The mob we're taking pictures of to update the records.
+ * - add_height_chart - If we should add a height chart to the background of the photo.
+ */
+/datum/manifest/proc/change_pictures(name, mob/living/person, add_height_chart = FALSE)
+	var/datum/record/crew/target = find_record(name)
+	if(!target)
+		return FALSE
+
+	target.character_appearance = new(person.appearance)
+	target.recreate_manifest_photos(add_height_chart)
+	return TRUE
+
+/datum/manifest/ui_state(mob/user)
+	return GLOB.always_state
+
+/datum/manifest/ui_status(mob/user, datum/ui_state/state)
+	return (isnewplayer(user) || isobserver(user) || isAI(user) || ispAI(user) || user.client?.holder) ? UI_INTERACTIVE : UI_CLOSE
+
+/datum/manifest/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if (!ui)
+		ui = new(user, src, "CrewManifest")
+		ui.open()
+
+/datum/manifest/ui_data(mob/user)
+	var/list/positions = list()
+	for(var/datum/job_department/department as anything in SSjob.joinable_departments)
+		var/open = 0
+		var/list/exceptions = list()
+		for(var/datum/job/job as anything in department.department_jobs)
+			if(job.total_positions == -1)
+				exceptions += job.title
+				continue
+			var/open_slots = job.total_positions - job.current_positions
+			if(open_slots < 1)
+				continue
+			open += open_slots
+		positions[department.department_name] = list("exceptions" = exceptions, "open" = open)
+
+	return list(
+		"manifest" = get_manifest(),
+		"positions" = positions
+	)

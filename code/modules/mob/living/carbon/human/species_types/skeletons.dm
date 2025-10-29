@@ -5,7 +5,6 @@
 	sexes = FALSE
 	meat = /obj/item/food/meat/slab/human/mutant/skeleton
 	inherent_traits = list(
-		TRAIT_NO_UNDERWEAR,
 		TRAIT_EASYDISMEMBER,
 		TRAIT_FAKEDEATH,
 		TRAIT_GENELESS,
@@ -24,15 +23,16 @@
 		TRAIT_UNHUSKABLE,
 		TRAIT_XENO_IMMUNE,
 	)
+	inherent_factions = list(FACTION_SKELETON)
 	inherent_biotypes = MOB_UNDEAD|MOB_HUMANOID
-	mutanttongue = /obj/item/organ/internal/tongue/bone
-	mutantstomach = /obj/item/organ/internal/stomach/bone
+	mutanttongue = /obj/item/organ/tongue/bone
+	mutantstomach = /obj/item/organ/stomach/bone
 	mutantappendix = null
 	mutantheart = null
-	mutantliver = /obj/item/organ/internal/liver/bone
+	mutantliver = /obj/item/organ/liver/bone
 	mutantlungs = null
 	//They can technically be in an ERT
-	changesource_flags = MIRROR_BADMIN | WABBAJACK | ERT_SPAWN
+	changesource_flags = MIRROR_BADMIN | WABBAJACK | MIRROR_PRIDE | ERT_SPAWN
 	species_cookie = /obj/item/reagent_containers/condiment/milk
 	species_language_holder = /datum/language_holder/skeleton
 
@@ -44,10 +44,6 @@
 		BODY_ZONE_R_LEG = /obj/item/bodypart/leg/right/skeleton,
 		BODY_ZONE_CHEST = /obj/item/bodypart/chest/skeleton,
 	)
-
-/datum/species/skeleton/on_species_gain(mob/living/carbon/C, datum/species/old_species, pref_load)
-	. = ..()
-	C.set_safe_hunger_level()
 
 /datum/species/skeleton/check_roundstart_eligible()
 	if(check_holidays(HALLOWEEN))

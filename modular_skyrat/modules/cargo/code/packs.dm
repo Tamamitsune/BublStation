@@ -42,6 +42,40 @@
 	for(var/i in 1 to 3)
 		new /mob/living/basic/pet/chinchilla(.)
 
+
+/datum/supply_pack/critter/fennec
+	name = "Fennec Crate"
+	desc = "For when you need someone that can really listen to you. \
+		Contains two fennecs. \
+		Warning, does not mean the fennecs will actually listen to you."
+	cost = CARGO_CRATE_VALUE * 7
+	contains = list(/mob/living/basic/pet/cat/fennec = 2)
+	crate_name = "fennec crate"
+
+/datum/supply_pack/critter/pitbull/pimpy
+	name = "Pedigree Stud Pitbull Crate"
+	desc = "Contains three pitbulls. Verified at the top of Mount Bullmore to be Pedigree Studs.."
+	cost = CARGO_CRATE_VALUE * 9
+	contains = list(
+		/mob/living/basic/pet/dog/pitbull,
+	)
+	crate_name = "pedigree stud pitbull crate"
+
+/datum/supply_pack/critter/pitbull/generate()
+	. = ..()
+	for(var/i in 1 to 3)
+		new /mob/living/basic/pet/dog/pitbull(.)
+
+/datum/supply_pack/critter/redpanda
+	name = "Red Panda Crate"
+	desc = "Your station needs a little more Wah? Some more red tails? Order this. You'll never escape your sadness."
+	cost = CARGO_CRATE_VALUE * 4
+	contains = list(
+		/mob/living/basic/pet/fox/redpanda,
+		/mob/living/basic/pet/fox/redpanda,
+	)
+	crate_name = "wah crate"
+
 /*
 *	MEDICAL
 */
@@ -150,7 +184,7 @@
 /datum/supply_pack/security/armor_skyrat
 	name = "Armor Crate"
 	desc = "Three vests of well-rounded, decently-protective armor."
-	cost = CARGO_CRATE_VALUE * 2
+	cost = CARGO_CRATE_VALUE * 2.5
 	access_view = ACCESS_SECURITY
 	contains = list(
 		/obj/item/clothing/suit/armor/vest/alt,
@@ -162,8 +196,8 @@
 /datum/supply_pack/security/helmets_skyrat
 	name = "Helmets Crate"
 	desc = "Contains three standard-issue brain buckets."
-	cost = CARGO_CRATE_VALUE * 2
-	contains = list(/obj/item/clothing/head/helmet/sec/sol = 3)
+	cost = CARGO_CRATE_VALUE * 2.5
+	contains = list(/obj/item/clothing/head/helmet/sec = 3)
 	crate_name = "helmet crate"
 
 /datum/supply_pack/security/deployablebarricades
@@ -553,8 +587,8 @@
 		/obj/item/storage/part_replacer/cargo,
 		/obj/item/stack/sheet/iron/ten,
 		/obj/item/stack/sheet/iron/five,
-		/obj/item/stock_parts/cell/high,
-		/obj/item/stock_parts/cell/high,
+		/obj/item/stock_parts/power_store/cell/high,
+		/obj/item/stock_parts/power_store/cell/high,
 		/obj/item/stack/cable_coil,
 		/obj/item/book/manual/wiki/barman_recipes,
 		/obj/item/reagent_containers/cup/glass/shaker,
@@ -650,8 +684,8 @@
 		/obj/item/clothing/suit/armor/vest/cuirass/larp,
 		/obj/item/gun/ballistic/bow/longbow,
 		/obj/item/gun/ballistic/bow/longbow,
-		/obj/item/storage/bag/quiver,
-		/obj/item/storage/bag/quiver,
+		/obj/item/storage/bag/quiver/full,
+		/obj/item/storage/bag/quiver/full,
 		/obj/item/clothing/head/helmet/knight/red,
 		/obj/item/clothing/head/helmet/knight/blue,
 		/obj/item/food/bread/plain,
@@ -661,7 +695,7 @@
 /datum/supply_pack/organic/lavalandsamples
 	name = "Planetary Flora Samples"
 	desc = "A box of samples taken from the surface of Lavaland. Requires Hydroponics access to open."
-	cost = CARGO_CRATE_VALUE * 2
+	cost = CARGO_CRATE_VALUE * 36 // unfortunately these sell for a lot and we can't have an infinite money exploit
 	access_view = ACCESS_HYDROPONICS
 	contains = list(
 		/obj/item/seeds/lavaland/polypore,
@@ -720,9 +754,9 @@
 		/obj/item/storage/box/colonial_rations = 1,
 		/obj/item/storage/toolbox/ammobox/strilka310 = 1,
 		/obj/item/storage/toolbox/ammobox/strilka310/surplus = 1,
-		/obj/item/storage/toolbox/maint_kit = 1,
+		/obj/item/gun_maintenance_supplies = 1,
 		/obj/item/storage/toolbox/guncase/soviet/sakhno = 2,
-		/obj/item/ammo_box/strilka310 = 1,
+		/obj/item/ammo_box/speedloader/strilka310 = 1,
 		/obj/item/clothing/suit/armor/vest/cin_surplus_vest = 1,
 		/obj/item/clothing/head/helmet/cin_surplus_helmet/random_color = 1,
 		/obj/item/storage/backpack/industrial/cin_surplus/random_color = 1,

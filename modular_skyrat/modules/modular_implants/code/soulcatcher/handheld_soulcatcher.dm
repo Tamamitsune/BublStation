@@ -12,7 +12,7 @@
 	slot_flags = ITEM_SLOT_BELT
 	obj_flags = UNIQUE_RENAME
 	/// What soulcatcher datum is associated with this item?
-	var/datum/component/soulcatcher/linked_soulcatcher
+	var/datum/component/carrier/soulcatcher/linked_soulcatcher
 	/// The cooldown for the RSD on scanning a body if the ghost refuses. This is here to prevent spamming.
 	COOLDOWN_DECLARE(rsd_scan_cooldown)
 
@@ -26,7 +26,7 @@
 
 /obj/item/handheld_soulcatcher/New(loc, ...)
 	. = ..()
-	linked_soulcatcher = AddComponent(/datum/component/soulcatcher)
+	linked_soulcatcher = AddComponent(/datum/component/carrier/soulcatcher)
 	linked_soulcatcher.name = name
 
 /obj/item/handheld_soulcatcher/Destroy(force)
@@ -59,11 +59,11 @@
 			to_chat(user, span_warning("You are unable to get the soul of [target_mob]!"))
 			return FALSE
 
-		var/datum/soulcatcher_room/target_room = tgui_input_list(user, "Choose a room to send [target_mob]'s soul to.", name, linked_soulcatcher.soulcatcher_rooms, timeout = 30 SECONDS)
+		var/datum/carrier_room/soulcatcher/target_room = tgui_input_list(user, "Choose a room to send [target_mob]'s soul to.", name, linked_soulcatcher.carrier_rooms, timeout = 30 SECONDS)
 		if(!target_room)
 			return FALSE
 
-		SEND_SOUND(target_ghost, 'sound/misc/notice2.ogg')
+		SEND_SOUND(target_ghost, 'sound/announcer/notice/notice2.ogg')
 		window_flash(target_ghost.client)
 
 		if(tgui_alert(target_ghost, "[user] wants to transfer you to [target_room] inside of a soulcatcher, do you accept?", name, list("Yes", "No"), 30 SECONDS, autofocus = FALSE) != "Yes")
@@ -82,11 +82,11 @@
 		linked_soulcatcher.scan_body(target_mob, user)
 		return TRUE
 
-	var/datum/soulcatcher_room/target_room = tgui_input_list(user, "Choose a room to send [target_mob]'s soul to.", name, linked_soulcatcher.soulcatcher_rooms, timeout = 30 SECONDS)
+	var/datum/carrier_room/target_room = tgui_input_list(user, "Choose a room to send [target_mob]'s soul to.", name, linked_soulcatcher.carrier_rooms, timeout = 30 SECONDS)
 	if(!target_room)
 		return FALSE
 
-	SEND_SOUND(target_mob, 'sound/misc/notice2.ogg')
+	SEND_SOUND(target_mob, 'sound/announcer/notice/notice2.ogg')
 	window_flash(target_mob.client)
 
 	if((tgui_alert(target_mob, "Do you wish to enter [target_room]? This will remove you from your body until you leave.", name, list("Yes", "No"), 30 SECONDS, FALSE) != "Yes") || (tgui_alert(target_mob, "Are you sure about this?", name, list("Yes", "No"), 30 SECONDS, FALSE) != "Yes"))
@@ -97,7 +97,7 @@
 	if(!target_mob.mind)
 		return FALSE
 
-	target_room.add_soul(target_mob.mind, TRUE)
+	target_room.add_soul_from_mind(target_mob.mind, FALSE)
 	playsound(src, 'modular_skyrat/modules/modular_implants/sounds/default_good.ogg', 50, FALSE, ignore_walls = FALSE)
 	visible_message(span_notice("[src] beeps: [target_mob]'s mind transfer is now complete."))
 
@@ -115,7 +115,7 @@
 	if(!istype(target_mob))
 		return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
-	var/obj/item/organ/internal/brain/target_brain = target_mob.get_organ_slot(ORGAN_SLOT_BRAIN)
+	var/obj/item/organ/brain/target_brain = target_mob.get_organ_slot(ORGAN_SLOT_BRAIN)
 	if(!istype(target_brain))
 		to_chat(user, span_warning("[target_mob] lacks a brain!"))
 		return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
@@ -129,9 +129,9 @@
 		return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
 	var/list/soul_list = list()
-	for(var/datum/soulcatcher_room/room as anything in linked_soulcatcher.soulcatcher_rooms)
-		for(var/mob/living/soulcatcher_soul/soul as anything in room.current_souls)
-			if(!soul.round_participant || soul.body_scan_needed)
+	for(var/datum/carrier_room/room as anything in linked_soulcatcher.carrier_rooms)
+		for(var/mob/living/soulcatcher_soul/soul as anything in room.current_mobs)
+			if(!istype(soul) || !soul.round_participant || soul.body_scan_needed)
 				continue
 
 			soul_list += soul

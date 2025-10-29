@@ -1,7 +1,7 @@
-/// How often the sensor data is updated
-#define SENSORS_UPDATE_PERIOD (10 SECONDS) //How often the sensor data updates.
+/// How often the sensor data is updated // BUBBER EDIT REMOVAL - Defined in code/__DEFINES/~~bubber_defines/misc.dm
+// #define SENSORS_UPDATE_PERIOD (10 SECONDS) //How often the sensor data updates.
 /// The job sorting ID associated with otherwise unknown jobs
-#define UNKNOWN_JOB_ID 802 //BUBBERSTATION CHANGE: NEW CREW MONITOR SORTING.
+#define UNKNOWN_JOB_ID 998
 
 /obj/machinery/computer/crew
 	name = "crew monitoring console"
@@ -98,12 +98,13 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 	var/list/jobs = list(
 		// Note that jobs divisible by 10 are considered heads of staff, and bolded
 		// 00: Captain
-		JOB_CAPTAIN = 00,
+		JOB_CAPTAIN = 0,
+		JOB_HUMAN_AI = 1,
 		// 10-19: Security
 		JOB_HEAD_OF_SECURITY = 10,
 		JOB_WARDEN = 11,
 		JOB_SECURITY_OFFICER = 12,
-		/* SKYRAT REMOVAL - We need those slots for our own jobs, these jobs aren't on Skyrat anymore anyway.
+		/* SKYRAT EDIT REMOVAL - We need those slots for our own jobs, these jobs aren't on Skyrat anymore anyway.
 		JOB_SECURITY_OFFICER_MEDICAL = 13,
 		JOB_SECURITY_OFFICER_ENGINEERING = 14,
 		JOB_SECURITY_OFFICER_SCIENCE = 15,
@@ -115,12 +116,11 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		// 20-29: Medbay
 		JOB_CHIEF_MEDICAL_OFFICER = 20,
 		JOB_CHEMIST = 21,
-		JOB_VIROLOGIST = 22,
-		JOB_MEDICAL_DOCTOR = 23,
-		JOB_PARAMEDIC = 24,
-		JOB_CORONER = 25,
-		JOB_ORDERLY = 26, // SKYRAT EDIT ADDITION
-		JOB_PSYCHOLOGIST = 27, // SKYRAT EDIT - ORIGINAL: JOB_PSYCHOLOGIST = 71,
+		JOB_MEDICAL_DOCTOR = 22,
+		JOB_PARAMEDIC = 23,
+		JOB_CORONER = 24,
+		JOB_ORDERLY = 25, // SKYRAT EDIT ADDITION
+		JOB_PSYCHOLOGIST = 26, // SKYRAT EDIT - ORIGINAL: JOB_PSYCHOLOGIST = 71,
 		// 30-39: Science
 		JOB_RESEARCH_DIRECTOR = 30,
 		JOB_SCIENTIST = 31,
@@ -132,27 +132,30 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		JOB_STATION_ENGINEER = 41,
 		JOB_ATMOSPHERIC_TECHNICIAN = 42,
 		JOB_ENGINEERING_GUARD = 43, // SKYRAT EDIT ADDITION
+		JOB_TELECOMMS_SPECIALIST = 44, // SKYRAT EDIT ADDITION
 		// 50-59: Cargo
 		JOB_QUARTERMASTER = 50,
 		JOB_SHAFT_MINER = 51,
 		JOB_CARGO_TECHNICIAN = 52,
 		JOB_BITRUNNER = 53,
 		JOB_CUSTOMS_AGENT = 54, // SKYRAT EDIT ADDITION
-		JOB_BLACKSMITH = 54,	// Bubber Addition!
-		// 60+: Civilian/other
+		JOB_BLACKSMITH = 55,	// Bubber edit Addition!
+		// 60+: Service
 		JOB_HEAD_OF_PERSONNEL = 60,
 		JOB_BARTENDER = 61,
-		JOB_COOK = 62,
-		JOB_BOTANIST = 63,
-		JOB_CURATOR = 64,
-		JOB_CHAPLAIN = 65,
-		JOB_CLOWN = 66,
-		JOB_MIME = 67,
-		JOB_JANITOR = 68,
-		JOB_LAWYER = 69,
-		JOB_BARBER = 71, // SKYRAT EDIT ADDITION
-		JOB_BOUNCER = 72, // SKYRAT EDIT ADDITION
-		// 200-239: Centcom
+		JOB_CHEF = 62,
+		JOB_COOK = 63,
+		JOB_BOTANIST = 64,
+		JOB_CURATOR = 65,
+		JOB_CHAPLAIN = 66,
+		JOB_CLOWN = 67,
+		JOB_MIME = 68,
+		JOB_JANITOR = 69,
+		JOB_LAWYER = 71,
+		JOB_BARBER = 74, // SKYRAT EDIT ADDITION
+		JOB_BOUNCER = 73, // SKYRAT EDIT ADDITION
+		JOB_PSYCHOLOGIST = 72,
+		// 200-229: Centcom
 		JOB_CENTCOM_ADMIRAL = 200,
 		JOB_CENTCOM = 201,
 		JOB_CENTCOM_OFFICIAL = 210,
@@ -179,7 +182,7 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 /datum/crewmonitor/ui_interact(mob/user, datum/tgui/ui)
 	ui = SStgui.try_update_ui(user, src, ui)
 	if (!ui)
-		ui = new(user, src, "CrewConsoleSkyrat")
+		ui = new(user, src, "CrewConsoleBubbers") // BUBBER EDIT CHANGE - Crew Console
 		ui.open()
 
 /datum/crewmonitor/proc/show(mob/M, source)
@@ -197,7 +200,7 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		z = T.z
 	. = list(
 		"sensors" = update_data(z),
-		"link_allowed" = isAI(user)
+		"link_allowed" = HAS_AI_ACCESS(user),
 	)
 
 /datum/crewmonitor/proc/update_data(z)
@@ -205,9 +208,9 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		return data_by_z["[z]"]
 
 	var/list/results = list()
-	for(var/tracked_mob in GLOB.suit_sensors_list)
+	for(var/tracked_mob in GLOB.suit_sensors_list | GLOB.nanite_sensors_list) // BUBBER CHANGE - NANITES
 		if(!tracked_mob)
-			stack_trace("Null entry in suit sensors list.")
+			stack_trace("Null entry in suit sensors or nanite sensors list.") // BUBBER CHANGE - NANITES
 			continue
 
 		var/mob/living/tracked_living_mob = tracked_mob
@@ -224,31 +227,46 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		if(pos.z != z && (!is_station_level(pos.z) || !is_station_level(z)) && !HAS_TRAIT(tracked_living_mob, TRAIT_MULTIZ_SUIT_SENSORS))
 			continue
 
+		var/sensor_mode // BUBBER ADDITION - NANITES
+		var/has_monitoring_nanites = FALSE // BUBBER ADDITION - NANITES
 		var/mob/living/carbon/human/tracked_human = tracked_living_mob
 
-		// Check their humanity.
+		// Set sensor level based on whether we're in the nanites list or the suit sensor list.
+		if(tracked_living_mob in GLOB.nanite_sensors_list) // BUBBER CHANGE - NANITES
+			sensor_mode = SENSOR_COORDS
+			has_monitoring_nanites = TRUE
+
 		if(!ishuman(tracked_human))
 			stack_trace("Non-human mob is in suit_sensors_list: [tracked_living_mob] ([tracked_living_mob.type])")
 			continue
 
+		// BUBBER CHANGE START - NANITES
 		// Check they have a uniform
 		var/obj/item/clothing/under/uniform = tracked_human.w_uniform
-		if (!istype(uniform))
-			stack_trace("Human without a suit sensors compatible uniform is in suit_sensors_list: [tracked_human] ([tracked_human.type]) ([uniform?.type])")
-			continue
-
-		// Check if their uniform is in a compatible mode.
-		if((uniform.has_sensor == NO_SENSORS) || !uniform.sensor_mode) //BUBBERSTATION CHANGE: 'uniform.has_sensor <= NO_SENSORS' TO 'uniform.has_sensor == NO_SENSORS'
-			stack_trace("Human without active suit sensors is in suit_sensors_list: [tracked_human] ([tracked_human.type]) ([uniform.type])")
-			continue
-
-		var/sensor_mode = uniform.sensor_mode
+		if(!has_monitoring_nanites)
+			// they don't have nanites, lets check uniform
+			if(!istype(uniform))
+				// no uniform, somethings fucked
+				stack_trace("Human without a uniform or nanites is in suit_sensors_list: [tracked_human] ([tracked_human.type])")
+				continue
+			else
+				// they have a uniform, lets check sensor status
+				if(uniform.has_sensor == NO_SENSORS)
+					// no sensors in the uniform, somethings fucked
+					stack_trace("Human without a suit sensors compatible uniform or nanites is in suit_sensors_list: [tracked_human] ([tracked_human.type]) ([uniform.type])")
+					continue
+				if(!uniform.sensor_mode)
+					// sensors are disabled, somethings fucked
+					stack_trace("Human without active suit sensors or nanites is in suit_sensors_list: [tracked_human] ([tracked_human.type]) ([uniform.type])")
+					continue
+				sensor_mode = uniform.sensor_mode
+		// BUBBER CHANGE END - NANITES
 
 		// The entry for this human
 		var/list/entry = list(
 			"ref" = REF(tracked_living_mob),
 			"name" = "Unknown",
-			"ijob" = UNKNOWN_JOB_ID
+			"ijob" = UNKNOWN_JOB_ID,
 		)
 
 		// ID and id-related data
@@ -260,36 +278,36 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 			if (jobs[trim_assignment] != null)
 				entry["ijob"] = jobs[trim_assignment]
 
-		//BUBBERSTATION CHANGE: EMP SENSORS
-		if(uniform.has_sensor == BROKEN_SENSORS)
-			entry["is_robot"] = rand(0,1)
-			entry["life_status"] = rand(0,1)
-			entry["area"] = prob(80) ? pick_list(ION_FILE, "ionarea") : pick("COWGIRL","REVERSE COWGIRL","DOGGYSTYLE","MISSIONARY","69")
-			entry["oxydam"] = rand(0,1000)
-			entry["toxdam"] = rand(0,1000)
-			entry["burndam"] =rand(0,1000)
-			entry["brutedam"] = rand(0,1000)
+		// BUBBER EDIT BEGIN: Checking for robotic race/Proteans
+		if (issynthetic(tracked_human) || isprotean(tracked_human))
+			entry["is_robot"] = TRUE
+		// BUBBER EDIT END
+
+		// Broken sensors show garbage data
+		if (uniform?.has_sensor == BROKEN_SENSORS) // BUBBER EDIT CHANGE - NANITES - Original: if (uniform.has_sensor == BROKEN_SENSORS)
+			entry["life_status"] = 1 // BUBBER EDIT CHANGE - Original:  rand(0,1) - Mob stays in consistent list position when sensors are broken
+			entry["area"] = pick_list (ION_FILE, "ionarea")
+			entry["oxydam"] = rand(0,175)
+			entry["toxdam"] = rand(0,175)
+			entry["burndam"] = rand(0,175)
+			entry["brutedam"] = rand(0,175)
 			entry["health"] = -50
-			entry["can_track"] = tracked_living_mob.can_track()
 			results[++results.len] = entry
 			continue
-		//BUBBERSTATION CHANGE END
 
-		// SKYRAT EDIT BEGIN: Checking for robotic race
-		if (issynthetic(tracked_human))
-			entry["is_robot"] = TRUE
-		// SKYRAT EDIT END
-
-		// BUBBERSTATION EDIT BEGIN: Add DNR status
+		// BUBBERSTATION EDIT BEGIN: Add DNR status, proteans death state.
 		// If sensors are above living tracking, set DNR state
 		if (sensor_mode >= SENSOR_LIVING)
-			entry["is_dnr"] = HAS_TRAIT(tracked_living_mob, TRAIT_DNR)
+			entry["is_dnr"] = tracked_human.get_dnr()
+			// Current status
+			var/obj/item/organ/brain/protean/protean_brain = tracked_human.get_organ_slot(ORGAN_SLOT_BRAIN)
+			if(istype(protean_brain))
+				if(!isprotean(tracked_human))
+					stack_trace("[tracked_human] brain-species mismatch! Species is [tracked_human.dna.species] but brain is Protean")
+				entry["life_status"] = protean_brain?.dead ? DEAD : tracked_living_mob.stat // If brain not dead/no brain then handling as usual
+			else
+				entry["life_status"] = tracked_living_mob.stat
 		// BUBBERSTATION EDIT END
-
-		// Binary living/dead status
-		// Current status
-		if (sensor_mode >= SENSOR_LIVING)
-			entry["life_status"] = tracked_living_mob.stat
 
 		// Damage
 		if (sensor_mode >= SENSOR_VITALS)
@@ -305,9 +323,6 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 		if (sensor_mode >= SENSOR_COORDS)
 			entry["area"] = get_area_name(tracked_living_mob, format_text = TRUE)
 
-		// Trackability
-		entry["can_track"] = tracked_living_mob.can_track()
-
 		results[++results.len] = entry
 
 	// Cache result
@@ -316,7 +331,8 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 
 	return results
 
-/datum/crewmonitor/ui_act(action, params)
+/datum/crewmonitor/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+
 	. = ..()
 	if(.)
 		return
@@ -325,7 +341,7 @@ GLOBAL_DATUM_INIT(crewmonitor, /datum/crewmonitor, new)
 			var/mob/living/silicon/ai/AI = usr
 			if(!istype(AI))
 				return
-			AI.ai_tracking_tool.set_tracked_mob(AI, params["name"])
+			AI.ai_tracking_tool.track_name(AI, params["name"])
 
-#undef SENSORS_UPDATE_PERIOD
+// #undef SENSORS_UPDATE_PERIOD // BUBBER EDIT REMOVAL - Defined in code/__DEFINES/~~bubber_defines/misc.dm
 #undef UNKNOWN_JOB_ID

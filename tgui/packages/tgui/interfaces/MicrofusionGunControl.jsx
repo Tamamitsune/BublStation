@@ -1,14 +1,15 @@
 // THIS IS A SKYRAT UI FILE
-import { toFixed } from 'common/math';
-import { useBackend } from '../backend';
 import {
-  NoticeBox,
-  Section,
-  Stack,
   Button,
   LabeledList,
+  NoticeBox,
   ProgressBar,
-} from '../components';
+  Section,
+  Stack,
+} from 'tgui-core/components';
+import { toFixed } from 'tgui-core/math';
+
+import { useBackend } from '../backend';
 import { Window } from '../layouts';
 
 export const MicrofusionGunControl = (props) => {
@@ -26,7 +27,7 @@ export const MicrofusionGunControl = (props) => {
   } = data;
   return (
     <Window
-      title={'Micron Control Systems Incorporated: ' + gun_name}
+      title={`Micron Control Systems Incorporated: ${gun_name}`}
       width={500}
       height={700}
     >
@@ -40,7 +41,7 @@ export const MicrofusionGunControl = (props) => {
                   {gun_desc}
                 </LabeledList.Item>
                 <LabeledList.Item label="Active Heat Dissipation">
-                  {gun_heat_dissipation + ' C/s'}
+                  {`${gun_heat_dissipation} C/s`}
                 </LabeledList.Item>
               </LabeledList>
             </Section>
@@ -82,7 +83,7 @@ export const MicrofusionGunControl = (props) => {
                         bad: [0, cell_data.max_charge * 0.25],
                       }}
                     >
-                      {cell_data.charge + '/' + cell_data.max_charge + 'MF'}
+                      {`${cell_data.charge}/${cell_data.max_charge}MF`}
                     </ProgressBar>
                   </LabeledList.Item>
                   {!!cell_data.charge <= 0 && (
@@ -143,10 +144,10 @@ export const MicrofusionGunControl = (props) => {
                       </ProgressBar>
                     </LabeledList.Item>
                     <LabeledList.Item label="Maximum Temperature">
-                      {phase_emitter_data.max_heat + ' C'}
+                      {`${phase_emitter_data.max_heat} C`}
                     </LabeledList.Item>
                     <LabeledList.Item label="Temperature Throttle Percent">
-                      {phase_emitter_data.throttle_percentage + '% '}
+                      {`${phase_emitter_data.throttle_percentage}% `}
                       <Button
                         icon="wrench"
                         content="Overclock"
@@ -156,7 +157,7 @@ export const MicrofusionGunControl = (props) => {
                       />
                     </LabeledList.Item>
                     <LabeledList.Item label="Passive Heat Dissipation">
-                      {phase_emitter_data.heat_dissipation_per_tick + ' C/s'}
+                      {`${phase_emitter_data.heat_dissipation_per_tick} C/s`}
                     </LabeledList.Item>
                     <LabeledList.Item label="Cooling System">
                       <Button
@@ -197,7 +198,7 @@ export const MicrofusionGunControl = (props) => {
                           bad: [0, 25],
                         }}
                       >
-                        {phase_emitter_data.integrity + '%'}
+                        {`${phase_emitter_data.integrity}%`}
                       </ProgressBar>
                     </LabeledList.Item>
                     <LabeledList.Item label="Process Time Per Shot">
@@ -211,7 +212,7 @@ export const MicrofusionGunControl = (props) => {
                           bad: [3, 5],
                         }}
                       >
-                        {phase_emitter_data.process_time / 10 + 's'}
+                        {`${phase_emitter_data.process_time / 10}s`}
                       </ProgressBar>
                     </LabeledList.Item>
                     {phase_emitter_data.heat_percent >=

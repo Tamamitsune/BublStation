@@ -222,6 +222,10 @@
 	name = "\improper Vacant Dorms Room"
 	icon_state = "vacant_room"
 
+/area/station/commons/kiosk
+	name = "Kiosk"
+	icon_state = "commons"
+
 /area/station/common/wrestling/beverage
 	name = "\improper Arena Beverage Stand"
 	icon_state = "wrestle_maint"
@@ -556,6 +560,10 @@
 /area/station/maintenance/thruster_room/starboard
 	name = "Starboard Thruster Room"
 	icon_state = "sb_thrust_room"
+
+/area/station/maintenance/shuttle_maint_bay
+	name = "Shuttle Maintenance Bay"
+	icon_state = "construction"
 
 // EVA Sheds used on BlueShift
 /area/station/maintenance/eva_shed

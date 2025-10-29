@@ -1,10 +1,10 @@
 // THIS IS A SKYRAT UI FILE
 import {
   CheckboxInput,
-  FeatureDropdownInput,
-  FeatureChoiced,
-  FeatureToggle,
+  type FeatureChoiced,
+  type FeatureToggle,
 } from '../../base';
+import { FeatureDropdownInput } from '../../dropdowns';
 
 export const master_erp_pref: FeatureToggle = {
   name: 'Show/Hide Erotic Roleplay Preferences',
@@ -39,7 +39,7 @@ export const aphro_pref: FeatureToggle = {
   name: 'Aphrodisiacs',
   category: 'ERP',
   description:
-    'Toggles whether you wish to recieve the effects of aphrodisiacs',
+    'Toggles whether you wish to receive the effects of aphrodisiacs',
   component: CheckboxInput,
 };
 
@@ -56,6 +56,23 @@ export const sextoy_sounds_pref: FeatureToggle = {
   description: 'Toggles if you will hear sounds from sex toys.',
   component: CheckboxInput,
 };
+
+export const vore_enable_pref: FeatureToggle = {
+  name: 'Enable Mechanical Vore',
+  category: 'ERP',
+  description: 'Toggles if you are able to use vore mechanics.',
+  component: CheckboxInput,
+};
+
+// BUBBER EDIT START: MECHANICAL HYPNOSIS PREF
+export const hypnosis_pref: FeatureToggle = {
+  name: 'Hypnosis',
+  category: 'ERP',
+  description:
+    'Determines if you wish to allow hypnosis/hypnosis chemicals in a lewd manner.',
+  component: CheckboxInput,
+};
+// BUBBER EDIT END
 
 export const breast_enlargement_pref: FeatureToggle = {
   name: 'Breast enlargement',
@@ -141,5 +158,21 @@ export const new_genitalia_growth_pref: FeatureToggle = {
   category: 'ERP',
   description:
     'If checked, allows drugs to grow new genitalia on your character.',
+  component: CheckboxInput,
+};
+
+export const vore_overlays: FeatureToggle = {
+  name: 'Vore Overlays',
+  category: 'ERP',
+  description:
+    'When enabled, will you be shown fullscreen vore overlays while inside of a soulcatcher?',
+  component: CheckboxInput,
+};
+
+export const vore_overlay_options: FeatureToggle = {
+  name: 'Vore Overlay Options',
+  category: 'ERP',
+  description:
+    'Do you want to see fullscreen vore overlays as an option for soulcatcher overlays?',
   component: CheckboxInput,
 };

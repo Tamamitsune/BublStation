@@ -1,20 +1,21 @@
-import { FakeTerminal } from '../components/FakeTerminal';
-import { useBackend } from '../backend';
+import { useState } from 'react';
 import {
   Box,
   Button,
   Flex,
-  Grid,
   Icon,
   LabeledList,
   Modal,
   NoticeBox,
   Section,
-  Tabs,
+  Stack,
   Table,
-} from '../components';
+  Tabs,
+} from 'tgui-core/components';
+
+import { useBackend } from '../backend';
 import { NtosWindow } from '../layouts';
-import { useState } from 'react';
+import { FakeTerminal } from './common/FakeTerminal';
 
 const CONTRACT_STATUS_INACTIVE = 1;
 const CONTRACT_STATUS_ACTIVE = 2;
@@ -48,7 +49,7 @@ export const SyndContractorContent = (props) => {
     'Awaiting response...',
     'Awaiting response...',
     'Response received, ack 4851234...',
-    'CONFIRM ACC ' + Math.round(Math.random() * 20000),
+    `CONFIRM ACC ${Math.round(Math.random() * 20000)}`,
     'Setting up private accounts...',
     'CONTRACTOR ACCOUNT CREATED',
     'Searching for available contracts...',
@@ -180,8 +181,8 @@ export const StatusPane = (props) => {
         </Box>
       }
     >
-      <Grid>
-        <Grid.Column size={0.85}>
+      <Stack>
+        <Stack.Item grow>
           <LabeledList>
             <LabeledList.Item
               label="TC Available"
@@ -199,16 +200,16 @@ export const StatusPane = (props) => {
               {String(data.earned_tc)}
             </LabeledList.Item>
           </LabeledList>
-        </Grid.Column>
-        <Grid.Column>
+        </Stack.Item>
+        <Stack.Item grow>
           <LabeledList>
             <LabeledList.Item label="Contracts Completed">
               {String(data.contracts_completed)}
             </LabeledList.Item>
             <LabeledList.Item label="Current Status">ACTIVE</LabeledList.Item>
           </LabeledList>
-        </Grid.Column>
-      </Grid>
+        </Stack.Item>
+      </Stack>
     </Section>
   );
 };
@@ -277,7 +278,7 @@ const ContractsTab = (props) => {
                     disabled={contract.extraction_enroute}
                     color={active && 'bad'}
                     onClick={() =>
-                      act('PRG_contract' + (active ? '_abort' : '-accept'), {
+                      act(`PRG_contract${active ? '_abort' : '-accept'}`, {
                         contract_id: contract.id,
                       })
                     }
@@ -285,15 +286,13 @@ const ContractsTab = (props) => {
                 </>
               }
             >
-              <Grid>
-                <Grid.Column>{contract.message}</Grid.Column>
-                <Grid.Column size={0.5}>
-                  <Box bold mb={1}>
-                    Dropoff Location:
-                  </Box>
-                  <Box>{contract.dropoff}</Box>
-                </Grid.Column>
-              </Grid>
+              <NoticeBox>
+                <box>{contract.message}</box>
+                <Box bold mb={1}>
+                  Dropoff Location:
+                </Box>
+                <Box>{contract.dropoff}</Box>
+              </NoticeBox>
             </Section>
           );
         })}
@@ -315,12 +314,12 @@ const HubTab = (props) => {
   return (
     <Section>
       {contractor_hub_items.map((item) => {
-        const repInfo = item.cost ? item.cost + ' Rep' : 'FREE';
+        const repInfo = item.cost ? `${item.cost} Rep` : 'FREE';
         const limited = item.limited !== -1;
         return (
           <Section
             key={item.name}
-            title={item.name + ' - ' + repInfo}
+            title={`${item.name} - ${repInfo}`}
             level={2}
             buttons={
               <>

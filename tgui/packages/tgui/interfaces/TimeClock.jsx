@@ -1,7 +1,8 @@
 // THIS IS A SKYRAT UI FILE
+import { Box, Button, LabeledList, Section } from 'tgui-core/components';
+
 import { useBackend } from '../backend';
 import { Window } from '../layouts';
-import { Box, LabeledList, Section, Button } from '../components';
 
 export const TimeClock = (props) => {
   const { act, data } = useBackend();

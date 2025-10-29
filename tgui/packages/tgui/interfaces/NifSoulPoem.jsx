@@ -1,16 +1,17 @@
 // THIS IS A SKYRAT UI FILE
-import { useBackend } from '../backend';
-import { Window } from '../layouts';
 import {
-  Section,
+  BlockQuote,
+  Box,
+  Button,
   Divider,
   Flex,
-  Box,
-  BlockQuote,
   Input,
   LabeledList,
-  Button,
-} from '../components';
+  Section,
+} from 'tgui-core/components';
+
+import { useBackend } from '../backend';
+import { Window } from '../layouts';
 
 export const NifSoulPoem = (props) => {
   const { act, data } = useBackend();
@@ -41,7 +42,7 @@ export const NifSoulPoem = (props) => {
               <Divider />
               <Box>{message.message}</Box>
               <br />
-              <BlockQuote>Time Recieved: {message.timestamp}</BlockQuote>
+              <BlockQuote>Time received: {message.timestamp}</BlockQuote>
             </Flex.Item>
           ))}
         </Section>

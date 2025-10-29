@@ -1,6 +1,7 @@
 // THIS IS A SKYRAT UI FILE
+import { Button, LabeledList, NoticeBox, Section } from 'tgui-core/components';
+
 import { useBackend } from '../backend';
-import { NoticeBox, Section, Button, LabeledList } from '../components';
 import { Window } from '../layouts';
 
 export const MicrofusionGunControl = (props) => {

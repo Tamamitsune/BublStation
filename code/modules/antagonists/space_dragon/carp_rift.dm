@@ -19,7 +19,7 @@
 		return
 	var/area/rift_location = get_area(owner)
 	if(!(rift_location in dragon.chosen_rift_areas))
-		owner.balloon_alert(owner, "can't summon a rift here!")
+		owner.balloon_alert(owner, "can't summon a rift here! check your objectives!")
 		return
 	for(var/obj/structure/carp_rift/rift as anything in dragon.rift_list)
 		var/area/used_location = get_area(rift)
@@ -35,6 +35,8 @@
 		return
 	if(locate(/obj/structure/carp_rift) in owner.loc)
 		return
+	REMOVE_TRAIT(owner, TRAIT_RIFT_FAILURE, DRAGON_PORTAL_LOSS) // BUBBER ADDITION
+	owner.remove_movespeed_modifier(/datum/movespeed_modifier/dragon_depression) // BUBBER ADDITION
 	var/obj/structure/carp_rift/new_rift = new(get_turf(owner))
 	playsound(owner.loc, 'sound/vehicles/rocketlaunch.ogg', 100, TRUE)
 	dragon.riftTimer = -1
@@ -111,6 +113,8 @@
 		healing_color = COLOR_BLUE, \
 	)
 
+	AddComponent(/datum/component/fishing_spot, /datum/fish_source/carp_rift)
+
 	gravity_aura = new(
 		/* host = */src,
 		/* range = */15,
@@ -141,7 +145,7 @@
 		. += span_notice("It has [carp_stored] carp available to spawn as.")
 
 /obj/structure/carp_rift/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
-	playsound(src, 'sound/magic/lightningshock.ogg', 50, TRUE)
+	playsound(src, 'sound/effects/magic/lightningshock.ogg', 50, TRUE)
 
 /obj/structure/carp_rift/Destroy()
 	STOP_PROCESSING(SSobj, src)
@@ -160,7 +164,7 @@
 			newcarp.faction = dragon.owner.current.faction.Copy()
 		if(SPT_PROB(1.5, seconds_per_tick))
 			var/rand_dir = pick(GLOB.cardinals)
-			SSmove_manager.move_to(src, get_step(src, rand_dir), 1)
+			GLOB.move_manager.move_to(src, get_step(src, rand_dir), 1)
 		return
 
 	// Increase time trackers and check for any updated states.
@@ -263,7 +267,7 @@
 
 	if(!is_listed)
 		ckey_list += user.ckey
-	newcarp.key = user.key
+	newcarp.PossessByPlayer(user.key)
 	newcarp.set_name()
 	var/datum/antagonist/space_carp/carp_antag = new(src)
 	newcarp.mind.add_antag_datum(carp_antag)
@@ -275,6 +279,21 @@
 		set_light_color(LIGHT_COLOR_BLUE)
 		update_light()
 	return TRUE
+
+/obj/structure/carp_rift/attackby(obj/item/attacking_item, mob/user, list/modifiers, list/attack_modifiers)
+	if(HAS_TRAIT(attacking_item, TRAIT_TELEKINESIS_CONTROLLED))
+		if(user)
+			to_chat(user, span_warning("The gravitational field of [src] interferes with the telekenetic control of [user], nullifying the hit!"))
+		return FALSE
+	. = ..()
+
+/obj/structure/carp_rift/hitby(atom/movable/hit_by, skipcatch, hitpush, blocked, datum/thrownthing/throwingdatum)
+	if(HAS_TRAIT(hit_by, TRAIT_TELEKINESIS_CONTROLLED))
+		var/mob/thrower = throwingdatum.thrower.resolve()
+		if(thrower && ismob(thrower))
+			to_chat(thrower, span_warning("The gravitational field of [src] interferes with the telekenetic control of [hit_by], nullifying the hit!"))
+		return
+	. = ..()
 
 #undef CHARGE_ONGOING
 #undef CHARGE_FINALWARNING

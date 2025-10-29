@@ -58,7 +58,7 @@
 	return ..()
 
 
-/obj/structure/destructible/clockwork/gear_base/technologists_lectern/deconstruct(disassembled)
+/obj/structure/destructible/clockwork/gear_base/technologists_lectern/atom_deconstruct(disassembled)
 	if(primary_researcher)
 		deltimer(research_timer_id)
 		researching = FALSE
@@ -124,7 +124,7 @@
 
 /obj/structure/destructible/clockwork/gear_base/technologists_lectern/ui_assets(mob/user)
 	return list(
-		get_asset_datum(/datum/asset/spritesheet/research_designs),
+		get_asset_datum(/datum/asset/spritesheet_batched/research_designs),
 	)
 
 /obj/structure/destructible/clockwork/gear_base/technologists_lectern/ui_data(mob/user)
@@ -295,7 +295,7 @@
 
 	AddComponent(/datum/component/brass_spreader, range = 6)
 
-	playsound(target_turf, 'modular_skyrat/modules/clock_cult/sound/machinery/ark_deathrattle.ogg', 80, FALSE, pressure_affected = FALSE)
+	playsound(target_turf, 'sound/machines/clockcult/ark_deathrattle.ogg', 80, FALSE, pressure_affected = FALSE)
 	research_sigil = new(target_turf)
 	send_clock_message(null, "A research ritual has begun in [get_area(src)], ensure nobody stops it until it is completed in [DisplayTimeText(selected_research.time_to_research)]!", msg_ghosts = FALSE)
 	notify_ghosts("[owner] has begun a research ritual in [get_area(src)]",
@@ -311,7 +311,7 @@
 
 	send_message("You hear the echoing of cogs ")
 
-	addtimer(CALLBACK(src, PROC_REF(send_message), "The echoing of cogs returns, even louder, "), (selected_research.time_to_research / 2), 90)
+	addtimer(CALLBACK(src, PROC_REF(send_message), "The echoing of cogs returns, even louder, "), (selected_research.time_to_research / 2), 9 SECONDS)
 
 /// Send a message to everyone on the Z level with directions to the lectern
 /obj/structure/destructible/clockwork/gear_base/technologists_lectern/proc/send_message(initial_message = "You hear the echoing of cogs ", volume = 70)
@@ -428,10 +428,11 @@
 			apc_loop:
 				for(var/obj/machinery/power/apc/controller as anything in SSmachines.get_machines_by_type_and_subtypes(/obj/machinery/power/apc))
 					var/area/apc_area = get_area(controller) // make sure that no "critical" APCs lose their power (SM, namely)
-					for(var/turf/turf as anything in apc_area.contained_turfs)
-						for(var/obj/machinery/depowered_machinery in turf)
-							if(depowered_machinery.critical_machine)
-								continue apc_loop
+					for(var/list/zlevel_turfs as anything in apc_area.get_zlevel_turf_lists())
+						for(var/turf/area_turf as anything in zlevel_turfs)
+							for(var/obj/machinery/depowered_machinery in area_turf)
+								if(depowered_machinery.critical_machine)
+									continue apc_loop
 
 					controller.cell?.charge = 0
 

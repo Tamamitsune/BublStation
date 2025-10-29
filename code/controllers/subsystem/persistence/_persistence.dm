@@ -1,9 +1,12 @@
 #define FILE_RECENT_MAPS "data/RecentMaps.json"
-#define KEEP_ROUNDS_MAP 3
+#define KEEP_ROUNDS_MAP 2 //BUBBERSTATION CHANGE: 3 TO 2.
 
 SUBSYSTEM_DEF(persistence)
 	name = "Persistence"
-	init_order = INIT_ORDER_PERSISTENCE
+	dependencies = list(
+		/datum/controller/subsystem/mapping,
+		/datum/controller/subsystem/atoms,
+	)
 	flags = SS_NO_FIRE
 
 	///instantiated wall engraving components
@@ -20,12 +23,48 @@ SUBSYSTEM_DEF(persistence)
 	var/list/blocked_maps = list()
 	var/list/saved_trophies = list()
 	var/list/picture_logging_information = list()
-	var/list/obj/structure/sign/picture_frame/photo_frames
-	var/list/obj/item/storage/photo_album/photo_albums
+
+	/// A json_database linking to data/photo_frames.json.
+	/// Schema is persistence_id => array of photo names.
+	var/datum/json_database/photo_frames_database
+
+	/// A lazy list of every picture frame that is going to be loaded with persistent photos.
+	/// Will be null'd once the persistence system initializes, and never read from again.
+	var/list/obj/structure/sign/picture_frame/queued_photo_frames
+
+	/// A json_database linking to data/photo_albums.json.
+	/// Schema is persistence_id => array of photo names.
+	var/datum/json_database/photo_albums_database
+
+	/// A lazy list of every photo album that is going to be loaded with persistent photos.
+	/// Will be null'd once the persistence system initializes, and never read from again.
+	var/list/obj/item/storage/photo_album/queued_photo_albums
+
+	/// A json_database to data/piggy banks.json
+	/// Schema is persistence_id => array of coins, space cash and holochips.
+	var/datum/json_database/piggy_banks_database
+	/// List of persistene ids which piggy banks.
+	var/list/queued_broken_piggy_ids
+
+	/// json database linking to data/trophy_fishes.json, for persistent trophy fish mount.
+	var/datum/json_database/trophy_fishes_database
+
 	var/rounds_since_engine_exploded = 0
 	var/delam_highscore = 0
 	var/tram_hits_this_round = 0
 	var/tram_hits_last_round = 0
+
+	var/last_storyteller_type = "" // BUBBER EDIT ADD: Storyteller votes
+	/// A json database to data/message_bottles.json
+	var/datum/json_database/message_bottles_database
+	/// An index used to create unique ids for the message bottles database
+	var/message_bottles_index = 0
+	/**
+	 * A list of non-maploaded photos or papers that met the 0.2% chance to be saved in the message bottles database
+	 * because I don't want the database to feel empty unless there's someone constantly throwing bottles in the
+	 * sea or beach/ocean fishing portals.
+	 */
+	var/list/queued_message_bottles
 
 /datum/controller/subsystem/persistence/Initialize()
 	load_poly()
@@ -40,6 +79,7 @@ SUBSYSTEM_DEF(persistence)
 	load_panic_bunker() //SKYRAT EDIT ADDITION - PANICBUNKER
 	load_tram_counter()
 	load_adventures()
+	load_storyteller_type() //BUBBER EDIT ADD - Storyteller
 	return SS_INIT_SUCCESS
 
 ///Collects all data to persist.
@@ -48,12 +88,12 @@ SUBSYSTEM_DEF(persistence)
 	save_prisoner_tattoos()
 	collect_trophies()
 	collect_maps()
-	save_photo_persistence() //THIS IS PERSISTENCE, NOT THE LOGGING PORTION.
 	save_randomized_recipes()
 	save_scars()
 	save_custom_outfits()
 	save_modular_persistence() // SKYRAT EDIT ADDITION - MODULAR_PERSISTENCE
 	save_delamination_counter()
+	save_queued_message_bottles()
 	if(SStransport.can_fire)
 		for(var/datum/transport_controller/linear/tram/transport as anything in SStransport.transports_by_type[TRANSPORT_TYPE_TRAM])
 			save_tram_history(transport.specific_transport_id)
@@ -81,12 +121,12 @@ SUBSYSTEM_DEF(persistence)
 	for(var/map in config.maplist)
 		var/datum/map_config/VM = config.maplist[map]
 		var/run = 0
-		if(VM.map_name == SSmapping.config.map_name)
+		if(VM.map_name == SSmapping.current_map.map_name)
 			run++
 		for(var/name in SSpersistence.saved_maps)
 			if(VM.map_name == name)
 				run++
-		if(run >= 2) //If run twice in the last KEEP_ROUNDS_MAP + 1 (including current) rounds, disable map for voting and rotation.
+		if(run >= 1) //If run twice in the last KEEP_ROUNDS_MAP + 1 (including current) rounds, disable map for voting and rotation. //BUBBERSTATION CHANGE 2 TO 1.
 			blocked_maps += VM.map_name
 
 ///Updates the list of the most recent maps.
@@ -98,7 +138,7 @@ SUBSYSTEM_DEF(persistence)
 		saved_maps += mapstosave
 	for(var/i = mapstosave; i > 1; i--)
 		saved_maps[i] = saved_maps[i-1]
-	saved_maps[1] = SSmapping.config.map_name
+	saved_maps[1] = SSmapping.current_map.map_name
 	var/json_file = file(FILE_RECENT_MAPS)
 	var/list/file_data = list()
 	file_data["data"] = saved_maps

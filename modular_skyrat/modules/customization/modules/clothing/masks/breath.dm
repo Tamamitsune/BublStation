@@ -3,6 +3,7 @@
 	name = "vox breath mask"
 	actions_types = list()
 	flags_cover = NONE
+	visor_flags_cover = NONE
 
 /obj/item/clothing/mask/balaclavaadjust
 	name = "adjustable balaclava"
@@ -20,7 +21,7 @@
 /obj/item/clothing/mask/balaclavaadjust/proc/adjust_mask(mob/living/carbon/human/user)
 	if(!istype(user))
 		return
-	if(!user.incapacitated())
+	if(!user.incapacitated)
 		switch(open)
 			if (0)
 				flags_inv = HIDEHAIR
@@ -38,7 +39,7 @@
 				to_chat(user, "You pull the balaclava up to cover your whole head.")
 				open = 0
 		user.update_body_parts()
-		user.update_inv_ears()
+		user.update_worn_ears()
 		user.update_worn_mask() //Updates mob icons
 
 /obj/item/clothing/mask/balaclavaadjust/attack_self(mob/user)
@@ -84,7 +85,9 @@
 	icon_state = "ringgag"
 
 /obj/item/clothing/mask/surgical/greyscale
-	icon = 'modular_skyrat/modules/GAGS/icons/masks.dmi'
+	icon = 'icons/map_icons/clothing/mask.dmi'
+	icon_state = "/obj/item/clothing/mask/surgical/greyscale"
+	post_init_icon_state = "sterile"
 	worn_icon = 'modular_skyrat/modules/GAGS/icons/masks.dmi'
 	flags_1 = IS_PLAYER_COLORABLE_1
 	greyscale_colors = "#AAE4DB"

@@ -1,5 +1,6 @@
 /datum/job/nanotrasen_consultant
 	title = JOB_NT_REP
+	rpg_title = "Guild Adviser"
 	description = "Represent Nanotrasen on the station, argue with the HoS about why he can't just field execute people for petty theft, get drunk in your office."
 	department_head = list(JOB_CENTCOM)
 	faction = FACTION_STATION
@@ -17,7 +18,6 @@
 
 	departments_list = list(
 		/datum/job_department/command,
-		/datum/job_department/central_command
 	)
 
 	outfit = /datum/outfit/job/nanotrasen_consultant
@@ -32,12 +32,11 @@
 	family_heirlooms = list(/obj/item/book/manual/wiki/security_space_law)
 
 	mail_goodies = list(
-		/obj/item/clothing/mask/cigarette/cigar/havana = 20,
+		/obj/item/cigarette/cigar/havana = 20,
 		/obj/item/storage/fancy/cigarettes/cigars/havana = 15,
 		/obj/item/reagent_containers/cup/glass/bottle/champagne = 10
 	)
 
-	veteran_only = TRUE
 	job_flags = STATION_JOB_FLAGS | JOB_BOLD_SELECT_TEXT | JOB_CANNOT_OPEN_SLOTS
 
 /datum/outfit/job/nanotrasen_consultant
@@ -50,11 +49,11 @@
 	gloves = /obj/item/clothing/gloves/combat
 	uniform =  /obj/item/clothing/under/rank/nanotrasen_consultant
 	suit = /obj/item/clothing/suit/armor/vest/nanotrasen_consultant
+	suit_store = /obj/item/gun/energy/e_gun
 	shoes = /obj/item/clothing/shoes/jackboots
 	head = /obj/item/clothing/head/nanotrasen_consultant
 	backpack_contents = list(
 		/obj/item/melee/baton/telescopic = 1,
-		/obj/item/choice_beacon/ntc = 1,
 		)
 
 	skillchips = list(/obj/item/skillchip/disk_verifier)
@@ -65,11 +64,11 @@
 	messenger = /obj/item/storage/backpack/messenger
 
 	implants = list(/obj/item/implant/mindshield)
-	accessory = /obj/item/clothing/accessory/medal/gold/nanotrasen_consultant
+	accessory = /obj/item/clothing/accessory/bubber/acc_medal/neckpin/centcom
 
 	chameleon_extras = list(/obj/item/gun/energy/e_gun, /obj/item/stamp/centcom)
 
-	id = /obj/item/card/id/advanced/centcom
+	id = /obj/item/card/id/advanced/platinum
 	id_trim = /datum/id_trim/job/nanotrasen_consultant
 
 /obj/item/radio/headset/heads/nanotrasen_consultant
@@ -107,8 +106,9 @@
 
 /obj/item/modular_computer/pda/nanotrasen_consultant
 	name = "nanotrasen consultant's PDA"
+	icon_state = "/obj/item/modular_computer/pda/nanotrasen_consultant"
 	inserted_disk = /obj/item/computer_disk/command/captain
-	inserted_item = /obj/item/pen/fountain/captain
+	inserted_item = /obj/item/pen/fountain/green
 	greyscale_colors = "#017941#0060b8"
 
 /obj/item/storage/bag/garment/nanotrasen_consultant
@@ -119,23 +119,30 @@
 	new /obj/item/clothing/shoes/sneakers/brown(src)
 	new /obj/item/clothing/glasses/sunglasses/gar/giga(src)
 	new /obj/item/clothing/gloves/combat(src)
-	new /obj/item/clothing/gloves/combat/naval/nanotrasen_consultant(src)
+	new /obj/item/clothing/gloves/captain/centcom(src)
 	new /obj/item/clothing/suit/hooded/wintercoat/centcom/nt_consultant(src)
 	new /obj/item/clothing/under/rank/nanotrasen_consultant(src)
 	new /obj/item/clothing/under/rank/nanotrasen_consultant/skirt(src)
+	new /obj/item/clothing/under/rank/centcom/consultant(src)
+	new /obj/item/clothing/under/rank/centcom/consultant/skirt(src)
 	new /obj/item/clothing/under/rank/centcom/officer(src)
 	new /obj/item/clothing/under/rank/centcom/officer_skirt(src)
+	new /obj/item/clothing/under/rank/centcom/official(src)
+	new /obj/item/clothing/under/rank/centcom/official/turtleneck(src)
 	new /obj/item/clothing/head/nanotrasen_consultant(src)
 	new /obj/item/clothing/head/nanotrasen_consultant/beret(src)
 	new /obj/item/clothing/head/beret/centcom_formal/nt_consultant(src)
 	new /obj/item/clothing/head/hats/centhat(src)
+	new /obj/item/clothing/head/hats/consultant_cap(src)
 	new /obj/item/clothing/suit/armor/centcom_formal/nt_consultant(src)
+	new /obj/item/clothing/suit/armor/vest/officerfake(src)
 	new /obj/item/clothing/under/rank/centcom/intern(src)
 	new /obj/item/clothing/head/hats/intern(src)
 
 /obj/structure/closet/secure_closet/nanotrasen_consultant
 	name = "nanotrasen consultant's locker"
-	req_access = list(ACCESS_CAPTAIN, ACCESS_CENT_GENERAL)
+	req_access = list()
+	req_one_access = list(ACCESS_CENT_GENERAL)
 	icon_state = "cc"
 	icon = 'modular_skyrat/master_files/icons/obj/closet.dmi'
 
@@ -151,20 +158,3 @@
 	new /obj/item/storage/photo_album/personal(src)
 	new /obj/item/bedsheet/centcom(src)
 	new /obj/item/storage/bag/garment/nanotrasen_consultant(src)
-
-//Choice Beacon, I hope in the future they're going to be given proper unique gun but this will do.
-
-
-/obj/item/choice_beacon/ntc
-	name = "gunset beacon"
-	desc = "A single use beacon to deliver a gunset of your choice. Please only call this in your office"
-	company_source = "Trappiste Fabriek Company"
-	company_message = span_bold("Supply Pod incoming please stand by")
-
-/obj/item/choice_beacon/ntc/generate_display_names()
-	var/static/list/selectable_gun_types = list(
-		"Takbok" = /obj/item/storage/toolbox/guncase/skyrat/pistol/trappiste_small_case/takbok,
-		"Skild" = /obj/item/storage/toolbox/guncase/skyrat/pistol/trappiste_small_case/skild,
-	)
-
-	return selectable_gun_types

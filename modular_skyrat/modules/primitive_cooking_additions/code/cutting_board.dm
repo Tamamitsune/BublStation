@@ -57,13 +57,14 @@
 	drop_everything_contained()
 	return ..()
 
-/obj/item/cutting_board/AltClick(mob/user)
+/obj/item/cutting_board/click_alt(mob/user)
 	if(!length(contents))
 		balloon_alert(user, "nothing on board")
-		return
+		return CLICK_ACTION_BLOCKING
 
 	drop_everything_contained()
 	balloon_alert(user, "cleared board")
+	return CLICK_ACTION_SUCCESS
 
 ///Drops all contents at the turf of the item
 /obj/item/cutting_board/proc/drop_everything_contained()
@@ -99,7 +100,7 @@
 		if(!processed_thing.reagents) //backup in case we really fuck up
 			continue
 
-		processed_thing.reagents.copy_to(new_food_item, processed_thing.reagents.total_volume, multiplier = 1 / food_multiplier)
+		processed_thing.reagents.trans_to(new_food_item, processed_thing.reagents.total_volume, multiplier = 1 / food_multiplier, copy_only = TRUE)
 
 	qdel(processed_thing)
 	update_appearance()

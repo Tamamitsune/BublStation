@@ -13,14 +13,22 @@
 	var/mob/living/split_personality/owner_backseat
 	///The role to display when polling ghost
 	var/poll_role = "split personality"
+	///How long do we give ghosts to respond?
+	var/poll_time = 20 SECONDS
+	///The stranger_backseat does not have temp body component so we will ghostize() on_lose
+	var/temp_component = FALSE
 
 /datum/brain_trauma/severe/split_personality/on_gain()
-	var/mob/living/M = owner
-	if(M.stat == DEAD || !M.client) //No use assigning people to a corpse or braindead
-		qdel(src)
-		return
-	..()
+	var/mob/living/brain_owner = owner
+	if(brain_owner.stat == DEAD || !GET_CLIENT(brain_owner) || istype(get_area(brain_owner), /area/deathmatch)) //No use assigning people to a corpse or braindead
+		return FALSE
+	. = ..()
 	make_backseats()
+
+#ifdef UNIT_TESTS
+	return // There's no ghosts in the unit test
+#endif
+
 	get_ghost()
 
 /datum/brain_trauma/severe/split_personality/proc/make_backseats()
@@ -34,23 +42,41 @@
 
 /// Attempts to get a ghost to play the personality
 /datum/brain_trauma/severe/split_personality/proc/get_ghost()
-	var/datum/callback/to_call = CALLBACK(src, PROC_REF(schism))
-	owner.AddComponent(/datum/component/orbit_poll, \
-		ignore_key = POLL_IGNORE_SPLITPERSONALITY, \
-		job_bans = ROLE_PAI, \
-		title = "[owner.real_name]'s [poll_role]", \
-		to_call = to_call, \
+	var/mob/chosen_one = SSpolling.poll_ghosts_for_target(
+		question = "Do you want to play as [span_danger("[owner.real_name]'s")] [span_notice(poll_role)]?. You will be able to return to your original body after.",
+		check_jobban = ROLE_PAI,
+		poll_time = poll_time,
+		checked_target = owner,
+		ignore_category = POLL_IGNORE_SPLITPERSONALITY,
+		alert_pic = owner,
+		role_name_text = poll_role,
 	)
+	schism(chosen_one)
 
 /// Ghost poll has concluded
 /datum/brain_trauma/severe/split_personality/proc/schism(mob/dead/observer/ghost)
 	if(isnull(ghost))
 		qdel(src)
 		return
+	if(ghost.mind.current)// if they previous had a body preserve them else that means they never had one or it was destroyed so assign ckey like normal
+		stranger_backseat.AddComponent( \
+		/datum/component/temporary_body, \
+		old_mind = ghost.mind, \
+		old_body = ghost.mind.current, \
+		)
+		temp_component = TRUE
 
-	stranger_backseat.key = ghost.key
+
+	stranger_backseat.PossessByPlayer(ghost.ckey)
 	stranger_backseat.log_message("became [key_name(owner)]'s split personality.", LOG_GAME)
 	message_admins("[ADMIN_LOOKUPFLW(stranger_backseat)] became [ADMIN_LOOKUPFLW(owner)]'s split personality.")
+
+	owner_backseat.AddComponent( \
+		/datum/component/temporary_body, \
+		old_mind = owner.mind, \
+		old_body = owner, \
+		perma_body_attached = TRUE, \
+	)
 
 
 /datum/brain_trauma/severe/split_personality/on_life(seconds_per_tick, times_fired)
@@ -63,72 +89,33 @@
 	..()
 
 /datum/brain_trauma/severe/split_personality/on_lose()
-	if(current_controller != OWNER) //it would be funny to cure a guy only to be left with the other personality, but it seems too cruel
-		switch_personalities(TRUE)
+	// qdel the mob with the temporary component will ensure the original mind will go back into the body and vice versa for the stranger mind
+	if(!temp_component)
+		stranger_backseat?.ghostize()
 	QDEL_NULL(stranger_backseat)
 	QDEL_NULL(owner_backseat)
 	..()
 
-
+// Changes who controls the body
 /datum/brain_trauma/severe/split_personality/proc/switch_personalities(reset_to_owner = FALSE)
 	if(QDELETED(owner) || QDELETED(stranger_backseat) || QDELETED(owner_backseat))
 		return
 
-	var/mob/living/split_personality/current_backseat
-	var/mob/living/split_personality/new_backseat
 	if(current_controller == STRANGER || reset_to_owner)
-		current_backseat = owner_backseat
-		new_backseat = stranger_backseat
+		//back seat to body and vice versa
+		stranger_backseat.PossessByPlayer(owner.ckey)
+		//logging
+		owner_backseat.log_message("assumed control of [key_name(owner)] due to [src]. (Original owner: [stranger_backseat.key])", LOG_GAME)
+		owner.PossessByPlayer(owner_backseat.ckey)
+		to_chat(stranger_backseat, span_userdanger("You feel your control being taken away... your other personality is in charge now!"))
+
 	else
-		current_backseat = stranger_backseat
-		new_backseat = owner_backseat
+		owner_backseat.PossessByPlayer(owner.ckey)
+		stranger_backseat.log_message("assumed control of [key_name(owner)] due to [src]. (Original owner: [owner_backseat.key])", LOG_GAME)
+		owner.PossessByPlayer(stranger_backseat.ckey)
+		to_chat(owner_backseat, span_userdanger("You feel your control being taken away... your other personality is in charge now!"))
 
-	if(!current_backseat.client) //Make sure we never switch to a logged off mob.
-		return
-
-	current_backseat.log_message("assumed control of [key_name(owner)] due to [src]. (Original owner: [current_controller == OWNER ? owner.key : current_backseat.key])", LOG_GAME)
-	to_chat(owner, span_userdanger("You feel your control being taken away... your other personality is in charge now!"))
-	to_chat(current_backseat, span_userdanger("You manage to take control of your body!"))
-
-	//Body to backseat
-
-	var/h2b_id = owner.computer_id
-	var/h2b_ip= owner.lastKnownIP
-	owner.computer_id = null
-	owner.lastKnownIP = null
-
-	new_backseat.ckey = owner.ckey
-
-	new_backseat.name = owner.name
-
-	if(owner.mind)
-		new_backseat.mind = owner.mind
-
-	if(!new_backseat.computer_id)
-		new_backseat.computer_id = h2b_id
-
-	if(!new_backseat.lastKnownIP)
-		new_backseat.lastKnownIP = h2b_ip
-
-	if(reset_to_owner && new_backseat.mind)
-		new_backseat.ghostize(FALSE)
-
-	//Backseat to body
-
-	var/s2h_id = current_backseat.computer_id
-	var/s2h_ip= current_backseat.lastKnownIP
-	current_backseat.computer_id = null
-	current_backseat.lastKnownIP = null
-
-	owner.ckey = current_backseat.ckey
-	owner.mind = current_backseat.mind
-
-	if(!owner.computer_id)
-		owner.computer_id = s2h_id
-
-	if(!owner.lastKnownIP)
-		owner.lastKnownIP = s2h_ip
-
+	to_chat(owner, span_userdanger("You manage to take control of your body!"))
 	current_controller = !current_controller
 
 
@@ -154,11 +141,6 @@
 		trauma.switch_personalities()
 		qdel(trauma)
 
-	//if one of the two ghosts, the other one stays permanently
-	if(!body.client && trauma.initialized)
-		trauma.switch_personalities()
-		qdel(trauma)
-
 	..()
 
 /mob/living/split_personality/Login()
@@ -168,11 +150,12 @@
 	to_chat(src, span_notice("As a split personality, you cannot do anything but observe. However, you will eventually gain control of your body, switching places with the current personality."))
 	to_chat(src, span_warning("<b>Do not commit suicide or put the body in a deadly position. Behave like you care about it as much as the owner.</b>"))
 
-/mob/living/split_personality/say(message, bubble_type, list/spans = list(), sanitize = TRUE, datum/language/language = null, ignore_spam = FALSE, forced = null, filterproof = null, message_range = 7, datum/saymode/saymode = null)
+/mob/living/split_personality/try_speak(message, ignore_spam, forced, filterproof)
+	SHOULD_CALL_PARENT(FALSE)
 	to_chat(src, span_warning("You cannot speak, your other self is controlling your body!"))
 	return FALSE
 
-/mob/living/split_personality/emote(act, m_type = null, message = null, intentional = FALSE, force_silence = FALSE)
+/mob/living/split_personality/emote(act, m_type = null, message = null, intentional = FALSE, force_silence = FALSE, forced = FALSE)
 	return FALSE
 
 ///////////////BRAINWASHING////////////////////
@@ -187,7 +170,7 @@
 	var/codeword
 	var/objective
 
-/datum/brain_trauma/severe/split_personality/brainwashing/New(obj/item/organ/internal/brain/B, _permanent, _codeword, _objective)
+/datum/brain_trauma/severe/split_personality/brainwashing/New(obj/item/organ/brain/B, _permanent, _codeword, _objective)
 	..()
 	if(_codeword)
 		codeword = _codeword
@@ -200,7 +183,7 @@
 			| strings("ion_laws.json", "iondrinks"))
 
 /datum/brain_trauma/severe/split_personality/brainwashing/on_gain()
-	..()
+	. = ..()
 	var/mob/living/split_personality/traitor/traitor_backseat = stranger_backseat
 	traitor_backseat.codeword = codeword
 	traitor_backseat.objective = objective
@@ -211,10 +194,9 @@
 
 /datum/brain_trauma/severe/split_personality/brainwashing/get_ghost()
 	set waitfor = FALSE
-	var/list/mob/dead/observer/candidates = poll_candidates_for_mob("Do you want to play as [owner.real_name]'s brainwashed mind?", null, null, 7.5 SECONDS, stranger_backseat)
-	if(LAZYLEN(candidates))
-		var/mob/dead/observer/C = pick(candidates)
-		stranger_backseat.key = C.key
+	var/mob/chosen_one = SSpolling.poll_ghosts_for_target("Do you want to play as [span_danger("[owner.real_name]'s")] brainwashed mind? You will be able to return to your original body after.", poll_time = 7.5 SECONDS, checked_target = stranger_backseat, alert_pic = owner, role_name_text = "brainwashed mind")
+	if(chosen_one)
+		stranger_backseat.PossessByPlayer(chosen_one.ckey)
 	else
 		qdel(src)
 
@@ -228,7 +210,7 @@
 	var/message = hearing_args[HEARING_RAW_MESSAGE]
 	if(findtext(message, codeword))
 		hearing_args[HEARING_RAW_MESSAGE] = replacetext(message, codeword, span_warning("[codeword]"))
-		addtimer(CALLBACK(src, TYPE_PROC_REF(/datum/brain_trauma/severe/split_personality, switch_personalities)), 10)
+		addtimer(CALLBACK(src, TYPE_PROC_REF(/datum/brain_trauma/severe/split_personality, switch_personalities)), 1 SECONDS)
 
 /datum/brain_trauma/severe/split_personality/brainwashing/handle_speech(datum/source, list/speech_args)
 	if(findtext(speech_args[SPEECH_MESSAGE], codeword))
@@ -257,23 +239,32 @@
 	lose_text = "You wake up very, very confused and hungover. All you can remember is drinking a lot of alcohol... what happened?"
 	poll_role = "blacked out drunkard"
 	random_gain = FALSE
+	poll_time = 10 SECONDS
 	/// Duration of effect, tracked in seconds, not deciseconds. qdels when reaching 0.
 	var/duration_in_seconds = 180
 
 /datum/brain_trauma/severe/split_personality/blackout/on_gain()
 	. = ..()
+
+	if(QDELETED(src))
+		return
+
 	RegisterSignal(owner, COMSIG_ATOM_SPLASHED, PROC_REF(on_splashed))
 	notify_ghosts(
-		"[owner] is blacking out!",
+		"[owner.real_name] is blacking out!",
 		source = owner,
 		header = "Bro I'm not even drunk right now",
 		notify_flags = NOTIFY_CATEGORY_NOFLASH,
 	)
+	var/datum/status_effect/inebriated/inebriation = owner.has_status_effect(/datum/status_effect/inebriated)
+	inebriation?.iron_liver = TRUE
 
 /datum/brain_trauma/severe/split_personality/blackout/on_lose()
 	. = ..()
 	owner.add_mood_event("hang_over", /datum/mood_event/hang_over)
 	UnregisterSignal(owner, COMSIG_ATOM_SPLASHED)
+	var/datum/status_effect/inebriated/inebriation = owner.has_status_effect(/datum/status_effect/inebriated)
+	inebriation?.iron_liver = FALSE
 
 /datum/brain_trauma/severe/split_personality/blackout/proc/on_splashed()
 	SIGNAL_HANDLER
@@ -302,9 +293,12 @@
 		addtimer(TRAIT_CALLBACK_REMOVE(owner, TRAIT_DISCOORDINATED_TOOL_USER, TRAUMA_TRAIT), 10 SECONDS)
 		addtimer(CALLBACK(owner, TYPE_PROC_REF(/atom, balloon_alert), owner, "dexterity regained!"), 10 SECONDS)
 	if(prob(15))
-		playsound(owner,'sound/effects/sf_hiccup_male_01.ogg', 50)
+		playsound(owner,'sound/mobs/humanoids/human/hiccup/sf_hiccup_male_01.ogg', 50)
 		owner.emote("hiccup")
-	owner.adjustStaminaLoss(-5) //too drunk to feel anything
+	//too drunk to feel anything
+	//if they're to this point, they're likely dying of liver damage
+	//and not accounting for that, the split personality is temporary
+	owner.adjustStaminaLoss(-25)
 	duration_in_seconds -= seconds_per_tick
 
 /mob/living/split_personality/blackout
@@ -316,7 +310,7 @@
 	if(!. || !client)
 		return FALSE
 	to_chat(src, span_notice("You're the incredibly inebriated leftovers of your host's consciousness! Make sure to act the part and leave a trail of confusion and chaos in your wake."))
-	to_chat(src, span_boldwarning("Do not commit suicide or put the body in danger, you have a minor liscense to grief just like a clown, do not kill anyone or create a situation leading to the body being in danger or in harm ways. While you're drunk, you're not suicidal."))
+	to_chat(src, span_boldwarning("While you're drunk, you're not suicidal. Do not commit suicide or put the body in danger. You have a minor license to grief just like a clown, but do not kill anyone or create a situation leading to the body being put in danger or at risk of being harmed."))
 
 #undef OWNER
 #undef STRANGER

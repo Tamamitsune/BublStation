@@ -16,7 +16,7 @@
 
 	///Our shuttle's control console
 	var/obj/machinery/computer/shuttle/arrivals/console
-	///How much time are we waiting before returning to interlink. Sets itself automatically from config file
+	///How much time are we waiting before returning to interlink. Sets itself automatically from config file. 0 = no auto return
 	var/wait_time
 	///State variable. True when our shuttle is waiting before autoreturn
 	var/waiting = FALSE // would've been better to use shuttle's mode variable, but check() resets it to SHUTTLE_IDLE so it's more sane way to make this fully modular
@@ -27,7 +27,6 @@
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/docking_port/mobile/arrivals_skyrat/LateInitialize()
-	. = ..()
 	console = get_control_console()
 
 /obj/docking_port/mobile/arrivals_skyrat/check()

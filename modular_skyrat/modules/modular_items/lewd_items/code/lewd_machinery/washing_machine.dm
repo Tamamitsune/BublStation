@@ -20,7 +20,7 @@
 			continue
 
 		var/covered = FALSE
-		for (var/obj/item/clothing/iter_clothing in buckled_human.get_all_worn_items())
+		for (var/obj/item/clothing/iter_clothing in buckled_human.get_equipped_items())
 			if (!(iter_clothing.body_parts_covered & GROIN))
 				continue
 			if (iter_clothing.clothing_flags & THICKMATERIAL)
@@ -30,8 +30,8 @@
 		if (covered)
 			continue
 
-		var/obj/item/organ/external/genital/vagina/found_vagina = buckled_human.get_organ_slot(ORGAN_SLOT_VAGINA)
-		var/obj/item/organ/external/genital/vagina/found_penis = buckled_human.get_organ_slot(ORGAN_SLOT_PENIS)
+		var/obj/item/organ/genital/vagina/found_vagina = buckled_human.get_organ_slot(ORGAN_SLOT_VAGINA)
+		var/obj/item/organ/genital/vagina/found_penis = buckled_human.get_organ_slot(ORGAN_SLOT_PENIS)
 
 		var/arousal_mult = seconds_per_tick
 		var/message_chance = 40

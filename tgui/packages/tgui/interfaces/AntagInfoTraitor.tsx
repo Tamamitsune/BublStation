@@ -1,12 +1,10 @@
+import { BlockQuote, Button, Section, Stack } from 'tgui-core/components';
+import type { BooleanLike } from 'tgui-core/react';
+
 import { useBackend } from '../backend';
-import { multiline } from 'common/string';
-import { BlockQuote, Button, Dimmer, Section, Stack } from '../components';
-import { BooleanLike } from 'common/react';
 import { Window } from '../layouts';
-import { ObjectivePrintout, Objective } from './common/Objectives';
-// SKYRAT EDIT BEGIN
-import { Rules } from './AntagInfoRules';
-// SKYRAT EDIT END
+import { Rules } from './AntagInfoRules'; // BUBBER EDIT ADDITION
+import { type Objective, ObjectivePrintout } from './common/Objectives';
 
 const allystyle = {
   fontWeight: 'bold',
@@ -33,11 +31,10 @@ type Info = {
   intro: string;
   code: string;
   failsafe_code: string;
-  replacement_code: string;
-  replacement_frequency: string;
   has_uplink: BooleanLike;
   uplink_intro: string;
   uplink_unlock_info: string;
+  given_uplink: BooleanLike;
   objectives: Objective[];
 };
 
@@ -75,7 +72,7 @@ const EmployerSection = (props) => {
       buttons={
         <Button
           icon="hammer"
-          tooltip={multiline`
+          tooltip={`
             This is a gameplay suggestion for bored traitors.
             You don't have to follow it, unless you want some
             ideas for how to spend the round.`}
@@ -96,7 +93,7 @@ const EmployerSection = (props) => {
               <BlockQuote>{allies}</BlockQuote>
             </Stack.Item>
             <Stack.Divider />
-            <Stack.Item>
+            <Stack.Item mb={1}>
               <span style={goalstyle}>
                 Employer thoughts:
                 <br />
@@ -112,37 +109,12 @@ const EmployerSection = (props) => {
 
 const UplinkSection = (props) => {
   const { data } = useBackend<Info>();
-  const {
-    has_uplink,
-    uplink_intro,
-    uplink_unlock_info,
-    code,
-    failsafe_code,
-    replacement_code,
-    replacement_frequency,
-  } = data;
+  const { has_uplink, uplink_intro, uplink_unlock_info, code, failsafe_code } =
+    data;
   return (
     <Section title="Uplink" mb={!has_uplink && -1}>
       <Stack fill>
-        {(!has_uplink && (
-          <Dimmer>
-            <Stack.Item fontSize="16px">
-              <Section textAlign="Center">
-                Your uplink is missing or destroyed. <br />
-                Craft a Syndicate Uplink Beacon and then speak
-                <br />
-                <span style={goalstyle}>
-                  <b>{replacement_code}</b>
-                </span>{' '}
-                on frequency{' '}
-                <span style={goalstyle}>
-                  <b>{replacement_frequency}</b>
-                </span>{' '}
-                after synchronizing with the beacon.
-              </Section>
-            </Stack.Item>
-          </Dimmer>
-        )) || (
+        {
           <>
             <Stack.Item bold>
               {uplink_intro}
@@ -154,33 +126,20 @@ const UplinkSection = (props) => {
               )}
             </Stack.Item>
             <Stack.Divider />
-            <Stack.Item mt="1%">
+            <Stack.Item align="center">
               <BlockQuote>{uplink_unlock_info}</BlockQuote>
             </Stack.Item>
           </>
-        )}
+        }
       </Stack>
       <br />
-      {(has_uplink && (
-        <Section textAlign="Center">
-          If you lose your uplink, you can craft a Syndicate Uplink Beacon and
-          then speak{' '}
-          <span style={goalstyle}>
-            <b>{replacement_code}</b>
-          </span>{' '}
-          on radio frequency{' '}
-          <span style={goalstyle}>
-            <b>{replacement_frequency}</b>
-          </span>{' '}
-          after synchronizing with the beacon.
-        </Section>
-      )) || (
+      {
         <Section>
           {' '}
           <br />
           <br />
         </Section>
-      )}
+      }
     </Section>
   );
 };
@@ -231,12 +190,11 @@ const CodewordsSection = (props) => {
   );
 };
 
-// SKYRAT EDIT: change height from 580 to 650
 export const AntagInfoTraitor = (props) => {
   const { data } = useBackend<Info>();
-  const { theme } = data;
+  const { theme, given_uplink } = data;
   return (
-    <Window width={620} height={650} theme={theme}>
+    <Window width={620} height={580} theme={theme}>
       <Window.Content>
         <Stack vertical fill>
           <Stack.Item grow>
@@ -249,9 +207,11 @@ export const AntagInfoTraitor = (props) => {
               </Stack.Item>
             </Stack>
           </Stack.Item>
-          <Stack.Item>
-            <UplinkSection />
-          </Stack.Item>
+          {!!given_uplink && (
+            <Stack.Item>
+              <UplinkSection />
+            </Stack.Item>
+          )}
           <Stack.Item>
             <CodewordsSection />
           </Stack.Item>

@@ -13,7 +13,7 @@
 
 	uses_integrity = TRUE
 
-	interaction_flags_atom = INTERACT_ATOM_ATTACK_HAND | INTERACT_ATOM_REQUIRES_ANCHORED
+	interaction_flags_atom = INTERACT_ATOM_ATTACK_HAND | INTERACT_ATOM_REQUIRES_ANCHORED | INTERACT_ATOM_UI_INTERACT
 
 	resistance_flags = FIRE_PROOF
 
@@ -46,14 +46,16 @@
 	var/gas_consumption_base = 0.000005 //How much gas gets consumed, in moles, per cycle.
 	var/gas_consumption_heat = 0.0018 //How much gas gets consumed, in moles, per cycle, per 1000 kelvin.
 
-	var/base_power_generation = 3900000 //How many joules of power to add per mole of tritium processed.
+	var/base_power_generation = 7800000 //How many joules of power to add per mole of tritium processed.
 
-	var/safeties_max_power_generation = 120000
+	var/goblin_multiplier = 8 //How many mols of goblin gas produced per mol of tritium. Increases with matter bins.
+
+	var/safeties_max_power_generation = 230000
 
 	//Upgradable stats.
 	var/power_efficiency = 1 //A multiplier of base_power_generation. Also has an effect on heat generation. Improved via capacitors.
 	var/vent_pressure = 200 //Pressure, in kPa, that the buffer releases the gas to. Improved via servos.
-	var/max_power_generation = 250000 //Maximum allowed power generation (joules) per cycle before the rods go apeshit. Improved via matter bins. The absolute max is 20 times this.
+	var/max_power_generation = 350000 //Maximum allowed power generation (joules) per cycle before the rods go apeshit. Improved via matter bins. The absolute max is 20 times this.
 
 	var/list/obj/machinery/rbmk2_sniffer/linked_sniffers = list()
 
@@ -102,11 +104,7 @@
 
 	. = ..()
 
-/obj/machinery/power/rbmk2/deconstruct(disassembled = TRUE)
-
-	if(flags_1 & NO_DECONSTRUCTION)
-		return
-
+/obj/machinery/power/rbmk2/on_deconstruction(disassembled = TRUE)
 	if(!disassembled && stored_rod)
 		//Uh oh.
 		var/turf/T = get_turf(src)
@@ -128,7 +126,6 @@
 			stored_rod.take_damage(1000,armour_penetration=100)
 			if(stored_rod) //Just in case.
 				remove_rod()
-
 	. = ..()
 
 /obj/machinery/power/rbmk2/preloaded/Initialize(mapload)
@@ -172,7 +169,7 @@
 	return FALSE
 
 //Remove the rod.
-/obj/machinery/power/rbmk2/AltClick(mob/living/user)
+/obj/machinery/power/rbmk2/click_alt(mob/living/user)
 	if(!active && stored_rod)
 		src.add_fingerprint(user)
 		stored_rod.add_fingerprint(user)
@@ -205,12 +202,12 @@
 				return FALSE
 		stored_rod.forceMove(T)
 		stored_rod.throw_at(get_edge_target_turf(src,pick(GLOB.alldirs)),rand(3,6),5)
-		playsound(src, 'sound/weapons/gun/general/grenade_launch.ogg', 50, TRUE, extrarange = -3)
+		playsound(src, 'sound/items/weapons/gun/general/grenade_launch.ogg', 50, TRUE, extrarange = -3)
 	else
 		if(jammed)
 			return FALSE
 		stored_rod.forceMove(T)
-		playsound(src, 'sound/weapons/gun/shotgun/insert_shell.ogg', 50, TRUE, frequency = -1, extrarange = -3)
+		playsound(src, 'sound/items/weapons/gun/shotgun/insert_shell.ogg', 50, TRUE, frequency = -1, extrarange = -3)
 	stored_rod = null
 	update_appearance(UPDATE_ICON)
 	if(user)
@@ -227,7 +224,7 @@
 	stored_rod = desired_rod
 	update_appearance(UPDATE_ICON)
 	START_PROCESSING(SSmachines, src)
-	playsound(src, 'sound/weapons/gun/shotgun/insert_shell.ogg', 50, TRUE, frequency = 1, extrarange = -3)
+	playsound(src, 'sound/items/weapons/gun/shotgun/insert_shell.ogg', 50, TRUE, frequency = 1, extrarange = -3)
 	if(user)
 		user.log_message("inserted a rod into [src]", LOG_GAME)
 		investigate_log("had a rod inserted by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
@@ -299,14 +296,13 @@
 
 	venting = desired_state
 
-	if(!venting)
-		var/turf/T = get_turf(src)
-		if(user)
-			user.log_message("had vents turned off by [src]", LOG_GAME)
-			investigate_log("had vents turned off by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
-		else
-			log_game("[src] had vents turned off at [AREACOORD(T)]")
-			investigate_log("had vents turned off at [AREACOORD(T)]", INVESTIGATE_ENGINE)
+	if(user)
+		user.log_message("had vents turned [venting ? "on" : "off"] by [src]", LOG_GAME)
+		investigate_log("had vents turned [venting ? "on" : "off"] by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
+	else
+		var/turf/our_turf = get_turf(src)
+		log_game("[src] had vents turned [venting ? "on" : "off"] at [AREACOORD(our_turf)]")
+		investigate_log("had vents turned [venting ? "on" : "off"] at [AREACOORD(our_turf)]", INVESTIGATE_ENGINE)
 
 	update_appearance(UPDATE_ICON)
 
@@ -320,18 +316,20 @@
 		return FALSE
 
 	if(venting) //Can't change when they're already on.
+		if(user)
+			balloon_alert(user, "turn vents off first")
 		return FALSE
 
 	vent_reverse_direction = desired_state
 
-	if(vent_reverse_direction)
-		var/turf/T = get_turf(src)
-		if(user)
-			user.log_message("had vents set in reverse by [src]", LOG_GAME)
-			investigate_log("had vents set in reverse by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
-		else
-			log_game("[src] had vents set in reverse at [AREACOORD(T)]")
-			investigate_log("had vents set in reverse at [AREACOORD(T)]", INVESTIGATE_ENGINE)
+	if(user)
+		user.log_message("had vents set to [vent_reverse_direction ? "reverse" : "normal"] by [src]", LOG_GAME)
+		investigate_log("had vents set to [vent_reverse_direction ? "reverse" : "normal"] by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
+		balloon_alert(user, "vents switched to [vent_reverse_direction ? "pulling" : "pushing"]")
+	else
+		var/turf/our_turf = get_turf(src)
+		log_game("[src] had vents set to [vent_reverse_direction ? "reverse" : "normal"] at [AREACOORD(our_turf)]")
+		investigate_log("had vents set to [vent_reverse_direction ? "reverse" : "normal"] at [AREACOORD(our_turf)]", INVESTIGATE_ENGINE)
 
 	return TRUE
 
@@ -339,17 +337,20 @@
 	. = ..()
 
 	//Requires x4 capacitors
-	var/power_efficiency_mul = 0
+	var/power_efficiency_mul = 0.5
 	for(var/datum/stock_part/capacitor/new_capacitor in component_parts)
-		power_efficiency_mul += new_capacitor.tier * 0.25
+		power_efficiency_mul += (new_capacitor.tier * 0.125)
 	power_efficiency = initial(power_efficiency) * power_efficiency_mul
 
 	//Requires x2 matter bins
 	var/max_power_generation_mul = 0
+	goblin_multiplier = initial(goblin_multiplier)
 	for(var/datum/stock_part/matter_bin/new_matter_bin in component_parts)
-		max_power_generation_mul += new_matter_bin.tier * 0.5
+		max_power_generation_mul += (new_matter_bin.tier * 0.5) + max(0,new_matter_bin.tier-1)*0.1
+		goblin_multiplier += (new_matter_bin.tier-1)*0.5
 	max_power_generation = initial(max_power_generation) * (max_power_generation_mul**(1 + (max_power_generation_mul-1)*0.1))
 	max_power_generation = FLOOR(max_power_generation,10000)
+	safeties_max_power_generation = max(initial(safeties_max_power_generation),round(max_power_generation*0.75,125000))
 
 	//Requires x4 servos
 	var/vent_pressure_multiplier = 0
@@ -357,12 +358,110 @@
 		vent_pressure_multiplier += new_servo.tier * 0.25
 	vent_pressure = initial(vent_pressure) * vent_pressure_multiplier
 
+/obj/machinery/power/rbmk2/ui_interact(mob/user, datum/tgui/ui)
+	ui = SStgui.try_update_ui(user, src, ui)
+	if(!ui)
+		ui = new(user, src, "RBMK2", name)
+		ui.open()
+
+/obj/machinery/power/rbmk2/ui_data(mob/user)
+	var/list/data = list()
+	// Progress Bars
+	data["criticality"] = criticality
+	data["health_percent"] = (atom_integrity/max_integrity)*100
+
+	// Used to display the current rod pressure
+	data["rod_mix_pressure"] = stored_rod?.air_contents.return_pressure() || 0
+	// Used as a comparison point for the progress bar
+	data["rod_pressure_limit"] = stored_rod?.pressure_limit || 0
+	// Look for specifically tritium, don't need to show moderators.
+	data["rod_trit_moles"] = stored_rod?.air_contents.gases[/datum/gas/tritium][MOLES] || 0
+	// rod temperature
+	data["rod_mix_temperature"] = stored_rod?.air_contents.temperature || 0
+
+	// This variable and the next allows our limits in the UI to change based on part tiers.
+	data["safeties_max_power_generation"] = safeties_max_power_generation
+	data["max_power_generation"] = max_power_generation
+	// We use this to display our power using this
+	data["last_power_output"] = display_power(last_power_generation)
+	// but we use this raw to calculate the progress bar
+	data["raw_last_power_output"] = last_power_generation
+
+	// Changed because 1/10,000th is not a micromole and si makes more sense during meltdowns. Div 2 (x0.5) because only procs every two seconds not every second
+	data["consuming"] = siunit(last_tritium_consumption*0.5, "mole", maxdecimals=3)
+	// Required to calculate remaining fuel in the rod_trit_moles progressbar
+	data["raw_consuming"] = last_tritium_consumption*0.5
+
+	// Button data
+	data["venting"] = venting
+	data["vent_dir"] = vent_reverse_direction
+	data["active"] = active
+	data["safety"] = safety
+	data["overclocked"] = overclocked
+	data["rod"] = stored_rod
+
+	// Status displays
+	data["jammed"] = jammed
+	data["meltdown"] = meltdown
+	return data
+
+/obj/machinery/power/rbmk2/ui_act(action, list/params, datum/tgui/ui, datum/ui_state/state)
+	. = ..()
+	if(.)
+		return
+	var/mob/user = ui.user
+	var/turf/machine_turf = get_turf(src) // Move up here, we only need this line once.
+
+	// all of procs here have logging
+	switch(action)
+		if("activate")
+			toggle_active(user)
+			. = TRUE
+		if("eject")
+			remove_rod(user, do_throw = TRUE)
+			. = TRUE
+		if("venttoggle")
+			toggle_vents(user)
+			. = TRUE
+		if("ventpush") // Vent push and vent pull are separate because I wanted pretty buttons and didn't know how else to implement them.
+			toggle_reverse_vents(user, FALSE)
+			. = TRUE
+		if("ventpull")
+			toggle_reverse_vents(user, TRUE)
+			. = TRUE
+		if("safetytoggle")
+
+			safety = !safety
+
+			balloon_alert(user, "safeties are [safety ? "on" : "off"]")
+			. = TRUE
+			if(isliving(user))
+				user.log_message("turned the safety [safety ? "on" : "off"] of [src]", LOG_GAME)
+				investigate_log("had the safety turned [safety ? "on" : "off"] by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
+			else
+				log_game("[src] had the safety turned [safety ? "on" : "off"] at [AREACOORD(machine_turf)]")
+				investigate_log("had the safety turned [safety ? "on" : "off"] at [AREACOORD(machine_turf)]", INVESTIGATE_ENGINE)
+			return
+		if("overclocktoggle")
+
+			overclocked = !overclocked
+
+			balloon_alert(user, "overclocking is [overclocked ? "on" : "off"]")
+			. = TRUE
+			if(isliving(user))
+				user.log_message("turned the overclock [overclocked ? "on" : "off"] of [src]", LOG_GAME)
+				investigate_log("had the overclock turned [overclocked ? "on" : "off"] by [key_name(user)] at [AREACOORD(src)].", INVESTIGATE_ENGINE)
+			else
+				log_game("[src] had the overclock turned [overclocked ? "on" : "off"] at [AREACOORD(machine_turf)]")
+				investigate_log("had the overclock turned [overclocked ? "on" : "off"] at [AREACOORD(machine_turf)]", INVESTIGATE_ENGINE)
+			return
+
 
 /obj/machinery/power/rbmk2/examine(mob/user)
 
 	. = ..()
 
-	. += span_notice("A warning label on the side side says <b>MAX SAFE POWER: [display_power(safeties_max_power_generation)], WARRANTY VOID IF EXCEEDED</b>.")
+	. += span_notice("A digital display on the side side says <b>MAX SAFE POWER: [display_power(safeties_max_power_generation)], WARRANTY VOID IF EXCEEDED</b>.")
 
 	. += "It is linked to [length(linked_sniffers)] sniffer(s)."
 
@@ -418,7 +517,7 @@
 	if(allow_cooling_limiter && temperature_change > 0) //Cooling!
 		temperature_change *= clamp(1 - cooling_limiter*0.01,0,1) //Clamped in case of adminbus fuckery.
 
-	rod_mix.temperature -= temperature_change*0.65
+	rod_mix.temperature -= temperature_change*0.85
 	gas_source.temperature += temperature_change
 
 	return TRUE

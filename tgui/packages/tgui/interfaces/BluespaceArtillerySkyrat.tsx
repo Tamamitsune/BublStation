@@ -1,6 +1,4 @@
 // THIS IS A SKYRAT UI FILE
-import { BooleanLike } from 'common/react';
-import { useBackend } from '../backend';
 import {
   Box,
   Button,
@@ -8,9 +6,12 @@ import {
   NoticeBox,
   Section,
   Slider,
-} from '../components';
+} from 'tgui-core/components';
+import { formatPower } from 'tgui-core/format';
+import type { BooleanLike } from 'tgui-core/react';
+
+import { useBackend } from '../backend';
 import { Window } from '../layouts';
-import { formatPower } from '../format';
 
 type Data = {
   connected: BooleanLike;
@@ -78,7 +79,7 @@ export const BluespaceArtillerySkyrat = (props) => {
                     step={100000}
                     stepPixelSize={1}
                     format={(value) => formatPower(value, 1)}
-                    onDrag={(e, value) =>
+                    onChange={(e, value) =>
                       act('capacitor_target_change', {
                         capacitor_target: value,
                       })

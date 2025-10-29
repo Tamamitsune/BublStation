@@ -33,6 +33,8 @@ GLOBAL_VAR_INIT(fileaccess_timer, 0)
 				var/confirmation = input(src, "Are you SURE you want to download all the files in this folder? (This will open [length(comp_flist)] prompt[length(comp_flist) == 1 ? "" : "s"])", "Confirmation") in list("Yes", "No")
 				if(confirmation != "Yes")
 					continue
+				log_admin("[key_name(src)] is downloading [length(comp_flist)] files from [path]") // SKYRAT EDIT -- ADDITION
+				message_admins("Admin [key_name_admin(src)] is downloading [length(comp_flist)] files from [path]") // SKYRAT EDIT -- ADDITION
 				for(var/file in comp_flist)
 					src << ftp(path + file)
 				return
@@ -105,19 +107,16 @@ GLOBAL_VAR_INIT(fileaccess_timer, 0)
 /proc/pathflatten(path)
 	return replacetext(path, "/", "_")
 
-/// Returns the md5 of a file at a given path.
-/proc/md5filepath(path)
-	. = md5(file(path))
-
 /// Save file as an external file then md5 it.
 /// Used because md5ing files stored in the rsc sometimes gives incorrect md5 results.
+/// https://www.byond.com/forum/post/2611357
 /proc/md5asfile(file)
 	var/static/notch = 0
 	// its importaint this code can handle md5filepath sleeping instead of hard blocking, if it's converted to use rust_g.
 	var/filename = "tmp/md5asfile.[world.realtime].[world.timeofday].[world.time].[world.tick_usage].[notch]"
 	notch = WRAP(notch+1, 0, 2**15)
 	fcopy(file, filename)
-	. = md5filepath(filename)
+	. = rustg_hash_file(RUSTG_HASH_MD5, filename)
 	fdel(filename)
 
 /**

@@ -28,7 +28,7 @@
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "bF" = (
-/mob/living/simple_animal/hostile/alien/queen/large,
+/mob/living/basic/alien/queen/large,
 /obj/structure/alien/weeds,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
@@ -37,12 +37,12 @@
 /turf/open/floor/plating/airless,
 /area/ruin/space/has_grav/waypoint)
 "bY" = (
-/obj/effect/decal/cleanable/xenoblood/xgibs/core,
+/obj/effect/decal/cleanable/blood/gibs/xeno/core,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "cf" = (
 /obj/structure/closet/crate/large,
-/obj/effect/decal/cleanable/xenoblood/xgibs/core,
+/obj/effect/decal/cleanable/blood/gibs/xeno/core,
 /obj/item/toy/toy_xeno,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
@@ -52,7 +52,7 @@
 /area/ruin/space/has_grav/waypoint)
 "co" = (
 /obj/structure/lattice,
-/mob/living/simple_animal/hostile/alien,
+/mob/living/basic/alien,
 /turf/template_noop,
 /area/ruin)
 "cV" = (
@@ -67,7 +67,7 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "dz" = (
-/mob/living/simple_animal/hostile/alien,
+/mob/living/basic/alien,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "dQ" = (
@@ -102,7 +102,7 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "fu" = (
-/obj/effect/decal/cleanable/xenoblood/xgibs/down,
+/obj/effect/decal/cleanable/blood/gibs/xeno/down,
 /obj/structure/chair/sofa/bench/right{
 	dir = 1
 	},
@@ -140,7 +140,7 @@
 /area/ruin)
 "hE" = (
 /obj/effect/decal/cleanable/blood/tracks,
-/mob/living/simple_animal/hostile/alien,
+/mob/living/basic/alien,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "iu" = (
@@ -175,12 +175,12 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "kR" = (
-/mob/living/simple_animal/hostile/alien/sentinel,
+/mob/living/basic/alien/sentinel,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "lf" = (
 /obj/effect/decal/cleanable/blood/drip,
-/mob/living/simple_animal/hostile/alien,
+/mob/living/basic/alien,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "lr" = (
@@ -241,11 +241,11 @@
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "nC" = (
-/mob/living/simple_animal/hostile/alien/drone,
+/mob/living/basic/alien/drone,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "nO" = (
-/mob/living/simple_animal/hostile/alien,
+/mob/living/basic/alien,
 /obj/structure/alien/weeds,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
@@ -282,7 +282,7 @@
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "pJ" = (
-/obj/effect/decal/cleanable/xenoblood/xgibs,
+/obj/effect/decal/cleanable/blood/gibs/xeno,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "pO" = (
@@ -290,7 +290,7 @@
 /area/ruin/space)
 "pP" = (
 /obj/structure/closet/crate/large,
-/obj/effect/decal/cleanable/xenoblood/xgibs/down,
+/obj/effect/decal/cleanable/blood/gibs/xeno/down,
 /obj/item/reagent_containers/cup/bottle/random_virus,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
@@ -319,7 +319,7 @@
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "rh" = (
-/obj/effect/decal/cleanable/xenoblood/xgibs/up,
+/obj/effect/decal/cleanable/blood/gibs/xeno/up,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "rp" = (
@@ -351,7 +351,7 @@
 	pixel_x = -3;
 	pixel_y = 10
 	},
-/mob/living/simple_animal/hostile/alien/sentinel,
+/mob/living/basic/alien/sentinel,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
 "sw" = (
@@ -365,7 +365,7 @@
 /area/ruin/space/has_grav/waypoint)
 "sR" = (
 /obj/structure/closet/crate/large,
-/obj/effect/decal/cleanable/xenoblood/xgibs/up,
+/obj/effect/decal/cleanable/blood/gibs/xeno/up,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
 "tc" = (
@@ -427,7 +427,7 @@
 /area/ruin/space/has_grav/waypoint)
 "wu" = (
 /obj/machinery/power/shuttle_engine/heater,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/waypoint)
 "wB" = (
 /turf/closed/wall,
@@ -448,7 +448,7 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "yn" = (
-/obj/effect/decal/cleanable/xenoblood/xgibs,
+/obj/effect/decal/cleanable/blood/gibs/xeno,
 /obj/structure/alien/weeds,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
@@ -467,8 +467,8 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "zu" = (
-/obj/effect/decal/cleanable/xenoblood/xgibs/limb,
-/obj/effect/decal/cleanable/xenoblood/xsplatter,
+/obj/effect/decal/cleanable/blood/gibs/xeno/limb,
+/obj/effect/decal/cleanable/blood/splatter/xeno,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "zx" = (
@@ -476,8 +476,8 @@
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "zy" = (
-/mob/living/simple_animal/hostile/alien/drone,
-/obj/effect/decal/cleanable/xenoblood,
+/mob/living/basic/alien/drone,
+/obj/effect/decal/cleanable/blood/xeno,
 /obj/structure/sign/poster/contraband/lusty_xenomorph/directional/east,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
@@ -499,12 +499,12 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "Af" = (
-/mob/living/simple_animal/hostile/alien/sentinel,
+/mob/living/basic/alien/sentinel,
 /obj/structure/alien/weeds/node,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "Al" = (
-/obj/effect/decal/cleanable/xenoblood/xsplatter,
+/obj/effect/decal/cleanable/blood/splatter/xeno,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "AC" = (
@@ -517,7 +517,7 @@
 /area/ruin/space/has_grav/waypoint)
 "AG" = (
 /obj/effect/decal/cleanable/blood/drip,
-/mob/living/simple_animal/hostile/alien/drone,
+/mob/living/basic/alien/drone,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "AP" = (
@@ -537,7 +537,7 @@
 	},
 /obj/effect/decal/cleanable/blood/splatter,
 /obj/machinery/light/small/broken/directional/north,
-/mob/living/simple_animal/hostile/alien/sentinel,
+/mob/living/basic/alien/sentinel,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
 "BD" = (
@@ -721,7 +721,7 @@
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "JU" = (
-/obj/effect/decal/cleanable/xenoblood/xsplatter,
+/obj/effect/decal/cleanable/blood/splatter/xeno,
 /obj/structure/alien/weeds,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
@@ -959,7 +959,7 @@
 /obj/item/stack/cable_coil{
 	pixel_y = -3
 	},
-/mob/living/simple_animal/hostile/alien/drone,
+/mob/living/basic/alien/drone,
 /turf/open/floor/iron/dark,
 /area/ruin/space/has_grav/waypoint)
 "VK" = (
@@ -971,7 +971,7 @@
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "Wg" = (
-/mob/living/simple_animal/hostile/alien/drone,
+/mob/living/basic/alien/drone,
 /turf/open/floor/plating/airless,
 /area/ruin/space/has_grav/waypoint)
 "Wu" = (
@@ -992,7 +992,7 @@
 	pixel_x = 8;
 	pixel_y = 9
 	},
-/obj/effect/decal/cleanable/xenoblood/xgibs/larva,
+/obj/effect/decal/cleanable/blood/gibs/xeno/larva,
 /turf/open/floor/carpet/royalblue/airless,
 /area/ruin/space/has_grav/waypoint)
 "Xl" = (
@@ -1019,7 +1019,7 @@
 /obj/item/chair{
 	dir = 8
 	},
-/obj/effect/decal/cleanable/xenoblood/xgibs/larva/body,
+/obj/effect/decal/cleanable/blood/gibs/xeno/larva/body,
 /turf/open/floor/iron/airless,
 /area/ruin/space/has_grav/waypoint)
 "Ym" = (
@@ -1032,7 +1032,7 @@
 /turf/template_noop,
 /area/ruin)
 "YT" = (
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/waypoint)
 "Zm" = (
 /obj/effect/decal/cleanable/blood/gibs/down,

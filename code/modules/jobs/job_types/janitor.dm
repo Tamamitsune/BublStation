@@ -41,24 +41,16 @@
 	belt = /obj/item/modular_computer/pda/janitor
 	ears = /obj/item/radio/headset/headset_srv
 	skillchips = list(/obj/item/skillchip/job/janitor)
+	backpack_contents = list(/obj/item/access_key)
 
 /datum/outfit/job/janitor/pre_equip(mob/living/carbon/human/human_equipper, visuals_only)
 	. = ..()
 	if(check_holidays(GARBAGEDAY))
 		backpack_contents += list(/obj/item/gun/ballistic/revolver)
-		r_pocket = /obj/item/ammo_box/a357
-
-//SKYRAT EDIT REMOVAL BEGIN - JANITOR KEY - (Moved to modular_skyrat/master_files/code/modules/jobs/job_types/janitor.dm)
-/*
-	var/static/access_key_given = FALSE
-	if(!access_key_given && !visuals_only)
-		access_key_given = TRUE
-		backpack_contents += list(/obj/item/access_key)
-*/
-//SKYRAT EDIT REMOVAL END
+		r_pocket = /obj/item/ammo_box/speedloader/c357
 
 /datum/outfit/job/janitor/get_types_to_preload()
 	. = ..()
 	if(check_holidays(GARBAGEDAY))
 		. += /obj/item/gun/ballistic/revolver
-		. += /obj/item/ammo_box/a357
+		. += /obj/item/ammo_box/speedloader/c357

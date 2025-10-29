@@ -1,3 +1,5 @@
+// This whole device is kind of cursed and working by it's own logic
+
 #define MILKING_PUMP_MODE_OFF "off"
 #define MILKING_PUMP_MODE_LOW "low"
 #define MILKING_PUMP_MODE_MEDIUM "medium"
@@ -16,7 +18,6 @@
 	icon_state = "milking_pink_off"
 	max_buckled_mobs = 1
 	item_chair = null
-	obj_flags = CAN_BE_HIT | NO_DECONSTRUCTION
 	max_integrity = 75
 	var/static/list/milkingmachine_designs
 
@@ -42,17 +43,17 @@
 */
 
 	/// What organ is fluid being extracted from?
-	var/obj/item/organ/external/genital/current_selected_organ = null
+	var/obj/item/organ/genital/current_selected_organ = null
 	/// What beaker is liquid being outputted to?
 	var/obj/item/reagent_containers/cup/beaker = null
 	/// What human mob is currently buckled to the machine?
 	var/mob/living/carbon/human/current_mob = null
 	/// What is the current breast organ of the buckled mob?
-	var/obj/item/organ/external/genital/breasts/current_breasts = null
+	var/obj/item/organ/genital/breasts/current_breasts = null
 	/// What is the current testicles organ of the buckled mob?
-	var/obj/item/organ/external/genital/testicles/current_testicles = null
+	var/obj/item/organ/genital/testicles/current_testicles = null
 	/// What is the current vagina organ of the buckled mob?
-	var/obj/item/organ/external/genital/vagina/current_vagina = null
+	var/obj/item/organ/genital/vagina/current_vagina = null
 
 	/// What color is the machine currently set to?
 	var/machine_color = "pink"
@@ -66,33 +67,6 @@
 	var/mutable_appearance/locks_overlay
 	var/mutable_appearance/organ_overlay
 	var/organ_overlay_new_icon_state = "" // Organ overlay update optimization
-
-// Additional examine text
-/obj/structure/chair/milking_machine/examine(mob/user)
-	. = ..()
-	. += span_notice("What are these metal mounts on the armrests for...?")
-
-/obj/structure/chair/milking_machine/Destroy()
-	if(current_mob)
-		if(current_mob.handcuffed)
-			current_mob.handcuffed.dropped(current_mob)
-		current_mob.set_handcuffed(null)
-		current_mob.update_abstract_handcuffed()
-		current_mob.layer = initial(current_mob.layer)
-
-	if(beaker)
-		qdel(beaker)
-		beaker = null
-
-	current_selected_organ = null
-	current_mob = null
-	current_breasts = null
-	current_testicles = null
-	current_vagina = null
-
-	STOP_PROCESSING(SSobj, src)
-	unbuckle_all_mobs()
-	return ..()
 
 // Object initialization
 /obj/structure/chair/milking_machine/Initialize(mapload)
@@ -124,6 +98,37 @@
 	populate_milkingmachine_designs()
 	START_PROCESSING(SSobj, src)
 
+// Additional examine text
+/obj/structure/chair/milking_machine/examine(mob/user)
+	. = ..()
+	. += span_notice("What are these metal mounts on the armrests for...?")
+
+/obj/structure/chair/milking_machine/Destroy()
+	if(current_mob)
+		if(current_mob.handcuffed)
+			current_mob.handcuffed.dropped(current_mob)
+		current_mob.set_handcuffed(null)
+		current_mob.update_abstract_handcuffed()
+		current_mob.layer = initial(current_mob.layer)
+
+	if(beaker)
+		qdel(beaker)
+		beaker = null
+
+	current_selected_organ = null
+	current_mob = null
+	current_breasts = null
+	current_testicles = null
+	current_vagina = null
+
+	STOP_PROCESSING(SSobj, src)
+	unbuckle_all_mobs()
+	return ..()
+
+// previously NO_DECONSTRUCTION
+/obj/structure/chair/milking_machine/wrench_act_secondary(mob/living/user, obj/item/weapon)
+	return NONE
+
 /*
 *	APPEARANCE MANAGEMENT
 */
@@ -151,7 +156,7 @@
 /obj/structure/chair/milking_machine/proc/check_menu(mob/living/user)
 	if(!istype(user))
 		return FALSE
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return FALSE
 	return TRUE
 
@@ -307,7 +312,7 @@
 		return FALSE
 
 	replace_beaker(user, used_container)
-	updateUsrDialog()
+	SStgui.update_uis(src)
 	return TRUE
 
 // Beaker change handler
@@ -350,7 +355,7 @@
 		update_all_visuals()
 		return FALSE
 
-	if((istype(current_selected_organ, /obj/item/organ/external/genital/testicles) && (semen_vessel.reagents.total_volume == MILKING_PUMP_MAX_CAPACITY)) || (istype(current_selected_organ, /obj/item/organ/external/genital/vagina) && (girlcum_vessel.reagents.total_volume == MILKING_PUMP_MAX_CAPACITY)) || (istype(current_selected_organ, /obj/item/organ/external/genital/breasts) && (milk_vessel.reagents.total_volume == MILKING_PUMP_MAX_CAPACITY)))
+	if((istype(current_selected_organ, /obj/item/organ/genital/testicles) && (semen_vessel.reagents.total_volume == MILKING_PUMP_MAX_CAPACITY)) || (istype(current_selected_organ, /obj/item/organ/genital/vagina) && (girlcum_vessel.reagents.total_volume == MILKING_PUMP_MAX_CAPACITY)) || (istype(current_selected_organ, /obj/item/organ/genital/breasts) && (milk_vessel.reagents.total_volume == MILKING_PUMP_MAX_CAPACITY)))
 		current_mode = MILKING_PUMP_MODE_OFF
 		pump_state = MILKING_PUMP_STATE_OFF
 		update_all_visuals()
@@ -381,17 +386,17 @@
 	var/obj/item/reagent_containers/target_container
 
 	switch(current_selected_organ.type)
-		if(/obj/item/organ/external/genital/breasts)
+		if(/obj/item/organ/genital/breasts)
 			target_container = milk_vessel
-		if(/obj/item/organ/external/genital/vagina)
+		if(/obj/item/organ/genital/vagina)
 			target_container = girlcum_vessel
-		if(/obj/item/organ/external/genital/testicles)
+		if(/obj/item/organ/genital/testicles)
 			target_container = semen_vessel
 
-	if(!target_container || current_selected_organ.internal_fluid_count <= 0)
+	if(!target_container || current_selected_organ.reagents.total_volume <= 0)
 		return FALSE
 
-	current_selected_organ.transfer_internal_fluid(target_container.reagents, fluid_retrieve_amount[current_mode] * fluid_multiplier * seconds_per_tick)
+	current_selected_organ.reagents.trans_to(target_container, fluid_retrieve_amount[current_mode] * fluid_multiplier * seconds_per_tick)
 	return TRUE
 
 // Handling the process of the impact of the machine on the organs of the mob
@@ -404,22 +409,17 @@
 	current_mob.adjust_pleasure(pleasure_amounts[current_mode] * seconds_per_tick)
 	current_mob.adjust_pain(pain_amounts[current_mode] * seconds_per_tick)
 
-/obj/structure/chair/milking_machine/CtrlShiftClick(mob/user)
-	. = ..()
-	if(. == FALSE)
-		return FALSE
-
+/obj/structure/chair/milking_machine/click_ctrl_shift(mob/user)
 	to_chat(user, span_notice("You begin to disassemble [src]..."))
 	if(!do_after(user, 8 SECONDS, src))
 		to_chat(user, span_warning("You fail to disassemble [src]!"))
-		return FALSE
+		return
 
 	deconstruct(TRUE)
 	to_chat(user, span_notice("You disassemble [src]."))
-	return TRUE
 
 // Machine deconstruction process handler
-/obj/structure/chair/milking_machine/deconstruct(disassembled)
+/obj/structure/chair/milking_machine/atom_deconstruct(disassembled)
 	if(beaker)
 		beaker.forceMove(drop_location())
 		adjust_item_drop_location(beaker)
@@ -449,7 +449,7 @@
 		var/current_selected_organ_size = current_selected_organ.genital_size
 		cut_overlay(organ_overlay)
 
-		if(istype(current_selected_organ, /obj/item/organ/external/genital/breasts))
+		if(istype(current_selected_organ, /obj/item/organ/genital/breasts))
 			switch(current_selected_organ.genital_type)
 				if("pair")
 					current_selected_organ_type = "double_breast"
@@ -473,14 +473,14 @@
 					else
 						current_selected_organ_size = "5"
 
-		if(istype(current_selected_organ, /obj/item/organ/external/genital/testicles))
+		if(istype(current_selected_organ, /obj/item/organ/genital/testicles))
 			current_selected_organ_type = ORGAN_SLOT_PENIS
 
-		if(istype(current_selected_organ, /obj/item/organ/external/genital/vagina))
+		if(istype(current_selected_organ, /obj/item/organ/genital/vagina))
 			current_selected_organ_type = ORGAN_SLOT_VAGINA
 
 		organ_overlay_new_icon_state = "[current_selected_organ_type]_pump_[pump_state]"
-		if(istype(current_selected_organ, /obj/item/organ/external/genital/breasts))
+		if(istype(current_selected_organ, /obj/item/organ/genital/breasts))
 			organ_overlay_new_icon_state += "_[current_selected_organ_size]"
 
 		if(current_mode == MILKING_PUMP_MODE_OFF)
@@ -583,7 +583,6 @@
 		data["current_vagina"] = current_vagina = null
 
 	data["machine_color"] = machine_color
-	updateUsrDialog()
 	return data
 
 // User action handler in the interface

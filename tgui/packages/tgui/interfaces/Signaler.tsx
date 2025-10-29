@@ -1,6 +1,7 @@
-import { toFixed } from 'common/math';
+import { Button, NumberInput, Section, Stack } from 'tgui-core/components';
+import { toFixed } from 'tgui-core/math';
+
 import { useBackend } from '../backend';
-import { Button, Stack, NumberInput, Section } from '../components';
 import { Window } from '../layouts';
 
 type Data = {
@@ -34,7 +35,8 @@ export const SignalerContent = (props) => {
         <Stack.Item color="label">Frequency:</Stack.Item>
         <Stack.Item>
           <NumberInput
-            animate
+            animated
+            tickWhileDragging
             unit="kHz"
             step={0.2}
             stepPixelSize={6}
@@ -43,7 +45,7 @@ export const SignalerContent = (props) => {
             value={frequency / 10}
             format={(value) => toFixed(value, 1)}
             width="80px"
-            onDrag={(e, value) =>
+            onChange={(value) =>
               act('freq', {
                 freq: value,
               })
@@ -69,14 +71,15 @@ export const SignalerContent = (props) => {
         </Stack.Item>
         <Stack.Item>
           <NumberInput
-            animate
+            animated
+            tickWhileDragging
             step={1}
             stepPixelSize={6}
             minValue={1}
             maxValue={100}
             value={code}
             width="80px"
-            onDrag={(e, value) =>
+            onChange={(value) =>
               act('code', {
                 code: value,
               })

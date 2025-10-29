@@ -8,23 +8,24 @@
  * This is best called when you're actually changing the app, as we don't check
  * if we're swapping to the current UI repeatedly.
  * Args:
- * user - The person whose UI we're updating.
+ * user - The person whose UI we're updating. Only necessary if we're opening the UI for the first time.
  */
 /obj/item/modular_computer/proc/update_tablet_open_uis(mob/user)
-	var/datum/tgui/active_ui = SStgui.get_open_ui(user, src)
-	if(!active_ui)
-		if(active_program)
-			active_ui = new(user, src, active_program.tgui_id, active_program.filedesc)
-			active_program.ui_interact(user, active_ui)
-		else
-			active_ui = new(user, src, "NtosMain")
-		return active_ui.open()
+	if(user)
+		var/datum/tgui/active_ui = SStgui.get_open_ui(user, src)
+		if(!active_ui)
+			if(active_program)
+				active_ui = new(user, src, active_program.tgui_id, active_program.filedesc)
+				active_program.ui_interact(user, active_ui)
+			else
+				active_ui = new(user, src, "NtosMain")
+			return active_ui.open()
 
 	for (var/datum/tgui/window as anything in open_uis)
 		if(active_program)
 			window.interface = active_program.tgui_id
 			window.title = active_program.filedesc
-			active_program.ui_interact(user, window)
+			active_program.ui_interact(window.user, window)
 		else
 			window.interface = "NtosMain"
 		window.send_assets()
@@ -45,14 +46,12 @@
 // Operates TGUI
 /obj/item/modular_computer/ui_interact(mob/user, datum/tgui/ui)
 	if(!enabled || !user.can_read(src, READING_CHECK_LITERACY))
-		if(ui)
-			ui.close()
+		ui?.close()
 		return
 
 	// Robots don't really need to see the screen, their wireless connection works as long as computer is on.
 	if(!screen_on && !issilicon(user))
-		if(ui)
-			ui.close()
+		ui?.close()
 		return
 
 	if(honkvirus_amount > 0) // EXTRA annoying, huh!
@@ -62,6 +61,8 @@
 	ui = SStgui.try_update_ui(user, src, ui)
 	if(!ui)
 		update_tablet_open_uis(user)
+	else if(active_program?.always_update_ui)
+		active_program.ui_interact(user, ui)
 
 /obj/item/modular_computer/ui_assets(mob/user)
 	var/list/data = list()
@@ -96,9 +97,9 @@
 	)
 
 	data["proposed_login"] = list(
-		IDInserted = computer_id_slot ? TRUE : FALSE,
-		IDName = computer_id_slot?.registered_name,
-		IDJob = computer_id_slot?.assignment,
+		IDInserted = stored_id ? TRUE : FALSE,
+		IDName = stored_id?.registered_name,
+		IDJob = stored_id?.assignment,
 	)
 
 	data["removable_media"] = list()
@@ -113,11 +114,15 @@
 		data["programs"] += list(list(
 			"name" = program.filename,
 			"desc" = program.filedesc,
-			"header_program" = program.header_program,
+			"header_program" = !!(program.program_flags & PROGRAM_HEADER),
 			"running" = !!(program in idle_threads),
 			"icon" = program.program_icon,
 			"alert" = program.alert_pending,
 		))
+
+	data["alert_style"] = get_security_level_relevancy()
+	data["alert_color"] = SSsecurity_level?.current_security_level?.announcement_color
+	data["alert_name"] = SSsecurity_level?.current_security_level?.name_shortform
 
 	return data
 
@@ -145,7 +150,7 @@
 		if("PC_minimize")
 			if(!active_program || (!isnull(internal_cell) && !internal_cell.charge))
 				return
-			active_program.background_program()
+			active_program.background_program(usr)
 			return TRUE
 
 		if("PC_killprogram")
@@ -171,7 +176,7 @@
 			var/mob/user = usr
 			var/new_color
 			while(!new_color)
-				new_color = input(user, "Choose a new color for [src]'s flashlight.", "Light Color",light_color) as color|null
+				new_color = tgui_color_picker(user, "Choose a new color for [src]'s flashlight.", "Light Color",light_color) // BUBBERSTATION EDIT: TGUI COLOR PICKER
 				if(!new_color)
 					return
 				if(is_color_dark(new_color, 50) ) //Colors too dark are rejected
@@ -188,7 +193,10 @@
 					if(!inserted_disk)
 						return
 
-					user.put_in_hands(inserted_disk)
+					if(!user || !Adjacent(user))
+						inserted_disk.forceMove(drop_location())
+					else
+						user.put_in_hands(inserted_disk)
 					inserted_disk = null
 					playsound(src, 'sound/machines/card_slide.ogg', 50)
 					return TRUE
@@ -203,14 +211,14 @@
 						return TRUE
 
 				if("ID")
-					if(RemoveID(user))
+					if(remove_id(user))
 						playsound(src, 'sound/machines/card_slide.ogg', 50)
 						return TRUE
 
 		if("PC_Imprint_ID")
 			imprint_id()
 			UpdateDisplay()
-			playsound(src, 'sound/machines/terminal_processing.ogg', 15, TRUE)
+			playsound(src, 'sound/machines/terminal/terminal_processing.ogg', 15, TRUE)
 
 		if("PC_Pai_Interact")
 			switch(params["option"])

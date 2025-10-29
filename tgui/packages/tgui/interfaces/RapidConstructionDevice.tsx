@@ -1,10 +1,18 @@
-import { Window } from '../layouts';
-import { BooleanLike, classes } from 'common/react';
-import { capitalizeAll } from 'common/string';
-import { useBackend } from '../backend';
-import { LabeledList, Section, Button, Tabs, Stack, Box } from '../components';
-import { AirLockMainSection } from './AirlockElectronics';
 import { useState } from 'react';
+import {
+  Box,
+  Button,
+  LabeledList,
+  Section,
+  Stack,
+  Tabs,
+} from 'tgui-core/components';
+import { type BooleanLike, classes } from 'tgui-core/react';
+import { capitalizeAll } from 'tgui-core/string';
+
+import { useBackend } from '../backend';
+import { Window } from '../layouts';
+import { AirLockMainSection } from './AirlockElectronics';
 
 type Data = {
   matterLeft: number;
@@ -99,7 +107,6 @@ const DesignSection = (props) => {
       <Tabs>
         {categories.map((category) => (
           <Tabs.Tab
-            fluid
             key={category.cat_name}
             selected={category.cat_name === shownCategory.cat_name}
             onClick={() => setCategoryName(category.cat_name)}

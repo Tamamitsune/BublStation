@@ -1,7 +1,4 @@
-import { BooleanLike, classes } from 'common/react';
-import { decodeHtmlEntities } from 'common/string';
-import { multiline } from 'common/string';
-import { useBackend, useLocalState } from '../backend';
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -12,9 +9,13 @@ import {
   Stack,
   Tabs,
   TextArea,
-} from '../components';
+} from 'tgui-core/components';
+import { formatTime } from 'tgui-core/format';
+import { type BooleanLike, classes } from 'tgui-core/react';
+import { decodeHtmlEntities } from 'tgui-core/string';
+
+import { useBackend } from '../backend';
 import { Window } from '../layouts';
-import { formatTime } from '../format';
 
 type RoleInfo = {
   role_theme: string;
@@ -22,6 +23,7 @@ type RoleInfo = {
   desc: string;
   hud_icon: string;
   revealed_icon: string;
+  role_dead: string;
 };
 
 type PlayerInfo = {
@@ -67,20 +69,13 @@ type MafiaData = {
 export const MafiaPanelData = (props) => {
   const { act, data } = useBackend<MafiaData>();
   const { phase, roleinfo, admin_controls, messages, player_voted_up } = data;
-  const [mafia_tab, setMafiaMode] = useLocalState('mafia_tab', 'Role list');
+  const [mafia_tab, setMafiaMode] = useState('Role list');
 
   if (phase === 'No Game') {
     return (
-      <Stack fill>
-        <Stack.Item grow={1}>
-          <Stack fill vertical>
-            <MafiaLobby />
-
-            <Stack grow>
-              <Stack.Item>{!!admin_controls && <MafiaAdmin />}</Stack.Item>
-            </Stack>
-          </Stack>
-        </Stack.Item>
+      <Stack fill vertical>
+        <MafiaLobby />
+        {!!admin_controls && <MafiaAdmin />}
       </Stack>
     );
   }
@@ -88,11 +83,11 @@ export const MafiaPanelData = (props) => {
   return (
     <Stack fill>
       {!!roleinfo && (
-        <Stack.Item grow={1}>
+        <Stack.Item grow>
           <MafiaChat />
         </Stack.Item>
       )}
-      <Stack.Item grow={1}>
+      <Stack.Item grow>
         <Stack fill vertical>
           {!!roleinfo && (
             <>
@@ -106,16 +101,16 @@ export const MafiaPanelData = (props) => {
               )}
             </>
           )}
-          <Stack grow>
-            <Stack.Item>{!!admin_controls && <MafiaAdmin />}</Stack.Item>
-          </Stack>
+
+          <Stack.Item>{!!admin_controls && <MafiaAdmin />}</Stack.Item>
+
           {phase !== 'No Game' && (
-            <Stack grow fill>
-              <>
+            <Stack.Item>
+              <Stack fill>
                 <Stack.Item grow>
                   <MafiaPlayers />
                 </Stack.Item>
-                <Stack.Item fluid grow>
+                <Stack.Item grow>
                   <Stack.Item>
                     <Tabs fluid>
                       <Tabs.Tab
@@ -128,7 +123,7 @@ export const MafiaPanelData = (props) => {
                           color="transparent"
                           icon="address-book"
                           tooltipPosition="bottom-start"
-                          tooltip={multiline`
+                          tooltip={`
                             This is the list of roles in the game. You can
                             press the question mark to get a quick blurb
                             about the role itself.`}
@@ -144,7 +139,7 @@ export const MafiaPanelData = (props) => {
                           color="transparent"
                           icon="pencil"
                           tooltipPosition="bottom-start"
-                          tooltip={multiline`
+                          tooltip={`
                             This is your notes, anything you want to write
                             can be saved for future reference. You can
                             also send it to chat with a button.`}
@@ -155,8 +150,8 @@ export const MafiaPanelData = (props) => {
                   {mafia_tab === 'Role list' && <MafiaListOfRoles />}
                   {mafia_tab === 'Notes' && <MafiaNotesTab />}
                 </Stack.Item>
-              </>
-            </Stack>
+              </Stack>
+            </Stack.Item>
           )}
         </Stack>
       </Stack.Item>
@@ -168,12 +163,7 @@ export const MafiaPanel = (props) => {
   const { act, data } = useBackend<MafiaData>();
   const { roleinfo } = data;
   return (
-    <Window
-      title="Mafia"
-      theme={roleinfo && roleinfo.role_theme}
-      width={900}
-      height={600}
-    >
+    <Window title="Mafia" theme={roleinfo?.role_theme} width={900} height={600}>
       <Window.Content>
         <MafiaPanelData />
       </Window.Content>
@@ -184,12 +174,11 @@ export const MafiaPanel = (props) => {
 const MafiaChat = (props) => {
   const { act, data } = useBackend<MafiaData>();
   const { messages } = data;
-  const [message_to_send, setMessagingBox] = useLocalState('Chat', '');
+  const [message_to_send, setMessagingBox] = useState('');
   return (
     <Stack vertical fill>
       {!!messages && (
         <>
-          {' '}
           <Section fill scrollable title="Chat Logs">
             {messages.map((message) => (
               <Box key={message.msg}>{decodeHtmlEntities(message.msg)}</Box>
@@ -200,25 +189,22 @@ const MafiaChat = (props) => {
             height="10%"
             maxLength={300}
             className="Section__title candystripe"
-            onChange={(e, value) => setMessagingBox(value)}
+            onChange={setMessagingBox}
             placeholder="Type to chat"
             value={message_to_send}
           />
-          <Stack grow>
-            <Stack.Item grow fill>
-              <Button
-                color="bad"
-                fluid
-                content="Send to Chat"
-                textAlign="center"
-                tooltip="Sends your message to chat."
-                onClick={() => {
-                  setMessagingBox('');
-                  act('send_message_to_chat', { message: message_to_send });
-                }}
-              />
-            </Stack.Item>
-          </Stack>
+          <Button
+            color="bad"
+            fluid
+            textAlign="center"
+            tooltip="Sends your message to chat."
+            onClick={() => {
+              setMessagingBox('');
+              act('send_message_to_chat', { message: message_to_send });
+            }}
+          >
+            Send to Chat
+          </Button>
         </>
       )}
     </Stack>
@@ -241,7 +227,7 @@ const MafiaLobby = (props) => {
           <Button
             icon="clipboard-check"
             tooltipPosition="bottom-start"
-            tooltip={multiline`
+            tooltip={`
               Signs you up for the next game. If there
               is an ongoing one, you will be signed up
               for the next.
@@ -252,7 +238,7 @@ const MafiaLobby = (props) => {
           <Button
             icon="arrow-right"
             tooltipPosition="bottom-start"
-            tooltip={multiline`
+            tooltip={`
               Submit a vote to start the game early.
               Starts when half of the current signup list have voted to start.
               Requires a bare minimum of six players.
@@ -301,25 +287,29 @@ const MafiaRole = (props) => {
     <Section
       fill
       title={phase + turn}
-      minHeight="100px"
+      minHeight="110px"
       maxHeight="50px"
       buttons={
         <Box
-          style={{
-            fontFamily: 'Consolas, monospace',
-            fontSize: '14px',
-            lineHeight: 1.5,
-            fontWeight: 'bold',
-          }}
+          lineHeight={1.5}
+          fontFamily="Consolas, monospace"
+          fontSize="14px"
+          fontWeight="bold"
         >
           {formatTime(timeleft)}
         </Box>
       }
     >
-      <Stack align="center">
+      <Stack>
         <Stack.Item grow>
-          <Box bold>You are the {roleinfo.role}</Box>
-          <Box italic>{roleinfo.desc}</Box>
+          <Box fontSize="16px">You are the {roleinfo.role}</Box>
+          {!!roleinfo.role_dead && (
+            <Box bold>
+              You are currently dead. You may speak with the Chaplain at night,
+              if there is one.
+            </Box>
+          )}
+          {!roleinfo.role_dead && <Box italic>{roleinfo.desc}</Box>}
         </Stack.Item>
         <Stack.Item>
           <Box
@@ -374,37 +364,34 @@ const MafiaListOfRoles = (props) => {
 const MafiaNotesTab = (props) => {
   const { act, data } = useBackend<MafiaData>();
   const { user_notes } = data;
-  const [note_message, setNotesMessage] = useLocalState('Notes', user_notes);
+  const [note_message, setNotesMessage] = useState(user_notes);
   return (
-    <Section grow fill>
+    <Section fill>
       <TextArea
         height="80%"
         maxLength={600}
         className="Section__title candystripe"
-        onChange={(_, value) => setNotesMessage(value)}
+        onChange={setNotesMessage}
         placeholder="Insert Notes..."
         value={note_message}
       />
-      <Stack grow>
-        <Stack.Item grow fill>
-          <Button
-            color="good"
-            fluid
-            content="Save"
-            textAlign="center"
-            onClick={() => act('change_notes', { new_notes: note_message })}
-            tooltip="Saves whatever is written as your notepad. This can't be done while dead."
-          />
-          <Button.Confirm
-            color="bad"
-            fluid
-            content="Send to Chat"
-            textAlign="center"
-            onClick={() => act('send_notes_to_chat')}
-            tooltip="Sends your notes immediately into the chat for everyone to hear."
-          />
-        </Stack.Item>
-      </Stack>
+
+      <Button
+        color="good"
+        fluid
+        textAlign="center"
+        onClick={() => act('change_notes', { new_notes: note_message })}
+        tooltip="Saves whatever is written as your notepad. This can't be done while dead."
+      >
+        Save
+      </Button>
+      <Button.Confirm
+        color="bad"
+        fluid
+        content="Send to Chat"
+        textAlign="center"
+        onClick={() => act('send_notes_to_chat')}
+      />
     </Section>
   );
 };
@@ -416,17 +403,15 @@ const MafiaJudgement = (props) => {
       <Flex>
         <Button
           icon="smile-beam"
-          content="Innocent"
           color="good"
           onClick={() => act('vote_innocent')}
-        />
+        >
+          Innocent
+        </Button>
         <Box>It is now time to vote, vote the accused innocent or guilty!</Box>
-        <Button
-          icon="angry"
-          content="Guilty"
-          color="bad"
-          onClick={() => act('vote_guilty')}
-        />
+        <Button icon="angry" color="bad" onClick={() => act('vote_guilty')}>
+          Guilty
+        </Button>
       </Flex>
       <Flex justify="center">
         <Button icon="meh" color="white" onClick={() => act('vote_abstain')}>
@@ -455,7 +440,7 @@ const MafiaPlayers = (props) => {
               >
                 {player.name}
                 {(!!player.is_you && ' (YOU)') ||
-                  (!!player.role_revealed && ' - ' + player.role_revealed)}
+                  (!!player.role_revealed && ` - ${player.role_revealed}`)}
               </Stack.Item>
               <Stack.Item>
                 {player.votes !== undefined &&

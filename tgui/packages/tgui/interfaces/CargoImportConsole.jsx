@@ -1,8 +1,16 @@
 // THIS IS A SKYRAT UI FILE
-import { useBackend } from '../backend';
-import { Section, Stack, Box, Divider, Button } from '../components';
-import { Window } from '../layouts';
 import { useState } from 'react';
+import {
+  Box,
+  Button,
+  Divider,
+  Image,
+  Section,
+  Stack,
+} from 'tgui-core/components';
+
+import { useBackend } from '../backend';
+import { Window } from '../layouts';
 
 export const CargoImportConsole = (props) => {
   const [category, setCategory] = useState('');
@@ -80,7 +88,7 @@ export const CargoImportConsole = (props) => {
                                 key={item.ref}
                                 onClick={() => setArmament(item.ref)}
                               >
-                                <img
+                                <Image
                                   src={`data:image/jpeg;base64,${item.icon}`}
                                   style={{
                                     'vertical-align': 'middle',
@@ -105,21 +113,17 @@ export const CargoImportConsole = (props) => {
                     subcat.items.map(
                       (item) =>
                         item.ref === weapon && (
-                          <Stack vertical>
+                          <Stack vertical key={item.ref}>
                             <Stack.Item>
-                              <Box key={item.ref}>
-                                <img
-                                  height="100%"
-                                  width="100%"
-                                  src={`data:image/jpeg;base64,${item.icon}`}
-                                  style={{
-                                    'vertical-align': 'middle',
-                                    'horizontal-align': 'middle',
-                                    '-ms-interpolation-mode':
-                                      'nearest-neighbor',
-                                  }}
-                                />
-                              </Box>
+                              <Image
+                                src={`data:image/jpeg;base64,${item.icon}`}
+                                height={'100%'}
+                                width={'100%'}
+                                style={{
+                                  'vertical-align': 'middle',
+                                  'horizontal-align': 'middle',
+                                }}
+                              />
                             </Stack.Item>
                             <Stack.Item>{item.description}</Stack.Item>
                             {!!cant_buy_restricted && !!item.restricted && (
@@ -134,7 +138,7 @@ export const CargoImportConsole = (props) => {
                                 item.cost > budget_points ? 'red' : 'green'
                               }
                             >
-                              {'Cost: ' + item.cost}
+                              {`Cost: ${item.cost}`}
                             </Stack.Item>
                             <Stack.Item>
                               <Button

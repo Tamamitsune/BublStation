@@ -1,8 +1,9 @@
 /obj/item/wargame_projector
 	name = "holographic projector"
 	desc = "A handy-dandy holographic projector developed by Nanotrasen Naval Command for playing wargames with, this one seems broken."
-	icon = 'modular_skyrat/modules/wargame_projectors/icons/projectors_and_holograms.dmi'
-	icon_state = "projector"
+	icon = 'icons/map_icons/items/_item.dmi'
+	icon_state = "/obj/item/wargame_projector"
+	post_init_icon_state = "projector"
 	inhand_icon_state = "electronic"
 	worn_icon_state = "electronic"
 	lefthand_file = 'icons/mob/inhands/items/devices_lefthand.dmi'
@@ -51,8 +52,8 @@
 	set_greyscale(holosign_color)
 	populate_radial_choice_lists()
 
-/obj/item/wargame_projector/handle_openspace_click(turf/target, mob/user, proximity_flag, click_parameters)
-	afterattack(target, user, proximity_flag, click_parameters)
+/obj/item/wargame_projector/handle_openspace_click(turf/target, mob/user, click_parameters)
+	ranged_interact_with_atom(target, user, params2list(click_parameters))
 
 /obj/item/wargame_projector/examine(mob/user)
 	. = ..()
@@ -86,7 +87,7 @@
 /obj/item/wargame_projector/attack_self(mob/user)
 	select_hologram(user)
 
-/obj/item/wargame_projector/AltClick(mob/user)
+/obj/item/wargame_projector/click_alt(mob/user)
 	var/selected_color = tgui_input_list(user, "Select a color", "Color Selection", color_options)
 	if(isnull(selected_color))
 		balloon_alert(user, "no color change")
@@ -95,16 +96,15 @@
 	holosign_color = color_to_set_to
 	balloon_alert(user, "color changed")
 	set_greyscale(holosign_color)
+	return CLICK_ACTION_SUCCESS
 
-/obj/item/wargame_projector/CtrlClick(mob/user)
-	if(tgui_alert(usr,"Clear all currently active holograms?", "Hologram Removal", list("Yes", "No")) == "Yes")
-		for(var/hologram as anything in projections)
+/obj/item/wargame_projector/item_ctrl_click(mob/user)
+	if(tgui_alert(user,"Clear all currently active holograms?", "Hologram Removal", list("Yes", "No")) == "Yes")
+		for(var/hologram in projections)
 			qdel(hologram)
 
 /// Can we place a hologram at the target location?
-/obj/item/wargame_projector/proc/check_can_place_hologram(atom/target, mob/user, proximity_flag, team)
-	if(!proximity_flag)
-		return FALSE
+/obj/item/wargame_projector/proc/check_can_place_hologram(atom/target, mob/user, team)
 	if(!check_allowed_items(target, not_inside = TRUE))
 		return FALSE
 	var/turf/target_turf = get_turf(target)
@@ -116,10 +116,9 @@
 	return TRUE
 
 /// Spawn a hologram with pixel offset based on where the user clicked
-/obj/item/wargame_projector/proc/create_hologram(atom/target, mob/user, click_parameters)
+/obj/item/wargame_projector/proc/create_hologram(atom/target, mob/user, list/modifiers)
 	var/obj/target_holosign = new holosign_type(get_turf(target), src)
 
-	var/list/modifiers = params2list(click_parameters)
 	var/click_x
 	var/click_y
 
@@ -134,17 +133,14 @@
 
 	playsound(loc, 'sound/machines/click.ogg', 20, TRUE)
 
-/obj/item/wargame_projector/afterattack(atom/target, mob/user, proximity_flag, click_parameters)
-	. = ..()
-	if(istype(target, /obj/structure/wargame_hologram))
-		qdel(target)
-		return
-	if(!check_can_place_hologram(target, user, proximity_flag, 1))
-		return
-	create_hologram(target, user, click_parameters)
-
-/obj/item/wargame_projector/attack(mob/living/carbon/human/M, mob/user) //Jesse what the fuck is happening with that var, I'm scared to change it from M
-	return
+/obj/item/wargame_projector/ranged_interact_with_atom(atom/interacting_with, mob/living/user, list/modifiers)
+	if(istype(interacting_with, /obj/structure/wargame_hologram))
+		qdel(interacting_with)
+		return ITEM_INTERACT_SUCCESS
+	if(!check_can_place_hologram(interacting_with, user, 1))
+		return NONE
+	create_hologram(interacting_with, user, modifiers)
+	return ITEM_INTERACT_SUCCESS
 
 /obj/item/wargame_projector/Destroy()
 	QDEL_LAZYLIST(projections)
@@ -157,6 +153,7 @@ Actual projector types, split between the 'categories' of things they can projec
 /obj/item/wargame_projector/ships
 	name = "holographic unit projector"
 	desc = "A handy-dandy holographic projector developed by Nanotrasen Naval Command for playing wargames with, this one creates markers for 'units'."
+	flags_1 = parent_type::flags_1 | NO_NEW_GAGS_PREVIEW_1
 	max_signs = 30
 	holosign_color = COLOR_BLUE_LIGHT
 	holosign_type = /obj/structure/wargame_hologram/ship_marker
@@ -180,6 +177,7 @@ Actual projector types, split between the 'categories' of things they can projec
 /obj/item/wargame_projector/terrain
 	name = "holographic terrain projector"
 	desc = "A handy-dandy holographic projector developed by Nanotrasen Naval Command for playing wargames with, this one creates markers for space 'terrain'."
+	flags_1 = parent_type::flags_1 | NO_NEW_GAGS_PREVIEW_1
 	max_signs = 30
 	holosign_color = COLOR_GRAY
 	holosign_type = /obj/structure/wargame_hologram/asteroid

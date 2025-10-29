@@ -1,6 +1,8 @@
 /obj/item/gun/ballistic/automatic/wt550
-	can_bayonet = FALSE
 	can_suppress = FALSE
+
+/obj/item/gun/ballistic/automatic/wt550/add_bayonet_point()
+	return
 
 /obj/item/gun/ballistic/automatic/wt550/security
 	name = "\improper WT-551 Autorifle"
@@ -11,9 +13,3 @@
 	fire_delay = 3
 	//18 damage per 0.3 seconds = 60 DPS
 	//Reference: Laser Gun 22 damage per 0.4 seconds = 55DPS
-
-/obj/item/gun/ballistic/automatic/wt550/security/flathead //What you get in the armory.
-	spawn_magazine_type = /obj/item/ammo_box/magazine/wt550m9/flathead
-
-/obj/item/gun/ballistic/automatic/wt550/security/rubber //What you get from cargo.
-	spawn_magazine_type = /obj/item/ammo_box/magazine/wt550m9/rubber

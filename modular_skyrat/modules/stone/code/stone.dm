@@ -11,7 +11,6 @@
 	resistance_flags = FIRE_PROOF
 	merge_type = /obj/item/stack/sheet/mineral/stone
 	grind_results = null
-	point_value = 0
 	material_type = /datum/material/stone
 	matter_amount = 0
 	source = null
@@ -19,12 +18,13 @@
 	stairs_type = /obj/structure/stairs/stone
 
 GLOBAL_LIST_INIT(stone_recipes, list ( \
-	new/datum/stack_recipe("stone brick wall", /turf/closed/wall/mineral/stone, 5, one_per_turf = 1, on_solid_ground = 1, applies_mats = TRUE, category = CAT_STRUCTURE), \
-	new/datum/stack_recipe("stone brick tile", /obj/item/stack/tile/mineral/stone, 1, 4, 20, check_density = FALSE, category = CAT_TILES),
-	new/datum/stack_recipe("millstone", /obj/structure/millstone, 6, one_per_turf = 1, on_solid_ground = 1, category = CAT_STRUCTURE),
-	new/datum/stack_recipe("stone stove", /obj/machinery/primitive_stove, 5, one_per_turf = 1, on_solid_ground = 1, category = CAT_STRUCTURE),
-	new/datum/stack_recipe("stone oven", /obj/machinery/oven/stone, 5, one_per_turf = 1, on_solid_ground = 1, category = CAT_STRUCTURE),
-	new/datum/stack_recipe("stone griddle", /obj/machinery/griddle/stone, 5, one_per_turf = 1, on_solid_ground = 1, category = CAT_STRUCTURE),
+	new/datum/stack_recipe("stone brick wall", /turf/closed/wall/mineral/stone, 5, crafting_flags = CRAFT_CHECK_DENSITY | CRAFT_ONE_PER_TURF | CRAFT_ON_SOLID_GROUND | CRAFT_APPLIES_MATS, category = CAT_STRUCTURE), \
+	new/datum/stack_recipe("stone brick tile", /obj/item/stack/tile/mineral/stone, 1, 4, 20, category = CAT_TILES),
+	new/datum/stack_recipe("millstone", /obj/structure/millstone, 6, crafting_flags = CRAFT_CHECK_DENSITY | CRAFT_ONE_PER_TURF | CRAFT_ON_SOLID_GROUND, category = CAT_STRUCTURE),
+	new/datum/stack_recipe("stone cauldron", /obj/machinery/cauldron, 5, crafting_flags = CRAFT_CHECK_DENSITY | CRAFT_ONE_PER_TURF | CRAFT_ON_SOLID_GROUND, category = CAT_STRUCTURE),
+	new/datum/stack_recipe("stone stove", /obj/machinery/primitive_stove, 5, crafting_flags = CRAFT_CHECK_DENSITY | CRAFT_ONE_PER_TURF | CRAFT_ON_SOLID_GROUND, category = CAT_STRUCTURE),
+	new/datum/stack_recipe("stone oven", /obj/machinery/oven/stone, 5, crafting_flags = CRAFT_CHECK_DENSITY | CRAFT_ONE_PER_TURF | CRAFT_ON_SOLID_GROUND, category = CAT_STRUCTURE),
+	new/datum/stack_recipe("stone griddle", /obj/machinery/griddle/stone, 5, crafting_flags = CRAFT_CHECK_DENSITY | CRAFT_ONE_PER_TURF | CRAFT_ON_SOLID_GROUND, category = CAT_STRUCTURE),
 	))
 
 /obj/item/stack/sheet/mineral/stone/get_main_recipes()
@@ -39,7 +39,7 @@ GLOBAL_LIST_INIT(stone_recipes, list ( \
 	value_per_unit = 0.005
 	beauty_modifier = 0.01
 	color = "#59595a"
-	greyscale_colors = "#59595a"
+	greyscale_color = "#59595a"
 	value_per_unit = 0.0025
 	armor_modifiers = list(MELEE = 0.75, BULLET = 0.5, LASER = 1.25, ENERGY = 0.5, BOMB = 0.5, BIO = 0.25, FIRE = 1.5, ACID = 1.5)
 	beauty_modifier = 0.3
@@ -63,7 +63,7 @@ GLOBAL_LIST_INIT(stone_recipes, list ( \
 /obj/item/stack/stone/attackby(obj/item/attacking_item, mob/user, params)
 	if((attacking_item.tool_behaviour != TOOL_MINING) && !(istype(attacking_item, /obj/item/chisel)))
 		return ..()
-	playsound(src, 'sound/effects/picaxe1.ogg', 50, TRUE)
+	playsound(src, 'sound/effects/pickaxe/picaxe1.ogg', 50, TRUE)
 	balloon_alert_to_viewers("cutting...")
 	if(!do_after(user, 5 SECONDS, target = src))
 		balloon_alert_to_viewers("stopped cutting")
@@ -79,11 +79,12 @@ GLOBAL_LIST_INIT(stone_recipes, list ( \
 	inhand_icon_state = "tile"
 	turf_type = /turf/open/floor/stone
 	mineralType = "stone"
-	mats_per_unit = list(/datum/material/stone= SMALL_MATERIAL_AMOUNT * 5)
+	mats_per_unit = list(/datum/material/stone= HALF_SHEET_MATERIAL_AMOUNT)
 	merge_type = /obj/item/stack/tile/mineral/stone
 
 /turf/open/floor/stone
 	desc = "Blocks of stone arranged in a tile-like pattern, odd, really, how it looks like real stone too, because it is!" //A play on the original description for stone tiles
+	slowdown = -0.3
 
 /turf/closed/wall/mineral/stone
 	name = "stone wall"
@@ -96,7 +97,9 @@ GLOBAL_LIST_INIT(stone_recipes, list ( \
 	smoothing_flags = SMOOTH_BITMASK
 	smoothing_groups = SMOOTH_GROUP_STONE_WALLS + SMOOTH_GROUP_WALLS + SMOOTH_GROUP_CLOSED_TURFS
 	canSmoothWith = SMOOTH_GROUP_STONE_WALLS
-	custom_materials = list(/datum/material/stone = SHEET_MATERIAL_AMOUNT  * 2)
+	custom_materials = list(
+		/datum/material/stone = SHEET_MATERIAL_AMOUNT  * 2,
+	)
 
 /turf/closed/wall/mineral/stone/try_decon(obj/item/item_used, mob/user) // Lets you break down stone walls with stone breaking tools
 	if(item_used.tool_behaviour != TOOL_MINING)
@@ -121,7 +124,9 @@ GLOBAL_LIST_INIT(stone_recipes, list ( \
 	smoothing_flags = SMOOTH_BITMASK
 	smoothing_groups = SMOOTH_GROUP_STONE_WALLS + SMOOTH_GROUP_WALLS + SMOOTH_GROUP_CLOSED_TURFS
 	canSmoothWith = SMOOTH_GROUP_STONE_WALLS
-	custom_materials = list(/datum/material/stone = SHEET_MATERIAL_AMOUNT  * 2) // Does this even need materials?
+	custom_materials = list(
+		/datum/material/stone = SHEET_MATERIAL_AMOUNT  * 2,
+	)
 
 /obj/structure/falsewall/stone
 	name = "stone wall"

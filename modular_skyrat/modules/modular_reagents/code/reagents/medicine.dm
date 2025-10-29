@@ -1,23 +1,23 @@
 /datum/reagent/medicine/lidocaine
 	name = "Lidocaine"
 	description = "A numbing agent used often for surgeries, metabolizes slowly."
-	reagent_state = LIQUID
 	color = "#6dbdbd" // 109, 189, 189
 	metabolization_rate = 0.2 * REAGENTS_METABOLISM
 	overdose_threshold = 20
 	ph = 6.09
 	chemical_flags = REAGENT_CAN_BE_SYNTHESIZED
-	addiction_types = list(/datum/addiction/opioids = 20)
+	metabolized_traits = list(TRAIT_ANALGESIA)
 	inverse_chem_val = 0.55
 	inverse_chem = /datum/reagent/inverse/lidocaine
+	taste_description = "vanilla"
+
+	metabolized_traits = list(TRAIT_ANALGESIA)
 
 /datum/reagent/medicine/lidocaine/on_mob_metabolize(mob/living/metabolizer)
 	. = ..()
-	ADD_TRAIT(metabolizer, TRAIT_NUMBED, REF(src))
 	metabolizer.throw_alert("numbed", /atom/movable/screen/alert/numbed)
 
 /datum/reagent/medicine/lidocaine/on_mob_end_metabolize(mob/living/metabolizer)
-	REMOVE_TRAIT(metabolizer, TRAIT_NUMBED, REF(src))
 	metabolizer.clear_alert("numbed")
 	return ..()
 
@@ -30,7 +30,6 @@
 /datum/reagent/inverse/lidocaine
 	name = "Lidopaine"
 	description = "A paining agent used often for... being a jerk, metabolizes faster than lidocaine."
-	reagent_state = LIQUID
 	color = "#85111f" // 133, 17, 31
 	metabolization_rate = 0.4 * REAGENTS_METABOLISM
 	ph = 6.09

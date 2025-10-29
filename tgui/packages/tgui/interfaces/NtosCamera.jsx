@@ -1,6 +1,7 @@
+import { Button, Image, NoticeBox, Stack } from 'tgui-core/components';
+
 import { useBackend } from '../backend';
 import { NtosWindow } from '../layouts';
-import { Button, Image, NoticeBox, Stack } from '../components';
 
 export const NtosCamera = (props) => {
   return (

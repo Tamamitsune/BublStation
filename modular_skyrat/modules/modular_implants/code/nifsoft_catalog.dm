@@ -14,11 +14,11 @@ GLOBAL_LIST_INIT(purchasable_nifsofts, list(
 	filename = "nifsoftcatalog"
 	filedesc = "NIFSoft Catalog"
 	extended_desc = "A virtual storefront that allows the user to install NIFSofts and purchase various NIF related products"
-	category = PROGRAM_CATEGORY_MISC
+	downloader_category = PROGRAM_CATEGORY_DEVICE
 	size = 3
 	tgui_id = "NtosNifsoftCatalog"
 	program_icon = "bag-shopping"
-	usage_flags = PROGRAM_TABLET
+	can_run_on_flags = PROGRAM_PDA
 	///What bank account is money being drawn out of?
 	var/datum/bank_account/paying_account
 	///What NIF are the NIFSofts being sent to?
@@ -35,14 +35,14 @@ GLOBAL_LIST_INIT(purchasable_nifsofts, list(
 /datum/computer_file/program/nifsoft_downloader/ui_data(mob/user)
 	var/list/data = list()
 
-	paying_account = computer.computer_id_slot?.registered_account || null
+	paying_account = computer.stored_id?.registered_account || null
 	data["paying_account"] = paying_account
-	data["current_balance"] = computer.computer_id_slot?.registered_account?.account_balance
+	data["current_balance"] = computer.stored_id?.registered_account?.account_balance
 
 	var/rewards_points = 0
 
 	if(target_nif)
-		var/obj/item/organ/internal/cyberimp/brain/nif/buyer_nif = target_nif.resolve()
+		var/obj/item/organ/cyberimp/brain/nif/buyer_nif = target_nif.resolve()
 		if(buyer_nif)
 			rewards_points = buyer_nif.rewards_points
 
@@ -58,7 +58,7 @@ GLOBAL_LIST_INIT(purchasable_nifsofts, list(
 		target_nif = null
 
 	else
-		var/obj/item/organ/internal/cyberimp/brain/nif/user_nif = nif_user.get_organ_by_type(/obj/item/organ/internal/cyberimp/brain/nif)
+		var/obj/item/organ/cyberimp/brain/nif/user_nif = nif_user.get_organ_by_type(/obj/item/organ/cyberimp/brain/nif)
 		if(!user_nif)
 			target_nif = null
 
@@ -108,7 +108,7 @@ GLOBAL_LIST_INIT(purchasable_nifsofts, list(
 
 			var/amount_to_charge = (params["product_cost"])
 			var/rewards_purchase = (params["rewards_purchase"])
-			var/obj/item/organ/internal/cyberimp/brain/nif/buyer_nif = target_nif.resolve()
+			var/obj/item/organ/cyberimp/brain/nif/buyer_nif = target_nif.resolve()
 
 			if(rewards_purchase)
 				if(buyer_nif.rewards_points < amount_to_charge)

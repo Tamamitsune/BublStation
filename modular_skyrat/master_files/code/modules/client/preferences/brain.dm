@@ -14,8 +14,8 @@
 	if(!issynthetic(target))
 		return
 
-	var/obj/item/organ/internal/brain/new_brain = target.prefs_get_brain_to_use(value)
-	var/obj/item/organ/internal/brain/old_brain = target.get_organ_slot(ORGAN_SLOT_BRAIN)
+	var/obj/item/organ/brain/new_brain = target.prefs_get_brain_to_use(value)
+	var/obj/item/organ/brain/old_brain = target.get_organ_slot(ORGAN_SLOT_BRAIN)
 
 	if(!new_brain || new_brain == old_brain.type)
 		return
@@ -25,9 +25,10 @@
 	new_brain = new new_brain()
 
 	new_brain.modular_persistence = old_brain.modular_persistence
+	new_brain.modular_persistence?.owner = new_brain
 	old_brain.modular_persistence = null
 
-	new_brain.Insert(target, drop_if_replaced = FALSE)
+	new_brain.Insert(target, movement_flags = DELETE_IF_REPLACED)
 
 	// Prefs can be applied to mindless mobs, let's not try to move the non-existent mind back in!
 	if(!keep_me_safe)

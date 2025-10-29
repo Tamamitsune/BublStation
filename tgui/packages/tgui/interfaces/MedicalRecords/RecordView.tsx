@@ -1,26 +1,28 @@
-import { NoteKeeper } from './NoteKeeper';
+import { useState } from 'react';
 import {
-  Stack,
-  Section,
-  NoticeBox,
   Box,
-  LabeledList,
   Button,
+  LabeledList,
+  NoticeBox,
   RestrictedInput,
-} from 'tgui/components';
-import { CharacterPreview } from '../common/CharacterPreview';
-import { getMedicalRecord, getQuirkStrings } from './helpers';
+  Section,
+  Stack,
+} from 'tgui-core/components';
+
 import { useBackend } from '../../backend';
+import { CharacterPreview } from '../common/CharacterPreview';
+import { EditableText } from '../common/EditableText';
 import {
-  PHYSICALSTATUS2COLOR,
-  PHYSICALSTATUS2DESC,
-  PHYSICALSTATUS2ICON,
   MENTALSTATUS2COLOR,
   MENTALSTATUS2DESC,
   MENTALSTATUS2ICON,
+  PHYSICALSTATUS2COLOR,
+  PHYSICALSTATUS2DESC,
+  PHYSICALSTATUS2ICON,
 } from './constants';
-import { MedicalRecordData } from './types';
-import { EditableText } from '../common/EditableText';
+import { getMedicalRecord, getQuirkStrings } from './helpers';
+import { NoteKeeper } from './NoteKeeper';
+import type { MedicalRecordData } from './types';
 
 /** Views a selected record. */
 export const MedicalRecordView = (props) => {
@@ -30,10 +32,12 @@ export const MedicalRecordView = (props) => {
   const { act, data } = useBackend<MedicalRecordData>();
   const { assigned_view, physical_statuses, mental_statuses, station_z } = data;
 
-  const { min_age, max_age } = data;
+  // const { min_age, max_age } = data; // ORIGINAL
+  const { min_age, max_age, max_chrono_age } = data; // SKYRAT EDIT CHANGE - Chronological age
 
   const {
     age,
+    chrono_age, // SKYRAT EDIT ADDITION - Chronological age
     blood_type,
     crew_ref,
     dna,
@@ -56,6 +60,8 @@ export const MedicalRecordView = (props) => {
   const major_disabilities_array = getQuirkStrings(major_disabilities);
   const quirk_notes_array = getQuirkStrings(quirk_notes);
 
+  const [isValid, setIsValid] = useState(true);
+
   return (
     <Stack fill vertical>
       <Stack.Item grow>
@@ -72,17 +78,17 @@ export const MedicalRecordView = (props) => {
         <Section
           buttons={
             <Button.Confirm
-              content="Delete"
               icon="trash"
               disabled={!station_z}
               onClick={() => act('expunge_record', { crew_ref: crew_ref })}
               tooltip="Expunge record data."
-            />
+            >
+              Delete
+            </Button.Confirm>
           }
           fill
           scrollable
           title={name}
-          wrap
         >
           <LabeledList>
             <LabeledList.Item label="Name">
@@ -91,20 +97,41 @@ export const MedicalRecordView = (props) => {
             <LabeledList.Item label="Job">
               <EditableText field="job" target_ref={crew_ref} text={rank} />
             </LabeledList.Item>
-            <LabeledList.Item label="Age">
+            {/* <LabeledList.Item label="Age"> // ORIGINAL */}
+            {/* SKYRAT EDIT CHANGE BEGIN - Chronological age */}
+            <LabeledList.Item label="Physical Age">
+              {/* SKYRAT EDIT CHANGE END */}
               <RestrictedInput
                 minValue={min_age}
                 maxValue={max_age}
-                onEnter={(event, value) =>
+                onEnter={(value) =>
+                  isValid &&
                   act('edit_field', {
                     field: 'age',
                     ref: crew_ref,
                     value: value,
                   })
                 }
+                onValidationChange={setIsValid}
                 value={age}
               />
             </LabeledList.Item>
+            {/* SKYRAT EDIT ADDITION BEGIN - Chronological age */}
+            <LabeledList.Item label="Chronological Age">
+              <RestrictedInput
+                minValue={min_age}
+                maxValue={max_chrono_age}
+                onEnter={(value) =>
+                  act('edit_field', {
+                    field: 'chrono_age',
+                    ref: crew_ref,
+                    value: value,
+                  })
+                }
+                value={chrono_age}
+              />
+            </LabeledList.Item>
+            {/* SKYRAT EDIT ADDITION END */}
             <LabeledList.Item label="Species">
               <EditableText
                 field="species"
@@ -211,12 +238,12 @@ export const MedicalRecordView = (props) => {
             </LabeledList.Item>
             {/* SKYRAT EDIT START - RP Records (Not pretty but it's there) */}
             <LabeledList.Item label="General Records">
-              <Box wrap maxWidth="100%" preserveWhitespace>
+              <Box maxWidth="100%" preserveWhitespace>
                 {past_general_records || 'N/A'}
               </Box>
             </LabeledList.Item>
             <LabeledList.Item label="Past Medical Records">
-              <Box wrap maxWidth="100%" preserveWhitespace>
+              <Box maxWidth="100%" preserveWhitespace>
                 {past_medical_records || 'N/A'}
               </Box>
             </LabeledList.Item>

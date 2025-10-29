@@ -48,24 +48,22 @@
 		"yellow" = image (icon = src.icon, icon_state = "lewdapron_yellow"))
 
 //to change model
-/obj/item/clothing/accessory/lewdapron/AltClick(mob/user)
+/obj/item/clothing/accessory/lewdapron/click_alt(mob/user)
 	if(color_changed)
-		return
-	. = ..()
-	if(.)
-		return
+		return CLICK_ACTION_BLOCKING
 	var/choice = show_radial_menu(user, src, apron_designs, custom_check = CALLBACK(src, PROC_REF(check_menu), user), radius = 36, require_near = TRUE)
 	if(!choice)
-		return FALSE
+		return CLICK_ACTION_BLOCKING
 	current_color = choice
 	update_icon()
 	color_changed = TRUE
+	return CLICK_ACTION_SUCCESS
 
 /// to check if we can change kinkphones's model
 /obj/item/clothing/accessory/lewdapron/proc/check_menu(mob/living/user)
 	if(!istype(user))
 		return FALSE
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return FALSE
 	return TRUE
 
@@ -82,7 +80,7 @@
 	icon_state = icon_state = "[initial(base_icon_state)]_[current_color]"
 	inhand_icon_state = "[initial(base_icon_state)]_[current_color]"
 
-/obj/item/clothing/under/costume/lewdmaid/attach_accessory(obj/item/attack_item)
+/obj/item/clothing/under/costume/lewdmaid/attach_accessory(obj/item/attack_item, mob/living/user, attach_message = TRUE)
 	. = ..()
 	var/obj/item/clothing/accessory/prime_accessory = attached_accessories[1]
 	var/accessory_color = prime_accessory.icon_state

@@ -19,7 +19,7 @@
 
 	var/need_to_check = FALSE
 	if(length(whitelisted_deparments))
-		for(var/department as anything in whitelisted_deparments)
+		for(var/department in whitelisted_deparments)
 			if(is_path_in_list(department, job_datum.departments_list))
 				need_to_check = TRUE
 
@@ -36,7 +36,7 @@
 	name = "duty checker"
 	desc = "Checks if the mob this is used on is off-duty. You probably shouldn't see this in-game..."
 	icon = 'icons/obj/devices/remote.dmi'
-	icon_state = "gangtool-purple"
+	icon_state = "botpad_controller"
 	lefthand_file = 'icons/mob/inhands/items/devices_lefthand.dmi'
 	righthand_file = 'icons/mob/inhands/items/devices_righthand.dmi'
 	inhand_icon_state = "electronic"

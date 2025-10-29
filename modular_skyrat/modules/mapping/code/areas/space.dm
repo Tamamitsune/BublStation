@@ -147,46 +147,73 @@
 
 /area/ruin/space/has_grav/port_tarkon
 	name = "P-T Cryo-Storage"
+	icon = 'icons/area/areas_station.dmi'
+	icon_state = "cryo"
 
 /area/ruin/space/has_grav/port_tarkon/afthall
 	name = "P-T Aft Hallway"
+	icon_state = "afthall"
 
 /area/ruin/space/has_grav/port_tarkon/forehall
 	name = "P-T Fore Hallway"
+	icon_state = "forehall"
 
 /area/ruin/space/has_grav/port_tarkon/starboardhall
 	name = "P-T Starboard Hallway"
+	icon_state = "starboardhall"
 
 /area/ruin/space/has_grav/port_tarkon/porthall
 	name = "P-T Port Hallway"
+	icon_state = "porthall"
 
 /area/ruin/space/has_grav/port_tarkon/trauma
 	name = "P-T Trauma Center"
-	icon_state = "medbay1"
+	icon_state = "med_central"
+
+/area/ruin/space/has_grav/port_tarkon/viro
+	name = "P-T Virology Center"
+	icon_state = "med_central"
 
 /area/ruin/space/has_grav/port_tarkon/developement
 	name = "P-T Developement Center"
-	icon_state = "research"
+	icon_state = "science"
+	area_flags = XENOBIOLOGY_COMPATIBLE | UNIQUE_AREA
+
+/area/ruin/space/has_grav/port_tarkon/scienceaway
+	name = "P-T Detached Research Center"
+	icon_state = "science"
 
 /area/ruin/space/has_grav/port_tarkon/comms
 	name = "P-T Communication Center"
-	icon_state = "captain"
+	icon_state = "command"
 
 /area/ruin/space/has_grav/port_tarkon/power1
 	name = "P-T Solar Control"
 	icon_state = "engine"
 
+/area/ruin/space/has_grav/port_tarkon/power2
+	name = "P-T Backup Generator Room"
+	icon_state = "engine"
+
 /area/ruin/space/has_grav/port_tarkon/centerhall
 	name = "P-T Central Hallway"
-	icon_state = "hallC"
+	icon_state = "centralhall"
 
 /area/ruin/space/has_grav/port_tarkon/secoff
 	name = "P-T Security Office"
 	icon_state = "security"
 
+/area/ruin/space/has_grav/port_tarkon/lounge
+	name = "P-T Bar Lounge"
+	icon_state = "bar"
+
 /area/ruin/space/has_grav/port_tarkon/atmos
 	name = "P-T Atmospheric Center"
-	icon_state = "engine"
+	icon_state = "atmos"
+
+/area/ruin/space/has_grav/port_tarkon/engineering
+	name = "P-T Engineering Center"
+	icon_state = "engineering"
 
 /area/ruin/space/has_grav/port_tarkon/kitchen
 	name = "P-T Kitchen"
@@ -196,17 +223,21 @@
 	name = "P-T Garden"
 	icon_state = "garden"
 
+/area/ruin/space/has_grav/port_tarkon/park
+	name = "P-T Park"
+	icon_state = "garden"
+
 /area/ruin/space/has_grav/port_tarkon/cargo
 	name = "P-T Cargo Center"
-	icon_state = "cargo"
+	icon_state = "cargo_office"
 
 /area/ruin/space/has_grav/port_tarkon/mining
 	name = "P-T Mining Office"
-	icon_state = "cargo"
+	icon_state = "mining_dock"
 
 /area/ruin/space/has_grav/port_tarkon/storage
 	name = "P-T Warehouse"
-	icon_state = "cargo"
+	icon_state = "cargo_warehouse"
 
 /area/ruin/space/has_grav/port_tarkon/toolstorage
 	name = "P-T Tool Storage"
@@ -218,12 +249,35 @@
 
 /area/ruin/space/has_grav/port_tarkon/dorms
 	name = "P-T Dorms"
-	icon_state = "crew_quarters"
+	icon_state = "dorms"
+
+/area/ruin/space/has_grav/port_tarkon/random_dorm
+	name = "P-T Deluxe Dorm Room"
+	icon_state = "dorms"
 
 /area/solars/tarkon
 	name = "\improper P-T Solar Array"
-	icon_state = "solarsS"
-	has_gravity = STANDARD_GRAVITY
+	icon_state = "space_near"
+	default_gravity = STANDARD_GRAVITY
+
+/area/ruin/space/has_grav/port_tarkon/aichamber
+	name = "P-T AI Chamber"
+	icon_state = "ai_interior"
+
+/area/ruin/space/has_grav/port_tarkon/aiante
+	name = "P-T AI Antechamber"
+	icon_state = "ai_interior"
+
+/area/ruin/space/has_grav/port_tarkon/asteroid // so thumpers can work
+	name = "Asteroid Space"
+	icon = 'icons/area/areas_ruins.dmi'
+	icon_state = "ruins"
+	outdoors = TRUE
+
+/area/ruin/space/has_grav/port_tarkon/vault
+	name = "P-T Vault"
+	icon_state = "vault"
+	area_flags = UNIQUE_AREA | NOTELEPORT
 
 // Cargodise Lost Freighter
 

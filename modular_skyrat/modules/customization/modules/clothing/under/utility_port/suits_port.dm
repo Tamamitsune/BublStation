@@ -20,6 +20,27 @@
 	armor_type = /datum/armor/jacket_engi
 	allowed = list(/obj/item/flashlight, /obj/item/tank/internals/emergency_oxygen, /obj/item/tank/internals/plasmaman, /obj/item/t_scanner, /obj/item/construction/rcd, /obj/item/pipe_dispenser, /obj/item/toy, /obj/item/storage/fancy/cigarettes, /obj/item/lighter)
 
+/obj/item/clothing/suit/toggle/jacket/tcomm
+	name = "telecomms jacket"
+	desc = "A comfortable jacket in engineering yellow with blue telecomms trim."
+	icon_state = "tcomm_dep_jacket"
+	armor_type = /datum/armor/jacket_engi
+	allowed = list(
+		/obj/item/flashlight,
+		/obj/item/tank/internals,
+		/obj/item/t_scanner,
+		/obj/item/construction/rcd,
+		/obj/item/pipe_dispenser,
+		/obj/item/toy,
+		/obj/item/storage/fancy/cigarettes,
+		/obj/item/lighter,
+	)
+
+// do not have the new sprites for these
+/obj/item/clothing/suit/toggle/jacket/det_trench
+	icon = 'icons/obj/clothing/suits/jacket.dmi'
+	worn_icon = 'icons/mob/clothing/suits/jacket.dmi'
+
 /datum/armor/jacket_engi
 	fire = 30
 	acid = 45
@@ -32,16 +53,6 @@
 
 /datum/armor/jacket_sci
 	bomb = 10
-
-/obj/item/clothing/suit/toggle/jacket/med
-	name = "medbay jacket"
-	desc = "A comfortable jacket in medical blue."
-	icon_state = "med_dep_jacket"
-	armor_type = /datum/armor/jacket_med
-
-/datum/armor/jacket_med
-	bio = 50
-	acid = 45
 
 /obj/item/clothing/suit/toggle/jacket/supply
 	name = "cargo jacket"
@@ -105,7 +116,9 @@
 
 /obj/item/clothing/suit/toggle/jacket/flannel/gags
 	name = "flannel shirt"
-	icon_state = "flannelgags"
+	icon = 'icons/map_icons/clothing/suit/_suit.dmi'
+	icon_state = "/obj/item/clothing/suit/toggle/jacket/flannel/gags"
+	post_init_icon_state = "flannelgags"
 	greyscale_config = /datum/greyscale_config/flannelgags
 	greyscale_config_worn = /datum/greyscale_config/flannelgags/worn
 	greyscale_colors = "#a61e1f"

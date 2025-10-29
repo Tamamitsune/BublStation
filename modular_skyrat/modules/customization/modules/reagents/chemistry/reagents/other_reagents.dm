@@ -1,7 +1,7 @@
 /datum/reagent/fuel
 	process_flags = REAGENT_ORGANIC | REAGENT_SYNTHETIC
 
-/datum/reagent/oil
+/datum/reagent/fuel/oil
 	process_flags = REAGENT_ORGANIC | REAGENT_SYNTHETIC
 
 /datum/reagent/stable_plasma
@@ -16,9 +16,6 @@
 /datum/reagent/hellwater
 	process_flags = REAGENT_ORGANIC | REAGENT_SYNTHETIC
 
-/datum/reagent/syndicateadrenals
-	process_flags = REAGENT_ORGANIC | REAGENT_SYNTHETIC
-
 /datum/reagent/carbondioxide
 	process_flags = REAGENT_ORGANIC | REAGENT_SYNTHETIC
 
@@ -27,13 +24,6 @@
 
 /datum/reagent/blood
 	chemical_flags_skyrat = REAGENT_BLOOD_REGENERATING // For Hemophages to be able to drink it without any issue.
-
-/datum/reagent/blood/on_new(list/data)
-	. = ..()
-
-	if(!src.data["blood_type"])
-		src.data["blood_type"] = random_blood_type() // This is so we don't get blood without a blood type spawned from something that doesn't explicitly set the blood type.
-
 
 /datum/reagent/stable_plasma/on_mob_life(mob/living/carbon/C)
 	if(C.mob_biotypes & MOB_ROBOTIC)
@@ -45,7 +35,7 @@
 		C.nutrition = min(C.nutrition + 5, NUTRITION_LEVEL_FULL-1)
 	..()
 
-/datum/reagent/oil/on_mob_life(mob/living/carbon/C)
+/datum/reagent/fuel/oil/on_mob_life(mob/living/carbon/C)
 	if(C.mob_biotypes & MOB_ROBOTIC && C.blood_volume < BLOOD_VOLUME_NORMAL)
 		C.blood_volume += 0.5
 	..()
@@ -76,7 +66,6 @@
 /datum/reagent/medicine/dermagen
 	name = "Dermagen"
 	description = "Heals scars formed by past physical trauma when applied. Minimum 10u needed, only works when applied topically."
-	reagent_state = LIQUID
 	color = "#FFEBEB"
 	ph = 6
 	chemical_flags = REAGENT_CAN_BE_SYNTHESIZED

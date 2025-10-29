@@ -18,12 +18,13 @@
 	icon_screen = "medlaptop"
 	icon_keyboard = "laptop_key"
 	pass_flags = PASSTABLE
+	projectiles_pass_chance = 100
 
-/obj/machinery/computer/records/medical/attacked_by(obj/item/attacking_item, mob/living/user)
-	. = ..()
-	if(!istype(attacking_item, /obj/item/photo))
-		return
-	insert_new_record(user, attacking_item)
+/obj/machinery/computer/records/medical/item_interaction(mob/living/user, obj/item/tool, list/modifiers)
+	if(!istype(tool, /obj/item/photo))
+		return NONE
+	insert_new_record(user, tool)
+	return ITEM_INTERACT_SUCCESS
 
 /obj/machinery/computer/records/medical/ui_interact(mob/user, datum/tgui/ui)
 	. = ..()
@@ -31,7 +32,6 @@
 		return
 	ui = SStgui.try_update_ui(user, src, ui)
 	if (!ui)
-		create_character_preview_view(user)
 		ui = new(user, src, "MedicalRecords")
 		ui.set_autoupdate(FALSE)
 		ui.open()
@@ -52,6 +52,7 @@
 
 		records += list(list(
 			age = target.age,
+			chrono_age = target.chrono_age, // SKYRAT EDIT ADDITION - Chronological age
 			blood_type = target.blood_type,
 			crew_ref = REF(target),
 			dna = target.dna_string,
@@ -65,6 +66,7 @@
 			quirk_notes = target.quirk_notes,
 			rank = target.rank,
 			species = target.species,
+			trim = target.trim,
 			// SKYRAT EDIT ADDITION START - Expanded records!
 			past_medical_records = target.past_medical_records,
 			past_general_records = target.past_general_records,
@@ -79,6 +81,7 @@
 	var/list/data = list()
 	data["min_age"] = AGE_MIN
 	data["max_age"] = AGE_MAX
+	data["max_chrono_age"] = AGE_CHRONO_MAX // SKYRAT EDIT ADDITION - Chronological age
 	data["physical_statuses"] = PHYSICAL_STATUSES
 	data["mental_statuses"] = MENTAL_STATUSES
 	return data
@@ -98,9 +101,11 @@
 		if("add_note")
 			if(!params["content"])
 				return FALSE
-			var/content = trim(params["content"], MAX_MESSAGE_LEN)
+			var/content = reject_bad_name(params["content"], allow_numbers = TRUE, max_length = MAX_MESSAGE_LEN, strict = TRUE, cap_after_symbols = FALSE)
+			if(!content)
+				return FALSE
 
-			var/datum/medical_note/new_note = new(usr.name, content)
+			var/datum/medical_note/new_note = new(usr.name, content, station_time_timestamp())
 			while(length(target.medical_notes) > 2)
 				target.medical_notes.Cut(1, 2)
 
@@ -144,7 +149,8 @@
 		return FALSE
 
 	target.age = 18
-	target.blood_type = pick(list("A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"))
+	target.chrono_age = 18 // SKYRAT EDIT ADDITION - Chronological age
+	target.blood_type = pick(list(BLOOD_TYPE_A_PLUS, BLOOD_TYPE_A_MINUS, BLOOD_TYPE_B_PLUS, BLOOD_TYPE_B_MINUS, BLOOD_TYPE_O_PLUS, BLOOD_TYPE_O_MINUS, BLOOD_TYPE_AB_PLUS, BLOOD_TYPE_AB_MINUS))
 	target.dna_string = "Unknown"
 	target.gender = "Unknown"
 	target.major_disabilities = ""

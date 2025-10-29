@@ -1,14 +1,15 @@
-import { useBackend, useSharedState } from '../backend';
 import {
   Box,
   Button,
+  Icon,
   LabeledList,
   NoticeBox,
-  Icon,
   Section,
   Stack,
   Tabs,
-} from '../components';
+} from 'tgui-core/components';
+
+import { useBackend, useSharedState } from '../backend';
 import { NtosWindow } from '../layouts';
 
 export const NtosNetMonitor = (props) => {

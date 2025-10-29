@@ -1,5 +1,5 @@
 /datum/armament_entry/company_import/blacksteel
-	category = BLACKSTEEL_FOUNDATION_NAME
+	category = COMPANY_NAME_BLACKSTEEL_FOUNDATION
 	company_bitflag = CARGO_COMPANY_BLACKSTEEL
 
 // A collection of melee weapons fitting the company's more exotic feeling weapon selection
@@ -20,8 +20,8 @@
 	cost = PAYCHECK_COMMAND * 3
 
 /datum/armament_entry/company_import/blacksteel/blade/shamshir_sabre
-	item_type = /obj/item/storage/belt/sabre/cargo
-	cost = PAYCHECK_COMMAND * 3
+	item_type = /obj/item/storage/belt/sheath/sabre/cargo
+	cost = PAYCHECK_COMMAND * 6
 
 // Forging tools, blacksteel company sells the tools and materials they use as well!
 

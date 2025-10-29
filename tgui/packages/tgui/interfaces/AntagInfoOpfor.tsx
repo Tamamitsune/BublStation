@@ -1,7 +1,8 @@
 // THIS IS A SKYRAT UI FILE
-import { Section, Stack, Button } from '../components';
-import { Window } from '../layouts';
+import { Button, Section, Stack } from 'tgui-core/components';
+
 import { useBackend } from '../backend';
+import { Window } from '../layouts';
 
 export const AntagInfoOpfor = (props) => {
   const { act } = useBackend();

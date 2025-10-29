@@ -1,6 +1,14 @@
+import {
+  Box,
+  Button,
+  Dimmer,
+  Icon,
+  Section,
+  Stack,
+} from 'tgui-core/components';
+
 import { useBackend } from '../../backend';
-import { Section, Stack, Button, Box, Icon, Dimmer } from '../../components';
-import { MainData } from './data';
+import type { MainData } from './data';
 
 export const InternalDamageToDamagedDesc = {
   MECHA_INT_FIRE: 'Internal fire detected',

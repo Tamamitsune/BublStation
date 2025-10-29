@@ -1,18 +1,20 @@
 /obj/item/clothing/head/beret/sec/peacekeeper
 	name = "peacekeeper beret"
 	desc = "A robust beret with the peacekeeper insignia emblazoned on it. Uses reinforced fabric to offer sufficient protection."
+	icon_state = "/obj/item/clothing/head/beret/sec/peacekeeper"
 	greyscale_config = /datum/greyscale_config/beret_badge
 	greyscale_config_worn = /datum/greyscale_config/beret_badge/worn
-	icon_state = "beret_badge"
+	post_init_icon_state = "beret_badge"
 	greyscale_colors = "#3F3C40#375989"
 	supports_variations_flags = CLOTHING_SNOUTED_VARIATION_NO_NEW_ICON
 	armor_type = /datum/armor/head_helmet
 
 /obj/item/clothing/head/beret/sec/peacekeeper/white
+	icon_state = "/obj/item/clothing/head/beret/sec/peacekeeper/white"
 	greyscale_config = /datum/greyscale_config/beret
 	greyscale_config_worn = /datum/greyscale_config/beret/worn
 	greyscale_config_worn_teshari = /datum/greyscale_config/beret/worn/teshari
-	icon_state = "beret"
+	post_init_icon_state = "beret"
 	greyscale_colors = "#EAEAEA"
 
 /obj/item/clothing/head/hats/hos/beret/peacekeeper
@@ -24,21 +26,21 @@
 /obj/item/clothing/head/beret/sec/navywarden/peacekeeper
 	name = "warden's peacekeeper beret"
 	desc = "A special beret with the Warden's insignia emblazoned on it. For wardens with class."
+	icon_state = "/obj/item/clothing/head/beret/sec/navywarden/peacekeeper"
 	greyscale_config = /datum/greyscale_config/beret_badge_fancy
 	greyscale_config_worn = /datum/greyscale_config/beret_badge_fancy/worn
 	greyscale_colors = "#3f6e9e#FF0000#00AEEF"
-	icon_state = "beret_badge_fancy_twist"
+	post_init_icon_state = "beret_badge_fancy_twist"
 	supports_variations_flags = CLOTHING_SNOUTED_VARIATION_NO_NEW_ICON
 	armor_type = /datum/armor/hats_warden
 
-/obj/item/clothing/head/helmet/sec/sol
+/obj/item/clothing/head/helmet/sec/terra
 	name = "sol police helmet"
 	desc = "A helmet to protect any officer from bludgeoning attacks, or the occasional bullet."
 	icon = 'modular_skyrat/master_files/icons/obj/clothing/head/helmet.dmi'
 	worn_icon = 'modular_skyrat/master_files/icons/mob/clothing/head/helmet.dmi'
-	icon_state = "security_helmet_novisor"
-	base_icon_state = "security_helmet_novisor"
-	actions_types = NONE
+	icon_state = "security_helmet-novisor"
+	base_icon_state = "security_helmet-novisor"
 	supports_variations_flags = CLOTHING_SNOUTED_VARIATION_NO_NEW_ICON
 	armor_type = /datum/armor/head_helmet
 
@@ -50,11 +52,32 @@
 	icon_state = "policeofficerpatrolcap"
 	supports_variations_flags = CLOTHING_SNOUTED_VARIATION_NO_NEW_ICON
 	armor_type = /datum/armor/head_helmet
+	uses_advanced_reskins = TRUE
 	unique_reskin = list(
-		"Blue" = "policeofficercap",
-		"Sillitoe" = "policetrafficcap",
-		"Black" = "policeofficerpatrolcap",
-		"Cadet" = "policecadetcap",
+		"Blue Variant" = list(
+			RESKIN_ICON_STATE = "policeofficercap",
+			RESKIN_WORN_ICON_STATE = "policeofficercap"
+		),
+		"Black and Blue Variant" = list(
+			RESKIN_ICON_STATE = "policeofficerpatrolcap",
+			RESKIN_WORN_ICON_STATE = "policeofficerpatrolcap"
+		),
+		"Sillitoe Variant" = list(
+			RESKIN_ICON_STATE = "policetrafficcap",
+			RESKIN_WORN_ICON_STATE = "policetrafficcap"
+		),
+		"Long Kesh Variant" = list(
+			RESKIN_ICON_STATE = "corrections_officer",
+			RESKIN_WORN_ICON_STATE = "corrections_officer"
+		),
+		"Sillitoe Variant" = list(
+			RESKIN_ICON_STATE = "policetrafficcap",
+			RESKIN_WORN_ICON_STATE = "policetrafficcap"
+		),
+		"Cadet Variant" = list(
+			RESKIN_ICON_STATE = "policecadetcap",
+			RESKIN_WORN_ICON_STATE = "policecadetcap"
+		),
 	)
 
 /obj/item/clothing/glasses/hud/security/sunglasses/peacekeeper
@@ -171,9 +194,6 @@
 	. = ..()
 	atom_storage.max_slots = 5
 	atom_storage.set_holdable(list(
-		/obj/item/gun/ballistic/automatic/pistol,
-		/obj/item/gun/ballistic/revolver,
-		/obj/item/gun/energy/disabler,
 		/obj/item/melee/baton,
 		/obj/item/melee/baton,
 		/obj/item/grenade,
@@ -214,8 +234,6 @@
 	. = ..()
 	atom_storage.max_slots = 7
 	atom_storage.set_holdable(list(
-		/obj/item/gun/ballistic/automatic/pistol,
-		/obj/item/gun/ballistic/revolver,
 		/obj/item/melee/baton,
 		/obj/item/melee/baton,
 		/obj/item/grenade,

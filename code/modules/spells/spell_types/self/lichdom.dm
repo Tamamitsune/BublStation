@@ -44,6 +44,16 @@
 		to_chat(cast_on, span_warning("[marked_item] is not suitable for emplacement of your fragile soul."))
 		return
 
+	//BUBBERSTATION CHANGE START: NERFS LICHDOM
+	if(marked_item.w_class < WEIGHT_CLASS_BULKY) //Can't cast on small items.
+		to_chat(cast_on, span_warning("[marked_item] is too small to contain your huge <s>ego</s> soul."))
+		return
+
+	if(marked_item.resistance_flags & (INDESTRUCTIBLE|LAVA_PROOF|FIRE_PROOF)) //Can't cast on items that are indestructable and/or fire proof.
+		to_chat(cast_on, span_warning("[marked_item] is too resistant to your magic. Perhaps try on something that isn't fireproof?"))
+		return
+	//BUBBERSTATION CHANGE END: NERFS LICHDOM
+
 	. = ..()
 	playsound(cast_on, 'sound/effects/pope_entry.ogg', 100)
 
@@ -62,7 +72,7 @@
 
 	if(iscarbon(cast_on))
 		var/mob/living/carbon/carbon_cast_on = cast_on
-		var/obj/item/organ/internal/brain/lich_brain = carbon_cast_on.get_organ_slot(ORGAN_SLOT_BRAIN)
+		var/obj/item/organ/brain/lich_brain = carbon_cast_on.get_organ_slot(ORGAN_SLOT_BRAIN)
 		if(lich_brain) // This prevents MMIs being used to stop lich revives
 			lich_brain.organ_flags &= ~ORGAN_VITAL
 			lich_brain.decoy_override = TRUE

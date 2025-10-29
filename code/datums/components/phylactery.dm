@@ -18,7 +18,7 @@
 	var/phylactery_color = COLOR_VERY_DARK_LIME_GREEN
 
 	// Internal vars.
-	/// The number of ressurections that have occured from this phylactery.
+	/// The number of resurrections that have occurred from this phylactery.
 	var/num_resurrections = 0
 	/// A timerid to the current revival timer.
 	var/revive_timer
@@ -150,7 +150,7 @@
 	UnregisterSignal(source, COMSIG_LIVING_REVIVE)
 
 /**
- * Actually undergo the process of reviving the lich at the site of the phylacery.
+ * Actually undergo the process of reviving the lich at the site of the phylactery.
  *
  * Arguments
  * * corpse - optional, the old body of the lich. Can be QDELETED or null.
@@ -169,7 +169,7 @@
 	var/mob/living/carbon/human/lich = new(parent_turf)
 	ADD_TRAIT(lich, TRAIT_NO_SOUL, LICH_TRAIT)
 
-	var/obj/item/organ/internal/brain/new_lich_brain = lich.get_organ_slot(ORGAN_SLOT_BRAIN)
+	var/obj/item/organ/brain/new_lich_brain = lich.get_organ_slot(ORGAN_SLOT_BRAIN)
 	if(new_lich_brain) // Prevent MMI cheese
 		new_lich_brain.organ_flags &= ~ORGAN_VITAL
 		new_lich_brain.decoy_override = TRUE
@@ -201,7 +201,7 @@
 			var/mob/living/carbon/carbon_body = corpse
 			for(var/obj/item/organ/to_drop as anything in carbon_body.organs)
 				// Skip the brain - it can disappear, we don't need it anymore
-				if(istype(to_drop, /obj/item/organ/internal/brain))
+				if(istype(to_drop, /obj/item/organ/brain))
 					continue
 
 				// For the rest, drop all the organs onto the floor (for style)
@@ -213,6 +213,10 @@
 		if(wheres_wizdo)
 			corpse.visible_message(span_warning("Suddenly, [corpse.name]'s corpse falls to pieces! You see a strange energy rise from the remains, and speed off towards the [wheres_wizdo]!"))
 			body_turf.Beam(parent_turf, icon_state = "lichbeam", time = 1 SECONDS * (num_resurrections + 1))
+		//BUBBERSTATION CHANGE START: MORE PRECISE LOCATION AFTER 3 REVIVES.
+		if(body_turf && num_resurrections >= 3)
+			priority_announce("Unusual anomalous energy fluctuations detected in: [body_turf.loc].", "Anomaly Alert")
+		//BUBBERSTATION CHANGE END: MORE PRECISE LOCATION AFTER 3 REVIVES.
 
 		corpse.dust(drop_items = TRUE)
 

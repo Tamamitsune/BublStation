@@ -295,6 +295,32 @@
 	name = "Colourable Sterile Mask (Worn) (Teshari)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/masks_teshari.dmi'
 
+// MASQUERADE MASKS
+/datum/greyscale_config/masquerade_mask
+	name = "Masquerade Mask"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/mask/masquerade_mask.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/masquerade_mask/masquerade_mask.json'
+
+/datum/greyscale_config/masquerade_mask/worn
+	name = "Masquerade Mask (Worn)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/mask/masquerade_mask_worn.dmi'
+
+/datum/greyscale_config/masquerade_mask/worn/snouted
+	name = "Masquerade Mask (Worn) (Snouted)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/mask/masquerade_mask_worn_snouted.dmi'
+
+/datum/greyscale_config/masquerade_mask/worn/teshari
+	name = "Masquerade Mask (Worn) (Teshari)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/mask/masquerade_mask_worn_teshari.dmi'
+
+/datum/greyscale_config/masquerade_mask/worn/better_vox
+	name = "Masquerade Mask (Worn) (Vox Primalis)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/mask/masquerade_mask_worn_better_vox.dmi'
+
+/datum/greyscale_config/masquerade_mask/worn/vox
+	name = "Masquerade Mask (Worn) (Vox)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/mask/masquerade_mask_worn_vox.dmi'
+
 /*
 *	NECK
 */
@@ -498,6 +524,12 @@
 	name = "Face Scarf (Worn, Muzzled)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/neck/face_scarf/face_scarf_worn_muzzled.dmi'
 
+//REGULAR SCARF
+/datum/greyscale_config/scarf/worn/teshari
+	name = "Scarf (Worn, Teshari)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/neck/neck_teshari.dmi'
+
+
 /*
 *	SUITS
 */
@@ -522,6 +554,12 @@
 /datum/greyscale_config/apron/worn/oldvox
 	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/suit_oldvox.dmi'
 
+// Labcoat
+
+/datum/greyscale_config/labcoat/worn/teshari
+	name = "Labcoat (Worn, Teshari)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/labcoat_teshari.dmi'
+
 //Flannel Shirt
 
 /datum/greyscale_config/flannelgags
@@ -534,6 +572,10 @@
 	icon_file = 'modular_skyrat/modules/GAGS/icons/suit.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/flannel/flannel_worn.json'
 
+//SUSPENDERS
+
+/datum/greyscale_config/suspenders/worn/teshari
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/suit_teshari.dmi'
 
 // ARMOR
 
@@ -627,6 +669,43 @@
 /datum/greyscale_config/hoodie_branded/worn
 	name = "Branded Hoodie Worn"
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/hoodie/hoodie_branded_worn.json'
+
+
+//Doppler Hoodies.
+/datum/greyscale_config/big_hoodie
+	name = "Big Hoodie"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/dopplerhoodieobj.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/hoodies/big_hoodie.json'
+
+/datum/greyscale_config/big_hoodie/worn
+	name = "Big Hoodie (Worn)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/dopplerhoodie.dmi'
+
+/datum/greyscale_config/big_hoodie_hood
+	name = "Big Hoodie Hood"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/dopplerhoodie.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/hoodies/big_hoodie_hood.json'
+
+/datum/greyscale_config/big_hoodie_hood/worn
+	name = "Big Hoodie Hood (Worn)"
+
+/datum/greyscale_config/twee_hoodie
+	name = "Twee Hoodie"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/dopplerhoodieobj.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/hoodies/twee_hoodie.json'
+
+/datum/greyscale_config/twee_hoodie/worn
+	name = "Twee Hoodie (Worn)"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/dopplerhoodie.dmi'
+
+/datum/greyscale_config/twee_hoodie_hood
+	name = "Twee Hoodie Hood"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/suit/dopplerhoodie.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/hoodies/twee_hoodie_hood.json'
+
+/datum/greyscale_config/twee_hoodie_hood/worn
+	name = "Twee Hoodie Hood (Worn)"
+
 
 // CARDIGAN
 
@@ -770,6 +849,17 @@
 	name = "Varsity Jacket (Worn)"
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/varsity/varsity_worn.json'
 
+//CROPTOP SWEATER
+
+/datum/greyscale_config/croptop
+	name = "Croptop Sweater"
+	icon_file = 'modular_skyrat/master_files/icons/mob/clothing/suit.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/croptop/croptop.json'
+
+/datum/greyscale_config/croptop/worn
+	name = "Croptop Sweater (Worn)"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/suits/croptop/croptop_worn.json'
+
 // TAILORED JACKET
 
 /datum/greyscale_config/tailored_jacket
@@ -805,16 +895,6 @@
 /datum/greyscale_config/jumpsuit/prison/worn/digi
 	name = "Prison Jumpsuit (Worn, Digi)"
 	icon_file = 'modular_skyrat/master_files/icons/mob/clothing/under/color_digi.dmi'
-
-/datum/greyscale_config/jumpsuit/worn/monkey
-	name = "Jumpsuit (Worn) - Monkey"
-	icon_file = MONKEY_UNIFORM_FILE
-	json_config = 'modular_skyrat/modules/GAGS/json_configs/jumpsuit/jumpsuit_worn_monkey.json'
-
-/datum/greyscale_config/jumpsuit/prison/worn/monkey
-	name = "Prison Jumpsuit (Worn) - Monkey"
-	icon_file = MONKEY_UNIFORM_FILE
-	json_config = 'modular_skyrat/modules/GAGS/json_configs/jumpsuit/jumpsuit_prison_worn_monkey.json'
 
 /datum/greyscale_config/jumpsuit/worn/vox
 	name = "Jumpsuit (Worn, Vox)"
@@ -1093,41 +1173,54 @@
 	name = "Buttondown with Double-breasted Vest (Worn, Digi)"
 	icon_file = SHORTS_PANTS_SHIRTS_DIGIFILE
 
+/datum/greyscale_config/chrimbo
+	name = "christmas_male"
+	icon_file = 'modular_skyrat/master_files/icons/obj/clothing/under/costume.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/costumes/chrimbo.json'
+
+/datum/greyscale_config/chrimbo/worn
+	name = "christmas_male (Worn)"
+	icon_file = 'modular_skyrat/master_files/icons/mob/clothing/under/costume.dmi'
+
+/datum/greyscale_config/chrimbo/worn/digi
+	name = "christmas_male (Worn, Digi)"
+	icon_file = 'modular_skyrat/master_files/icons/mob/clothing/under/costume_digi.dmi'
+
 //GRAYSCALE MAID COSTUME
 
-/datum/greyscale_config/maid_neck_cover
+/datum/greyscale_config/bubber_maid_neck_cover
 	name = "Maid Neck Cover"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/costumes/maid_neck_cover.json'
 
-/datum/greyscale_config/maid_neck_cover/worn
+/datum/greyscale_config/bubber_maid_neck_cover/worn
 	name = "Maid Neck Cover (Worn)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume_worn.dmi'
 
-/datum/greyscale_config/maid_arm_covers
+/datum/greyscale_config/bubber_maid_arm_covers
 	name = "Maid Arm Covers"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/costumes/maid_arm_covers.json'
 
-/datum/greyscale_config/maid_arm_covers/worn
+/datum/greyscale_config/bubber_maid_arm_covers/worn
 	name = "Maid Arm Covers (Worn)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume_worn.dmi'
 
-/datum/greyscale_config/maid_costume
+/datum/greyscale_config/bubber_maid_costume
 	name = "Maid Costume"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/costumes/maid_costume.json'
 
-/datum/greyscale_config/maid_costume/worn
+/datum/greyscale_config/bubber_maid_costume/worn
 	name = "Maid Costume (Worn)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume_worn.dmi'
 
-/datum/greyscale_config/maid_headband
+/datum/greyscale_config/bubber_maid_headband
 	name = "Maid Headband"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/costumes/maid_headband.json'
 
-/datum/greyscale_config/maid_headband/worn
+/datum/greyscale_config/bubber_maid_headband/worn
 	name = "Maid Headband (Worn)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/maid_costume_worn.dmi'
 
@@ -1164,7 +1257,7 @@ TREK
 /datum/greyscale_config/sneakers/worn/teshari
 	name = "Sneakers (Worn, Teshari)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/sneakers_teshari.dmi'
-digi
+
 /datum/greyscale_config/sneakers_orange/worn/teshari
 	name = "Orange Sneakers (Worn, Teshari)"
 	icon_file = 'modular_skyrat/modules/GAGS/icons/sneakers_teshari.dmi'
@@ -1191,6 +1284,19 @@ digi
 
 /datum/greyscale_config/boots/worn/oldvox
 	icon_file = 'modular_skyrat/modules/GAGS/icons/shoes/shoes_oldvox.dmi'
+
+/datum/greyscale_config/boots/christmasboots
+	name = "christmas_boots"
+	icon_file = 'modular_skyrat/master_files/icons/obj/clothing/shoes.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/shoes/boots/christmas_boots.json'
+
+/datum/greyscale_config/boots/christmasboots/worn
+	name = "christmas_boots (Worn)"
+	icon_file = 'modular_skyrat/master_files/icons/mob/clothing/feet.dmi'
+
+/datum/greyscale_config/boots/christmasboots/worn/digi
+	name = "christmas_boots (Worn, Digi)"
+	icon_file = 'modular_skyrat/master_files/icons/mob/clothing/feet_digi.dmi'
 
 // Laceups
 
@@ -1238,7 +1344,7 @@ digi
 /datum/greyscale_config/sandals/worn/oldvox
 	icon_file = 'modular_skyrat/modules/GAGS/icons/shoes/shoes_oldvox.dmi'
 
-// WRAPS
+// WRAPS AND GLOVES
 
 /datum/greyscale_config/clothwraps
 	name = "Cloth Wraps"
@@ -1251,6 +1357,7 @@ digi
 
 /datum/greyscale_config/clothwraps/worn/digi
 	name = "Cloth Wraps (Worn, Digi)"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/wraps/wraps_worn_digi.json'
 
 /datum/greyscale_config/legwraps
 	name = "Leg Wraps"
@@ -1274,6 +1381,15 @@ digi
 	name = "Cloth Arm Wraps (Worn)"
 	icon_file = 'modular_skyrat/master_files/icons/donator/mob/clothing/hands.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/arm_wraps/arm_wraps_worn.json'
+
+/datum/greyscale_config/catgloves
+	name = "Catgloves"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/catglove.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/gloves/catgloves.json'
+
+/datum/greyscale_config/catgloves/worn
+	name = "Catgloves Worn"
+	icon_file = 'modular_skyrat/modules/GAGS/icons/catglove_worn.dmi'
 
 // MISC SHOES
 
@@ -1334,6 +1450,22 @@ digi
 	name = "Teshari Coat"
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/coat.json'
 
+/datum/greyscale_config/teshari/thickrobe
+	name = "Teshari Thick Robe"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/thickrobe.json'
+
+/datum/greyscale_config/teshari/thickrobe/wiz
+	name = "Teshari Wizard Robe"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/wizrobe.json'
+
+/datum/greyscale_config/teshari/thickrobe/jacket
+	name = "Teshari Jacket"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/jacket.json'
+
+/datum/greyscale_config/teshari/thickrobe/longcoat
+	name = "Teshari Longcoat"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/longcoat.json'
+
 /datum/greyscale_config/teshari/armor
 	name = "Teshari Armor"
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/armor.json'
@@ -1349,6 +1481,10 @@ digi
 /datum/greyscale_config/teshari/cloak
 	name = "Teshari Cloak"
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/cloak.json'
+
+/datum/greyscale_config/teshari/mantle
+	name = "Teshari Mantle"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/teshari_fallbacks/mantle.json'
 
 /datum/greyscale_config/teshari/tie
 	name = "Teshari Tie"
@@ -1427,6 +1563,21 @@ digi
 	icon_file = 'modular_skyrat/modules/wargame_projectors/icons/projectors_and_holograms.dmi'
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/wargame_holoprojector/projector.json'
 
+/datum/greyscale_config/hypokit
+	name = "Hypospray Kit"
+	icon_file = 'modular_skyrat/modules/hyposprays/icons/hypokits.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/items/hypokit.json'
+
+/datum/greyscale_config/hypospray_mkii
+	name = "Hypospray Mk. II"
+	icon_file = 'modular_skyrat/modules/hyposprays/icons/hyposprays.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/items/hypospray.json'
+
+/datum/greyscale_config/hypovial
+	name = "Hypovial"
+	icon_file = 'modular_skyrat/modules/hyposprays/icons/vials.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/items/hypovial.json'
+
 // Evil primitive catgirl clothing
 
 /datum/greyscale_config/primitive_catgirl_wraps
@@ -1482,3 +1633,17 @@ digi
 /datum/greyscale_config/primitive_catgirl_gauntlets/worn
 	name = "Gauntlets (Worn)"
 	json_config = 'modular_skyrat/modules/GAGS/json_configs/primitive_catgirl_clothing/gauntlets_worn.json'
+
+/*
+*	DONKSOFT TURRET
+*/
+
+/datum/greyscale_config/turret
+	name = "Donksoft Turret (Deployed)"
+	icon_file = 'modular_skyrat/modules/magfed_turret/icons/turrets/cargo.dmi'
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/turret/turret.json'
+
+/datum/greyscale_config/turret/toolbox
+	name = "Donksoft Turret"
+	json_config = 'modular_skyrat/modules/GAGS/json_configs/turret/turret_toolbox.json'
+

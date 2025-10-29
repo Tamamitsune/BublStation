@@ -79,7 +79,7 @@
 	inhand_icon_state = "syndicate-orange"
 	armor_type = /datum/armor/space_hev_suit
 	allowed = list(/obj/item/gun, /obj/item/ammo_box,/obj/item/ammo_casing, /obj/item/melee/baton, /obj/item/melee/energy/sword, /obj/item/restraints/handcuffs, /obj/item/tank/internals)
-	cell = /obj/item/stock_parts/cell/hyper
+	cell = /obj/item/stock_parts/power_store/cell/hyper
 	slowdown = 0 //I am not gimping doctor freeman
 	actions_types = list(/datum/action/item_action/hev_toggle, /datum/action/item_action/hev_toggle_notifs, /datum/action/item_action/toggle_helmet, /datum/action/item_action/toggle_spacesuit)
 	resistance_flags = LAVA_PROOF|FIRE_PROOF|UNACIDABLE|ACID_PROOF|INDESTRUCTIBLE|FREEZE_PROOF
@@ -215,16 +215,16 @@
 /datum/action/item_action/hev_toggle
 	name = "Toggle HEV Suit"
 	button_icon = 'modular_skyrat/modules/hev_suit/icons/toggles.dmi'
-	background_icon_state = "bg_hl"
-	button_icon = 'modular_skyrat/modules/hev_suit/icons/toggles.dmi'
 	button_icon_state = "system_off"
+	background_icon = 'modular_skyrat/modules/hev_suit/icons/toggles.dmi'
+	background_icon_state = "bg_hl"
 
 /datum/action/item_action/hev_toggle_notifs
 	name = "Toggle HEV Suit Notifications"
 	button_icon = 'modular_skyrat/modules/hev_suit/icons/toggles.dmi'
-	background_icon_state = "bg_hl"
-	button_icon = 'modular_skyrat/modules/hev_suit/icons/toggles.dmi'
 	button_icon_state = "sound_VOICE_AND_TEXT"
+	background_icon = 'modular_skyrat/modules/hev_suit/icons/toggles.dmi'
+	background_icon_state = "bg_hl"
 
 /datum/action/item_action/hev_toggle_notifs/Trigger(trigger_flags)
 	var/obj/item/clothing/suit/space/hev_suit/my_suit = target
@@ -641,7 +641,7 @@
 	send_hev_sound(radiation_sound)
 
 /obj/item/clothing/suit/space/hev_suit/proc/weaponselect()
-	ADD_TRAIT(current_user, list(TRAIT_GUNFLIP,TRAIT_GUN_NATURAL), "hev_trait")
+	current_user.add_traits(list(TRAIT_GUNFLIP,TRAIT_GUN_NATURAL), "hev_trait")
 	playsound(src, weaponselect_sound, 50)
 	send_message("...CALIBRATED", HEV_COLOR_GREEN)
 	send_message("CALIBRATING MUNITION LEVEL MONITORING SYSTEMS...")
@@ -681,7 +681,7 @@
 		REMOVE_TRAIT(current_internals_tank, TRAIT_NODROP, "hev_trait")
 	if(current_user)
 		send_message("SYSTEMS DEACTIVATED", HEV_COLOR_RED)
-		REMOVE_TRAIT(current_user, list(TRAIT_GUNFLIP,TRAIT_GUN_NATURAL), "hev_trait")
+		current_user.remove_traits(list(TRAIT_GUNFLIP,TRAIT_GUN_NATURAL), "hev_trait")
 		UnregisterSignal(current_user, list(
 			COMSIG_ATOM_ACID_ACT,
 			COMSIG_CARBON_GAIN_WOUND,
@@ -772,7 +772,7 @@
 	armor_type = /datum/armor/hev_suit_pcv
 	flags_inv = null
 	allowed = list(/obj/item/gun, /obj/item/ammo_box,/obj/item/ammo_casing, /obj/item/melee/baton, /obj/item/melee/energy/sword, /obj/item/restraints/handcuffs, /obj/item/tank/internals)
-	cell = /obj/item/stock_parts/cell/super
+	cell = /obj/item/stock_parts/power_store/cell/super
 	actions_types = list(/datum/action/item_action/hev_toggle, /datum/action/item_action/hev_toggle_notifs)
 	resistance_flags = FIRE_PROOF|ACID_PROOF|FREEZE_PROOF
 	clothing_flags = SNUG_FIT
@@ -843,9 +843,11 @@
 	acid_static_cooldown = PCV_COOLDOWN_ACID
 	suit_name = "PCV MARK II"
 
-/obj/item/clothing/suit/space/hev_suit/pcv/AltClick(mob/living/user)
-	reskin_obj(user)
+/obj/item/clothing/suit/space/hev_suit/pcv/add_context(atom/source, list/context, obj/item/held_item, mob/user)
 	. = ..()
+	if(!current_skin)
+		context[SCREENTIP_CONTEXT_ALT_LMB] = "Reskin"
+		return CONTEXTUAL_SCREENTIP_SET
 
 #undef HEV_COLOR_GREEN
 #undef HEV_COLOR_RED
@@ -858,9 +860,13 @@
 #undef HEV_COOLDOWN_HEAL
 #undef HEV_COOLDOWN_RADS
 #undef HEV_COOLDOWN_ACID
+#undef PCV_COOLDOWN_HEAL
+#undef PCV_COOLDOWN_RADS
+#undef PCV_COOLDOWN_ACID
 #undef HEV_HEAL_AMOUNT
 #undef PCV_HEAL_AMOUNT
 #undef HEV_BLOOD_REPLENISHMENT
+#undef PCV_BLOOD_REPLENISHMENT
 #undef HEV_NOTIFICATION_TEXT_AND_VOICE
 #undef HEV_NOTIFICATION_TEXT
 #undef HEV_NOTIFICATION_VOICE

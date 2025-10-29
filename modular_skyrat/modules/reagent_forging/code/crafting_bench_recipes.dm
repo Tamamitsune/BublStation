@@ -57,7 +57,7 @@
 	recipe_requirements = list(
 		/obj/item/forging/complete/chain = 4,
 	)
-	resulting_item = /obj/item/clothing/shoes/horseshoe
+	resulting_item = /obj/item/clothing/shoes/horseshoe/reagent_clothing
 	required_good_hits = 8
 
 /datum/crafting_bench_recipe/ring
@@ -148,3 +148,12 @@
 	)
 	resulting_item = /obj/item/forging/incomplete_bow
 	required_good_hits = 8
+
+/datum/crafting_bench_recipe/empty_circuit
+	recipe_name = "circuit"
+	recipe_requirements = list(
+		/obj/item/forging/complete/plate = 1,
+		/obj/item/forging/coil = 1,
+	)
+	resulting_item = /obj/item/empty_circuit
+	required_good_hits = 4

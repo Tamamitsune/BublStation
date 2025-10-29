@@ -1,5 +1,5 @@
 //Donator reward for UltramariFox
-/obj/item/clothing/mask/cigarette/khi
+/obj/item/cigarette/khi
 	name = "\improper Kitsuhana Singularity cigarette"
 	icon = 'modular_skyrat/master_files/icons/obj/clothing/masks.dmi'
 	worn_icon = 'modular_skyrat/master_files/icons/mob/clothing/mask.dmi'
@@ -18,7 +18,7 @@
 	icon = 'modular_skyrat/master_files/icons/obj/cigarettes_khi.dmi'
 	icon_state = "khi_cig_packet"
 	base_icon_state = "khi_cig_packet"
-	spawn_type = /obj/item/clothing/mask/cigarette/khi
+	spawn_type = /obj/item/cigarette/khi
 
 //Donator reward for Stonetear
 /obj/item/hairbrush/switchblade
@@ -27,20 +27,20 @@
 	icon_state = "switchblade"
 	base_icon_state = "switchblade"
 	desc = "A sharp, concealable, spring-loaded comb."
-	hitsound = 'sound/weapons/genhit.ogg'
+	hitsound = 'sound/items/weapons/genhit.ogg'
 	resistance_flags = FIRE_PROOF
 	var/extended = FALSE
 
 /obj/item/hairbrush/switchblade/Initialize(mapload)
 	. = ..()
-	AddElement(/datum/element/update_icon_updates_onmob, ITEM_SLOT_HANDS)
+	AddElement(/datum/element/update_icon_updates_onmob)
 
 ///This is called when you transform it
 /obj/item/hairbrush/switchblade/attack_self(mob/user, modifiers)
 	extended = !extended
 	icon_state = "switchblade[extended ? "_on" : ""]"
 
-	playsound(user || src, 'sound/weapons/batonextend.ogg', 30, TRUE)
+	playsound(user || src, 'sound/items/weapons/batonextend.ogg', 30, TRUE)
 
 
 /// This makes it so you have to extend it.
@@ -181,6 +181,13 @@
 
 	return ..()
 
+/obj/vehicle/ridden/wheelchair/hardlight/atom_destruction(damage_flag)
+	visible_message(span_notice("[src] flickers and vanishes as the hardlight emitters are interrupted"))
+	qdel(src)
+	return ..()
+
+/obj/vehicle/ridden/wheelchair/hardlight/wrench_act(mob/living/user, obj/item/tool)
+	return
 
 /obj/vehicle/ridden/wheelchair/hardlight/post_unbuckle_mob()
 	. = ..()
@@ -225,7 +232,9 @@
 /obj/item/instrument/piano_synth/headphones/catear_headphone
 	name = "Cat-Ear Headphones"
 	desc = "Merch of their Electric Guitarist Demi Galgan from the Singularity Shredders. It's heavily customizable and even comes with a holographic tail!"
-	icon_state = "catear_headphone"
+	icon = 'icons/map_icons/items/_item.dmi'
+	icon_state = "/obj/item/instrument/piano_synth/headphones/catear_headphone"
+	post_init_icon_state = "catear_headphone"
 	worn_icon = 'modular_skyrat/modules/GAGS/icons/head/catear_headphone.dmi'
 	lefthand_file = 'modular_skyrat/modules/GAGS/icons/head/catear_headphone_inhand.dmi'
 	righthand_file = 'modular_skyrat/modules/GAGS/icons/head/catear_headphone_inhand.dmi'
@@ -256,11 +265,11 @@
 		else
 			icon_state = "catear_headphone[song?.playing ? "_on" : null]"
 
-/obj/item/instrument/piano_synth/headphones/catear_headphone/AltClick(mob/user)
-	. = ..()
+/obj/item/instrument/piano_synth/headphones/catear_headphone/click_alt(mob/user)
 	catTailToggled = !catTailToggled
 	user.update_worn_head()
 	update_icon(UPDATE_OVERLAYS)
+	return CLICK_ACTION_SUCCESS
 
 /obj/item/instrument/piano_synth/headphones/catear_headphone/update_overlays()
 	. = ..()

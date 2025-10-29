@@ -37,9 +37,13 @@
 	if(!wiki_url)
 		user.balloon_alert(user, "this book is empty!")
 		return
-
 	credit_book_to_reader(user)
-	DIRECT_OUTPUT(user, browse(WIKI_PAGE_IFRAME(wiki_url, page_link), "window=manual;size=[BOOK_WINDOW_BROWSE_SIZE]")) // if you change this GUARANTEE that it works.
+	if(user.client.byond_version < 516) //Remove this once 516 is stable
+		if(tgui_alert(user, "This book's page will open in your browser. Are you sure?", "Open The Wiki", list("Yes", "No")) != "Yes")
+			return
+		DIRECT_OUTPUT(user, link("[wiki_url]/[page_link]"))
+	else
+		DIRECT_OUTPUT(user, browse(WIKI_PAGE_IFRAME(wiki_url, page_link), "window=manual;size=[BOOK_WINDOW_BROWSE_SIZE]")) // if you change this GUARANTEE that it works.
 
 /obj/item/book/manual/wiki/chemistry
 	name = "Chemistry Textbook"
@@ -69,6 +73,14 @@
 	starting_author = "Nanotrasen"
 	starting_title = "Space Law"
 	page_link = "Space_Law"
+
+//BUBBER EDIT ADDITION BEGIN: READING SPACE LAW HAS A CHANCE TO TEACH YOU LEGALESE
+/obj/item/book/manual/wiki/security_space_law/attack_self(mob/user)
+	if(user.can_read(src) && prob(30))
+		to_chat(user, span_notice("As you inhale the book's contents, you feel more sophisticated. After reading Space Law just once, you feel like you are an expert in pretending you know Latin. You can now speak Legalese."))
+		user.grant_language(/datum/language/legalese, SPOKEN_LANGUAGE) //can speak but not understand
+	else return
+//BUBBER EDIT ADDITION END
 
 /obj/item/book/manual/wiki/security_space_law/suicide_act(mob/living/user)
 	user.visible_message(span_suicide("[user] pretends to read \the [src] intently... then promptly dies of laughter!"))

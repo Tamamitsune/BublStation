@@ -1,6 +1,6 @@
 /*
 
-	Advance Disease is a system for Virologist to Engineer their own disease with symptoms that have effects and properties
+	Advance Disease is a system for medical to Engineer their own disease with symptoms that have effects and properties
 	which add onto the overall disease.
 
 	If you need help with creating new symptoms or expanding the advance disease, ask for Giacom on #coderbus.
@@ -17,7 +17,7 @@
  */
 
 /datum/disease/advance
-	name = "Unknown" // We will always let our Virologist name our disease.
+	name = "Unknown" // We will always let our creator name our disease.
 	desc = "An engineered disease which can contain a multitude of symptoms."
 	form = "Advanced Disease" // Will let med-scanners know that this disease was engineered.
 	agent = "advance microbes"
@@ -56,13 +56,18 @@
 			/datum/reagent/consumable/salt,
 			/datum/reagent/consumable/sugar,
 			/datum/reagent/consumable/tomatojuice,
+			/datum/reagent/consumable/ethanol/antifreeze, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
+			/datum/reagent/consumable/ethanol/bug_spray, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
+			/datum/reagent/space_cleaner, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
 		),
 		list( //level 4
 			/datum/reagent/fuel/oil,
-			/datum/reagent/medicine/c2/multiver,
+			///datum/reagent/medicine/c2/multiver, // BUBBER EDIT REMOVAL - DISEASE OUTBREAK UPDATES
 			/datum/reagent/medicine/epinephrine,
 			/datum/reagent/medicine/haloperidol,
-			/datum/reagent/medicine/mine_salve,
+			///datum/reagent/medicine/mine_salve, // BUBBER EDIT REMOVAL - DISEASE OUTBREAK UPDATES
+			/datum/reagent/medicine/c2/libital, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
+			/datum/reagent/medicine/c2/lenturi, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
 			/datum/reagent/medicine/salglu_solution,
 		),
 		list( //level 5
@@ -70,18 +75,25 @@
 			/datum/reagent/medicine/mannitol,
 			/datum/reagent/medicine/synaptizine,
 			/datum/reagent/cryptobiolin,
+			/datum/reagent/medicine/c2/convermol, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
+			/datum/reagent/fluorosurfactant, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
 		),
 		list( // level 6
-			/datum/reagent/medicine/antihol,
+			///datum/reagent/medicine/antihol, // BUBBER EDIT REMOVAL - DISEASE OUTBREAK UPDATES
 			/datum/reagent/medicine/inacusiate,
 			/datum/reagent/medicine/oculine,
 			/datum/reagent/phenol,
+			/datum/reagent/medicine/neurine, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
+			/datum/reagent/medicine/ondansetron, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
 		),
 		list( // level 7
 			/datum/reagent/medicine/higadrite,
 			/datum/reagent/medicine/leporazine,
 			/datum/reagent/toxin/mindbreaker,
 			/datum/reagent/acetaldehyde,
+			/datum/reagent/medicine/sal_acid,
+			///datum/reagent/medicine/pen_acid, BUBBER EDIT REMOVE - DISEASE OUTBREAK UPDATES
+			/datum/reagent/medicine/psicodine, // BUBBER EDIT ADDITION - DISEASE OUTBREAK UPDATES
 		),
 		list( // level 8
 			/datum/reagent/drug/happiness,
@@ -89,7 +101,7 @@
 			/datum/reagent/pax,
 		),
 		list( // level 9
-			/datum/reagent/medicine/sal_acid,
+			/datum/reagent/drug/blastoff,
 			/datum/reagent/toxin/chloralhydrate,
 			/datum/reagent/toxin/lipolicide,
 		),
@@ -160,7 +172,8 @@
 
 	for(var/s in symptoms)
 		var/datum/symptom/symptom_datum = s
-		symptom_datum.Activate(src)
+		if(!symptom_datum.neutered)
+			symptom_datum.Activate(src)
 
 
 // Tell symptoms stage changed
@@ -264,13 +277,13 @@
 		properties["severity"] += round((properties["transmittable"] / 8), 1)
 		properties["severity"] = round((properties["severity"] / 2), 1)
 		properties["severity"] *= (symptoms.len / VIRUS_SYMPTOM_LIMIT) //fewer symptoms, less severity
-		properties["severity"] = clamp(properties["severity"], 1, 7)
+		properties["severity"] = round(clamp(properties["severity"], 1, 7), 1)
 
 // Assign the properties that are in the list.
 /datum/disease/advance/proc/assign_properties()
 
 	if(properties?.len)
-		if(properties["stealth"] >= 2)
+		if(properties["stealth"] >= properties["severity"] && properties["severity"] > 0)
 			visibility_flags |= HIDDEN_SCANNER
 		else
 			visibility_flags &= ~HIDDEN_SCANNER
@@ -286,7 +299,7 @@
 
 		spreading_modifier = max(CEILING(0.4 * properties["transmittable"], 1), 1)
 		cure_chance = clamp(7.5 - (0.5 * properties["resistance"]), 1, 10) // can be between 1 and 10
-		stage_prob = max(0.5 * properties["stage_rate"], 1)
+		stage_prob = max(0.3 * properties["stage_rate"], 1)
 		set_severity(round(properties["severity"]), 1)
 		generate_cure(properties)
 	else
@@ -297,22 +310,22 @@
 /datum/disease/advance/proc/set_spread(spread_id)
 	switch(spread_id)
 		if(DISEASE_SPREAD_NON_CONTAGIOUS)
-			spread_flags = DISEASE_SPREAD_NON_CONTAGIOUS
+			update_spread_flags(DISEASE_SPREAD_NON_CONTAGIOUS)
 			spread_text = "None"
 		if(DISEASE_SPREAD_SPECIAL)
-			spread_flags = DISEASE_SPREAD_SPECIAL
+			update_spread_flags(DISEASE_SPREAD_SPECIAL)
 			spread_text = "None"
 		if(DISEASE_SPREAD_BLOOD)
-			spread_flags = DISEASE_SPREAD_BLOOD
+			update_spread_flags(DISEASE_SPREAD_BLOOD)
 			spread_text = "Blood"
 		if(DISEASE_SPREAD_CONTACT_FLUIDS)
-			spread_flags = DISEASE_SPREAD_BLOOD | DISEASE_SPREAD_CONTACT_FLUIDS
+			update_spread_flags(DISEASE_SPREAD_BLOOD | DISEASE_SPREAD_CONTACT_FLUIDS)
 			spread_text = "Fluids"
 		if(DISEASE_SPREAD_CONTACT_SKIN)
-			spread_flags = DISEASE_SPREAD_BLOOD | DISEASE_SPREAD_CONTACT_FLUIDS | DISEASE_SPREAD_CONTACT_SKIN
+			update_spread_flags(DISEASE_SPREAD_BLOOD | DISEASE_SPREAD_CONTACT_FLUIDS | DISEASE_SPREAD_CONTACT_SKIN)
 			spread_text = "Skin contact"
 		if(DISEASE_SPREAD_AIRBORNE)
-			spread_flags = DISEASE_SPREAD_BLOOD | DISEASE_SPREAD_CONTACT_FLUIDS | DISEASE_SPREAD_CONTACT_SKIN | DISEASE_SPREAD_AIRBORNE
+			update_spread_flags(DISEASE_SPREAD_BLOOD | DISEASE_SPREAD_CONTACT_FLUIDS | DISEASE_SPREAD_CONTACT_SKIN | DISEASE_SPREAD_AIRBORNE)
 			spread_text = "Respiration"
 
 /datum/disease/advance/proc/set_severity(level_sev)
@@ -401,10 +414,8 @@
 
 // Add a symptom, if it is over the limit we take a random symptom away and add the new one.
 /datum/disease/advance/proc/AddSymptom(datum/symptom/S)
-
 	if(HasSymptom(S))
 		return
-
 	if(symptoms.len >= VIRUS_SYMPTOM_LIMIT)
 		RemoveSymptom(pick(symptoms))
 	symptoms += S
@@ -544,6 +555,7 @@
 /datum/disease/advance/proc/totalTransmittable()
 	return properties["transmittable"]
 
+/* // BUBBER EDIT REMOVAL START - DISEASE OUTBREAK UPDATES
 /**
  *  If the disease has an incubation time (such as event diseases) start the timer, let properties determine if there's no timer set.
  */
@@ -566,3 +578,4 @@
 /datum/disease/advance/proc/make_visible()
 	visibility_flags &= ~HIDDEN_SCANNER
 	affected_mob.med_hud_set_status()
+*/ // BUBBER EDIT REMOVAL END - DISEASE OUTBREAK UPDATES

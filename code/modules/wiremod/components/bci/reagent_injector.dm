@@ -9,14 +9,18 @@
 	display_name = "Reagent Injector"
 	desc = "A component that can inject reagents from a BCI's reagent storage."
 	category = "BCI"
+	//SKYRAT EDIT CHANGE BEGIN - Add container type flag - This is required since we have two reagent components, and the BCI only allows one active
+	//circuit_flags = CIRCUIT_NO_DUPLICATES - SKYRAT EDIT - ORIGINAL
+	circuit_flags = CIRCUIT_NO_DUPLICATES|CIRCUIT_REAGENT_CONTAINER_TYPE
+	//SKYRAT EDIT CHANGE END
 	circuit_flags = CIRCUIT_NO_DUPLICATES
 
-	required_shells = list(/obj/item/organ/internal/cyberimp/bci)
+	required_shells = list(/obj/item/organ/cyberimp/bci)
 
 	var/datum/port/input/inject
 	var/datum/port/output/injected
 
-	var/obj/item/organ/internal/cyberimp/bci/bci
+	var/obj/item/organ/cyberimp/bci/bci
 
 /obj/item/circuit_component/reagent_injector/Initialize(mapload)
 	. = ..()
@@ -41,7 +45,7 @@
 
 /obj/item/circuit_component/reagent_injector/register_shell(atom/movable/shell)
 	. = ..()
-	if(istype(shell, /obj/item/organ/internal/cyberimp/bci))
+	if(istype(shell, /obj/item/organ/cyberimp/bci))
 		bci = shell
 		bci.create_reagents(15, OPENCONTAINER)
 		if(reagents.total_volume)

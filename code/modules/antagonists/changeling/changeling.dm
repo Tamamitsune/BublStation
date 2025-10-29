@@ -5,8 +5,8 @@
 	name = "\improper Changeling"
 	roundend_category = "changelings"
 	antagpanel_category = "Changeling"
-	job_rank = ROLE_CHANGELING
-	antag_moodlet = /datum/mood_event/focused
+	pref_flag = ROLE_CHANGELING
+	antag_moodlet = /datum/mood_event/ling
 	antag_hud_name = "changeling"
 	hijack_speed = 0.5
 	ui_name = "AntagInfoChangeling"
@@ -14,6 +14,8 @@
 	can_assign_self_objectives = TRUE
 	default_custom_objective = "Consume the station's most valuable genomes."
 	hardcore_random_bonus = TRUE
+	stinger_sound = 'sound/music/antag/ling_alert.ogg'
+
 	/// Whether to give this changeling objectives or not
 	var/give_objectives = TRUE
 	/// Weather we assign objectives which compete with other lings
@@ -39,7 +41,7 @@
 	/// The max chemical storage the changeling currently has.
 	var/total_chem_storage = 75
 	/// The chemical recharge rate per life tick.
-	var/chem_recharge_rate = 0.5
+	var/chem_recharge_rate = 1
 	/// Any additional modifiers triggered by changelings that modify the chem_recharge_rate.
 	var/chem_recharge_slowdown = 0
 	/// The range this ling can sting things.
@@ -58,7 +60,7 @@
 	/// The voice we're mimicing via the changeling voice ability.
 	var/mimicing = ""
 	/// Whether we can currently respec in the cellular emporium.
-	var/can_respec = FALSE
+	var/can_respec = 0
 
 	/// The currently active changeling sting.
 	var/datum/action/changeling/sting/chosen_sting
@@ -139,6 +141,7 @@
 /datum/antagonist/changeling/Destroy()
 	QDEL_NULL(emporium_action)
 	QDEL_NULL(cellular_emporium)
+	current_profile = null
 	return ..()
 
 /datum/antagonist/changeling/on_gain()
@@ -149,7 +152,6 @@
 	if(give_objectives)
 		forge_objectives()
 	owner.current.get_language_holder().omnitongue = TRUE
-	owner.current.playsound_local(get_turf(owner.current), 'sound/ambience/antag/ling_alert.ogg', 100, FALSE, pressure_affected = FALSE, use_reverb = FALSE)
 	return ..()
 
 /datum/antagonist/changeling/apply_innate_effects(mob/living/mob_override)
@@ -164,6 +166,7 @@
 	RegisterSignal(living_mob, COMSIG_LIVING_POST_FULLY_HEAL, PROC_REF(on_fullhealed))
 	RegisterSignal(living_mob, COMSIG_MOB_GET_STATUS_TAB_ITEMS, PROC_REF(get_status_tab_item))
 	RegisterSignals(living_mob, list(COMSIG_MOB_MIDDLECLICKON, COMSIG_MOB_ALTCLICKON), PROC_REF(on_click_sting))
+	ADD_TRAIT(living_mob, TRAIT_FAKE_SOULLESS, CHANGELING_TRAIT)
 
 	if(living_mob.hud_used)
 		var/datum/hud/hud_used = living_mob.hud_used
@@ -181,7 +184,7 @@
 	make_brain_decoy(living_mob)
 
 /datum/antagonist/changeling/proc/make_brain_decoy(mob/living/ling)
-	var/obj/item/organ/internal/brain/our_ling_brain = ling.get_organ_slot(ORGAN_SLOT_BRAIN)
+	var/obj/item/organ/brain/our_ling_brain = ling.get_organ_slot(ORGAN_SLOT_BRAIN)
 	if(isnull(our_ling_brain) || our_ling_brain.decoy_override)
 		return
 
@@ -222,6 +225,7 @@
 	var/mob/living/living_mob = mob_override || owner.current
 	handle_clown_mutation(living_mob, removing = FALSE)
 	UnregisterSignal(living_mob, list(COMSIG_MOB_LOGIN, COMSIG_LIVING_LIFE, COMSIG_LIVING_POST_FULLY_HEAL, COMSIG_MOB_GET_STATUS_TAB_ITEMS, COMSIG_MOB_MIDDLECLICKON, COMSIG_MOB_ALTCLICKON))
+	REMOVE_TRAIT(living_mob, TRAIT_FAKE_SOULLESS, CHANGELING_TRAIT)
 
 	if(living_mob.hud_used)
 		var/datum/hud/hud_used = living_mob.hud_used
@@ -238,7 +242,8 @@
 	return ..()
 
 /datum/antagonist/changeling/farewell()
-	to_chat(owner.current, span_userdanger("You grow weak and lose your powers! You are no longer a changeling and are stuck in your current form!"))
+	if(owner.current)
+		to_chat(owner.current, span_userdanger("You grow weak and lose your powers! You are no longer a changeling and are stuck in your current form!"))
 
 /*
  * Instantiate the cellular emporium for the changeling.
@@ -284,14 +289,18 @@
 	SIGNAL_HANDLER
 
 	var/delta_time = DELTA_WORLD_TIME(SSmobs)
+	var/mob/living/living_owner = owner.current
 
 	// If dead, we only regenerate up to half chem storage.
 	if(owner.current.stat == DEAD)
 		adjust_chemicals((chem_recharge_rate - chem_recharge_slowdown) * delta_time, total_chem_storage * 0.5)
 
-	// If we're not dead - we go up to the full chem cap.
+	// If we're not dead and not on fire - we go up to the full chem cap at normal speed. If on fire we only regenerate at 1/4th the normal speed
 	else
-		adjust_chemicals((chem_recharge_rate - chem_recharge_slowdown) * delta_time)
+		if(living_owner.fire_stacks && living_owner.on_fire)
+			adjust_chemicals((chem_recharge_rate - 0.75) * delta_time)
+		else
+			adjust_chemicals((chem_recharge_rate - chem_recharge_slowdown) * delta_time)
 
 /**
  * Signal proc for [COMSIG_LIVING_POST_FULLY_HEAL]
@@ -437,7 +446,8 @@
 
 	purchased_powers[power_path] = new_action
 	new_action.on_purchase(owner.current) // Grant() is ran in this proc, see changeling_powers.dm.
-	log_changeling_power("[key_name(owner)] adapted the [new_action] power")
+	log_changeling_power("[key_name(owner)] adapted the [new_action.name] power")
+	SSblackbox.record_feedback("tally", "changeling_power_purchase", 1, new_action.name)
 
 	return TRUE
 
@@ -459,7 +469,7 @@
 
 	to_chat(owner.current, span_notice("We have removed our evolutions from this form, and are now ready to readapt."))
 	remove_changeling_powers()
-	can_respec = FALSE
+	can_respec -= 1
 	SSblackbox.record_feedback("tally", "changeling_power_purchase", 1, "Readapt")
 	log_changeling_power("[key_name(owner)] readapted their changeling powers")
 	return TRUE
@@ -545,31 +555,39 @@
 	new_profile.name = target.real_name
 	new_profile.protected = protect
 
+	new_profile.age = target.age
+	new_profile.physique = target.physique
+	new_profile.athletics_level = target.mind?.get_skill_level(/datum/skill/athletics) || SKILL_LEVEL_NONE
+
+	// Grab the target's quirks.
+	for(var/datum/quirk/target_quirk as anything in target.quirks)
+		LAZYADD(new_profile.quirks, new target_quirk.type)
+
 	// Clothes, of course
 	new_profile.underwear = target.underwear
+	new_profile.underwear_color = target.underwear_color
 	new_profile.undershirt = target.undershirt
 	new_profile.socks = target.socks
-
-	// SKYRAT EDIT START
+	// SKYRAT EDIT ADDITION START
 	new_profile.bra = target.bra
-
-	new_profile.underwear_color = target.underwear_color
 	new_profile.undershirt_color = target.undershirt_color
 	new_profile.socks_color = target.socks_color
 	new_profile.bra_color = target.bra_color
 	new_profile.eye_color_left = target.eye_color_left
 	new_profile.eye_color_right = target.eye_color_right
 	new_profile.emissive_eyes = target.emissive_eyes
-	new_profile.grad_style = LAZYLISTDUPLICATE(target.grad_style)
-	new_profile.grad_color = LAZYLISTDUPLICATE(target.grad_color)
-	new_profile.physique = target.physique
 	new_profile.scream_type = target.selected_scream?.type || /datum/scream_type/none
 	new_profile.laugh_type = target.selected_laugh?.type || /datum/laugh_type/none
-	new_profile.age = target.age
-	for(var/datum/quirk/target_quirk in target.quirks)
-		LAZYADD(new_profile.quirks, new target_quirk.type)
-	//SKYRAT EDIT END
-
+	new_profile.target_body_scaling = target.mob_height
+	new_profile.target_size = target.mob_size
+	//SKYRAT EDIT ADDITION END
+	// Hair and facial hair gradients, alongside their colours.
+	//THE BUBBER EDIT ADDITION BEGIN - Voice Bark
+	new_profile.blooper_id = target.blooper_id
+	new_profile.blooper_pitch = target.blooper_pitch
+	new_profile.blooper_speed = target.blooper_speed
+	new_profile.blooper_pitch_range = target.blooper_pitch_range
+	//THE BUBBER EDIT END
 	// Grab skillchips they have
 	new_profile.skillchips = target.clone_skillchip_list(TRUE)
 
@@ -588,7 +606,7 @@
 	// Grab the target's sechut icon.
 	new_profile.id_icon = target.wear_id?.get_sechud_job_icon_state()
 
-	var/list/slots = list("head", "wear_mask", "wear_neck", "back", "wear_suit", "w_uniform", "shoes", "belt", "gloves", "glasses", "ears", "wear_id", "s_store") // SKYRAT EDIT
+	var/list/slots = list("head", "wear_mask", "wear_neck", "back", "wear_suit", "w_uniform", "shoes", "belt", "gloves", "glasses", "ears", "wear_id", "s_store")
 	for(var/slot in slots)
 		if(!(slot in target.vars))
 			continue
@@ -604,14 +622,14 @@
 		new_profile.worn_icon_list[slot] = clothing_item.worn_icon
 		new_profile.worn_icon_state_list[slot] = clothing_item.worn_icon_state
 		new_profile.exists_list[slot] = 1
-
-		// SKYRAT EDIT START
+		// SKYRAT EDIT ADDITION START
 		new_profile.worn_icon_digi_list[slot] = clothing_item.worn_icon_digi
 		new_profile.worn_icon_monkey_list[slot] = clothing_item.worn_icon_monkey
 		new_profile.worn_icon_teshari_list[slot] = clothing_item.worn_icon_teshari
 		new_profile.worn_icon_vox_list[slot] = clothing_item.worn_icon_vox
 		new_profile.supports_variations_flags_list[slot] = clothing_item.supports_variations_flags
-		// SKYRAT EDIT END
+		// SKYRAT EDIT ADDITION END
+
 	new_profile.voice = target.voice
 	new_profile.voice_filter = target.voice_filter
 
@@ -630,7 +648,7 @@
 
 	if(!first_profile)
 		first_profile = new_profile
-		current_profile = first_profile  // SKYRAT EDIT
+		current_profile = first_profile
 
 	stored_profiles += new_profile
 	absorbed_count++
@@ -769,7 +787,7 @@
 		return
 
 	var/mob/living/carbon/carbon_owner = owner.current
-	first_profile.dna.transfer_identity(carbon_owner, transfer_SE = TRUE)
+	first_profile.dna.copy_dna(carbon_owner.dna, COPY_DNA_SE|COPY_DNA_SPECIES)
 	carbon_owner.real_name = first_profile.name
 	carbon_owner.updateappearance(mutcolor_update = TRUE)
 	carbon_owner.domutcheck()
@@ -781,7 +799,7 @@
 	var/static/list/slot2slot = list(
 		"head" = ITEM_SLOT_HEAD,
 		"wear_mask" = ITEM_SLOT_MASK,
-		"wear_neck" = ITEM_SLOT_NECK, // SKYRAT EDIT
+		"wear_neck" = ITEM_SLOT_NECK,
 		"back" = ITEM_SLOT_BACK,
 		"wear_suit" = ITEM_SLOT_OCLOTHING,
 		"w_uniform" = ITEM_SLOT_ICLOTHING,
@@ -797,28 +815,26 @@
 	var/datum/dna/chosen_dna = chosen_profile.dna
 	user.real_name = chosen_profile.name
 	user.underwear = chosen_profile.underwear
+	user.underwear_color = chosen_profile.underwear_color
 	user.undershirt = chosen_profile.undershirt
 	user.socks = chosen_profile.socks
-
-	// SKYRAT EDIT START
+	user.age = chosen_profile.age
+	user.physique = chosen_profile.physique
+	user.mind?.set_level(/datum/skill/athletics, chosen_profile.athletics_level, silent = TRUE)
+	// SKYRAT EDIT ADDITION START
 	user.bra = chosen_profile.bra
 
-	user.underwear_color = chosen_profile.underwear_color
 	user.undershirt_color = chosen_profile.undershirt_color
 	user.socks_color = chosen_profile.socks_color
 	user.bra_color = chosen_profile.bra_color
 	user.emissive_eyes = chosen_profile.emissive_eyes
 	user.dna.mutant_bodyparts = chosen_dna.mutant_bodyparts.Copy()
 	user.dna.body_markings = chosen_dna.body_markings.Copy()
-	user.grad_style = LAZYLISTDUPLICATE(chosen_profile.grad_style)
-	user.grad_color = LAZYLISTDUPLICATE(chosen_profile.grad_color)
 
-	user.physique = chosen_profile.physique
 	qdel(user.selected_scream)
 	qdel(user.selected_laugh)
 	user.selected_scream = new chosen_profile.scream_type
 	user.selected_laugh = new chosen_profile.laugh_type
-	user.age = chosen_profile.age
 
 	// Only certain quirks will be copied, to avoid making the changeling blind or wheelchair-bound when they can simply pretend to have these quirks.
 
@@ -833,17 +849,16 @@
 			if(target_quirk.name == mimicable_quirk)
 				user.add_quirk(target_quirk.type)
 				break
-
-	// SKYRAT EDIT END
+	// SKYRAT EDIT ADDITION END
 	user.voice = chosen_profile.voice
 	user.voice_filter = chosen_profile.voice_filter
 
-	chosen_dna.transfer_identity(user, TRUE)
+	chosen_dna.copy_dna(user.dna, COPY_DNA_SE|COPY_DNA_SPECIES)
 
 	for(var/obj/item/bodypart/limb as anything in user.bodyparts)
 		limb.update_limb(is_creating = TRUE)
 
-	user.updateappearance(mutcolor_update = TRUE, eyeorgancolor_update = TRUE) // SKYRAT EDIT
+	user.updateappearance(mutcolor_update = TRUE)
 	user.domutcheck()
 
 	// Get rid of any scars from previous Changeling-ing
@@ -942,13 +957,24 @@
 	user.name = user.get_visible_name()
 	current_profile = chosen_profile
 	// SKYRAT EDIT START
-	chosen_dna.transfer_identity(user, TRUE)
-	user.updateappearance(mutcolor_update = TRUE, eyeorgancolor_update = TRUE)
+	user.visual_only_organs = TRUE
+	chosen_dna.copy_dna(user.dna, COPY_DNA_SE|COPY_DNA_SPECIES)
+	user.visual_only_organs = initial(user.visual_only_organs)
+	user.updateappearance(mutcolor_update = TRUE)
 	user.regenerate_icons()
 	user.name = user.get_visible_name()
 	current_profile = chosen_profile
+	user.mob_size = chosen_profile.target_size
+	//this has to be at the end of the proc or it breaks everything below it, womp womp
+	user.set_mob_height(chosen_profile.target_body_scaling)
 	// SKYRAT EDIT END
-
+//THE BUBBER EDIT ADDITION BEGIN - Voice Bark
+	user.blooper = null
+	user.blooper_id = chosen_profile.blooper_id
+	user.blooper_pitch = chosen_profile.blooper_pitch
+	user.blooper_speed = chosen_profile.blooper_speed
+	user.blooper_pitch_range = chosen_profile.blooper_pitch_range
+	//THE BUBBER EDIT END
 // Changeling profile themselves. Store a data to store what every DNA instance looked like.
 /datum/changeling_profile
 	/// The name of the profile / the name of whoever this profile source.
@@ -977,6 +1003,8 @@
 	var/list/worn_icon_state_list = list()
 	/// The underwear worn by the profile source
 	var/underwear
+	/// The colour of the underwear worn by the profile source
+	var/underwear_color
 	/// The undershirt worn by the profile source
 	var/undershirt
 	/// The socks worn by the profile source
@@ -989,17 +1017,23 @@
 	var/datum/icon_snapshot/profile_snapshot
 	/// ID HUD icon associated with the profile
 	var/id_icon
-
-
+	/// The age of the profile source.
+	var/age
+	/// The body type of the profile source.
+	var/physique
+	/// The athleticism of the profile source.
+	var/athletics_level
+	/// The quirks of the profile source.
+	var/list/quirks = list()
 	/// The TTS voice of the profile source
 	var/voice
 	/// The TTS filter of the profile filter
 	var/voice_filter = ""
 
-
 /datum/changeling_profile/Destroy()
 	qdel(dna)
 	LAZYCLEARLIST(stored_scars)
+	QDEL_LAZYLIST(quirks)
 	return ..()
 
 /*
@@ -1019,6 +1053,7 @@
 	new_profile.righthand_file_list = righthand_file_list.Copy()
 	new_profile.inhand_icon_state_list = inhand_icon_state_list.Copy()
 	new_profile.underwear = underwear
+	new_profile.underwear_color = underwear_color
 	new_profile.undershirt = undershirt
 	new_profile.socks = socks
 	new_profile.worn_icon_list = worn_icon_list.Copy()
@@ -1027,9 +1062,13 @@
 	new_profile.stored_scars = stored_scars.Copy()
 	new_profile.profile_snapshot = profile_snapshot
 	new_profile.id_icon = id_icon
-
-	// SKYRAT EDIT START
-	new_profile.underwear_color = underwear_color
+	new_profile.age = age
+	new_profile.physique = physique
+	new_profile.athletics_level = athletics_level
+	new_profile.quirks = quirks.Copy()
+	new_profile.voice = voice
+	new_profile.voice_filter = voice_filter
+	// SKYRAT EDIT ADDITION START
 	new_profile.undershirt_color = undershirt_color
 	new_profile.socks_color = socks_color
 	new_profile.bra = bra
@@ -1037,10 +1076,7 @@
 	new_profile.eye_color_left = eye_color_left
 	new_profile.eye_color_right = eye_color_right
 	new_profile.emissive_eyes = emissive_eyes
-	new_profile.grad_style = LAZYLISTDUPLICATE(grad_style)
-	new_profile.grad_color = LAZYLISTDUPLICATE(grad_color)
 
-	new_profile.physique = physique
 	new_profile.worn_icon_digi_list = worn_icon_digi_list.Copy()
 	new_profile.worn_icon_monkey_list = worn_icon_monkey_list.Copy()
 	new_profile.worn_icon_teshari_list = worn_icon_teshari_list.Copy()
@@ -1048,12 +1084,7 @@
 	new_profile.supports_variations_flags_list = supports_variations_flags_list.Copy()
 	new_profile.scream_type = scream_type
 	new_profile.laugh_type = laugh_type
-	new_profile.age = age
-	new_profile.quirks = quirks.Copy()
-	// SKYRAT EDIT END
-
-	new_profile.voice = voice
-	new_profile.voice_filter = voice_filter
+	// SKYRAT EDIT ADDITION END
 
 /datum/antagonist/changeling/roundend_report()
 	var/list/parts = list()
@@ -1097,11 +1128,11 @@
 	var/icon/final_icon = render_preview_outfit(/datum/outfit/changeling)
 	var/icon/split_icon = render_preview_outfit(/datum/outfit/job/engineer)
 
-	final_icon.Shift(WEST, world.icon_size / 2)
-	final_icon.Shift(EAST, world.icon_size / 2)
+	final_icon.Shift(WEST, ICON_SIZE_X / 2)
+	final_icon.Shift(EAST, ICON_SIZE_X / 2)
 
-	split_icon.Shift(EAST, world.icon_size / 2)
-	split_icon.Shift(WEST, world.icon_size / 2)
+	split_icon.Shift(EAST, ICON_SIZE_X / 2)
+	split_icon.Shift(WEST, ICON_SIZE_X / 2)
 
 	final_icon.Blend(split_icon, ICON_OVERLAY)
 
@@ -1126,7 +1157,7 @@
 	name = "\improper Headslug Changeling"
 	show_in_antagpanel = FALSE
 	give_objectives = FALSE
-	count_against_dynamic_roll_chance = FALSE
+	antag_flags = ANTAG_SKIP_GLOBAL_LIST
 
 	genetic_points = 5
 	total_genetic_points = 5
@@ -1134,7 +1165,8 @@
 	total_chem_storage = 50
 
 /datum/antagonist/changeling/headslug/greet()
-	to_chat(owner, span_boldannounce("You are a fresh changeling birthed from a headslug! \
+	play_stinger()
+	to_chat(owner, span_bolddanger("You are a fresh changeling birthed from a headslug! \
 		You aren't as strong as a normal changeling, as you are newly born."))
 
 
@@ -1146,6 +1178,7 @@
 	return finish_preview_icon(final_icon)
 
 /datum/antagonist/changeling/space/greet()
+	play_stinger()
 	to_chat(src, span_changeling("Our mind stirs to life, from the depths of an endless slumber..."))
 
 /datum/outfit/changeling

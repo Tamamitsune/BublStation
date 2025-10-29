@@ -1,4 +1,4 @@
-/obj/machinery/vending/wardrobe/canLoadItem(obj/item/I,mob/user)
+/obj/machinery/vending/wardrobe/canLoadItem(obj/item/I, mob/user, send_message = TRUE)
 	return (I.type in products)
 
 /obj/machinery/vending/wardrobe/syndie_wardrobe
@@ -36,7 +36,7 @@
 		/obj/item/clothing/gloves/combat = 3,
 		/obj/item/clothing/under/syndicate/skyrat/maid = 5,
 		/obj/item/clothing/gloves/combat/maid = 5,
-		/obj/item/clothing/head/costume/maidheadband/syndicate = 5,
+		/obj/item/clothing/head/costume/maid_headband/syndicate = 5,
 		/obj/item/storage/box/nif_ghost_box/ghost_role = 10,
 	)
 

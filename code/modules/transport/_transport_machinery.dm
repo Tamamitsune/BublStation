@@ -86,7 +86,7 @@
 
 	// Construct the signals
 	LAZYINITLIST(repair_signals)
-	for(var/tool_method as anything in methods_to_fix)
+	for(var/tool_method in methods_to_fix)
 		repair_signals += COMSIG_ATOM_TOOL_ACT(how_do_we_fix_it[tool_method])
 
 	// Register signals to make it fixable
@@ -95,12 +95,12 @@
 
 /obj/machinery/transport/proc/clear_repair_signals()
 	UnregisterSignal(src, repair_signals)
-	QDEL_LAZYLIST(repair_signals)
+	LAZYNULL(repair_signals)
 
 /obj/machinery/transport/examine(mob/user)
 	. = ..()
 	if(methods_to_fix)
-		for(var/tool_method as anything in methods_to_fix)
+		for(var/tool_method in methods_to_fix)
 			. += span_warning("It needs someone to [EXAMINE_HINT(tool_method)].")
 	if(panel_open)
 		. += span_notice("It can be deconstructed with a [EXAMINE_HINT("crowbar.")]")
@@ -125,11 +125,11 @@
 		machine.balloon_alert(user, "interrupted!")
 		return FALSE
 
-	playsound(src, 'sound/machines/synth_yes.ogg', 75, use_reverb = TRUE)
+	playsound(src, 'sound/machines/synth/synth_yes.ogg', 75, use_reverb = TRUE)
 	machine.balloon_alert(user, "success!")
 	UnregisterSignal(src, repair_signals)
-	QDEL_LAZYLIST(repair_signals)
-	QDEL_LAZYLIST(methods_to_fix)
+	LAZYNULL(repair_signals)
+	methods_to_fix = list()
 	malfunctioning = FALSE
 	set_machine_stat(machine_stat & ~EMAGGED)
 	set_is_operational(TRUE)

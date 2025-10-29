@@ -46,7 +46,7 @@
 		prefix = gauze_prefix
 
 	var/suffix = gauzed_bodypart.body_zone
-	if(gauzed_bodypart.bodytype & BODYTYPE_DIGITIGRADE)
+	if(gauzed_bodypart.bodyshape & BODYSHAPE_DIGITIGRADE)
 		suffix += "_digitigrade"
 
 	return "[prefix]_[suffix]"
@@ -129,3 +129,6 @@
 
 /obj/item/stack/medical/gauze/improvised
 	splint_prefix = "splint_improv"
+
+#undef SELF_AID_REMOVE_DELAY
+#undef OTHER_AID_REMOVE_DELAY

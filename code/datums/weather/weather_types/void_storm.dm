@@ -6,10 +6,10 @@
 	telegraph_overlay = "light_snow"
 
 	weather_message = span_hypnophrase("You feel the air around you getting colder... and void's sweet embrace...")
-	weather_overlay = "snow_storm"
+	weather_overlay = "light_snow"
 	weather_color = COLOR_BLACK
-	weather_duration_lower = 60 SECONDS
-	weather_duration_upper = 120 SECONDS
+	weather_duration_lower = 1 MINUTES
+	weather_duration_upper = 2 MINUTES
 
 	use_glow = FALSE
 
@@ -17,7 +17,7 @@
 
 	area_type = /area
 	protect_indoors = FALSE
-	//target_trait = ZTRAIT_VOIDSTORM SKYRAT EDIT REMOVAL
+	target_trait = ZTRAIT_VOIDSTORM
 
 	immunity_type = TRAIT_VOIDSTORM_IMMUNE
 
@@ -28,6 +28,7 @@
 	var/list/former_impacted_areas = list()
 	multiply_blend_on_main_stage = TRUE//SKYRAT EDIT CHANGE
 
+	weather_flags = (WEATHER_INDOORS | WEATHER_BAROMETER | WEATHER_ENDLESS)
 
 /datum/weather/void_storm/can_weather_act(mob/living/mob_to_check)
 	. = ..()

@@ -25,12 +25,16 @@
 	)
 
 	var/list/organs_to_process = list(
+		"brain" = "Brain", //BUBBER EDIT
 		"heart" = "Heart",
 		"lungs" = "Lungs",
 		"liver" = "Liver",
 		"stomach" = "Stomach",
 		"eyes" = "Eyes",
 		"tongue" = "Tongue",
+		"ears" = "Ears",
+		"Brain implant" = "Brain implant", //BUBBER EDIT
+		"Eyes Implant" = "Eyes implant",
 		"Mouth implant" = "Mouth implant",
 		"Left Arm implant" = "Left Arm implant",
 		"Right Arm implant" = "Right Arm implant",
@@ -67,6 +71,7 @@
 			visited_body_zones += visited_body_zone
 
 	target.synchronize_bodytypes() // We call this here to ensure that by this point, bodytypes are synchronized, after all changes to the limbs.
+	target.synchronize_bodyshapes()
 
 	// We don't need to go any further if this isn't visuals only, as we will have fully replaced each limb
 	// affected by a limb augmentation.
@@ -158,12 +163,13 @@
 		if(marking_id == "[limb_slot]_[marking_count]")
 			marking_entry_name = marking_entry
 		new_markings[marking_entry] = markings[marking_entry]
-	var/new_color = input(
+	// BUBBERSTATION EDIT START: TGUI COLOR PICKER
+	var/new_color = tgui_color_picker(
 		usr,
 		"Select new color",
 		null,
 		preferences.body_markings[limb_slot][marking_entry_name][1],
-	) as color | null
+	)  // BUBBERSTATION EDIT END: TGUI COLOR PICKER
 	if(!new_color)
 		return TRUE
 	new_markings[marking_entry_name][1] = sanitize_hexcolor(new_color) // gets the new color from the picker

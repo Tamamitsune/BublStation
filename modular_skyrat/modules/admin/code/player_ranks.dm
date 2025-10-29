@@ -1,22 +1,18 @@
 /// The list of the available special player ranks
-#define SKYRAT_PLAYER_RANKS list("Donator", "Mentor", "Veteran")
+#define SKYRAT_PLAYER_RANKS list("Donator", "Mentor")
 
-/client/proc/manage_player_ranks()
-	set category = "Admin"
-	set name = "Manage Player Ranks"
-	set desc = "Manage who has the special player ranks while the server is running."
-
-	if(!check_rights(R_PERMISSIONS))
+ADMIN_VERB(manage_player_ranks, R_ADMIN, "Manage Player Ranks", "Manage who has the special player ranks while the server is running.", ADMIN_CATEGORY_MAIN)
+	if(!check_rights(R_ADMIN))
 		return
 
 	usr.client?.holder.manage_player_ranks()
 
-/// Proc for admins to change people's "player" ranks (donator, mentor, veteran, etc.)
+/// Proc for admins to change people's "player" ranks (donator, mentor, etc.)
 /datum/admins/proc/manage_player_ranks()
 	if(IsAdminAdvancedProcCall())
 		return
 
-	if(!check_rights(R_PERMISSIONS))
+	if(!check_rights(R_ADMIN))
 		return
 
 	var/choice = tgui_alert(usr, "Which rank would you like to manage?", "Manage Player Ranks", SKYRAT_PLAYER_RANKS)
@@ -40,7 +36,7 @@
 	if(!(group in SKYRAT_PLAYER_RANKS))
 		CRASH("[key_name(usr)] attempted to add someone to an invalid \"[group]\" group.")
 
-	var/group_title = lowertext(group)
+	var/group_title = LOWER_TEXT(group)
 
 	var/list/choices = list("Add", "Remove")
 	switch(tgui_alert(usr, "What would you like to do?", "Manage [group]s", choices))
@@ -86,22 +82,14 @@
 
 
 
-/client/proc/migrate_player_ranks()
-	set category = "Debug"
-	set name = "Migrate Player Ranks"
-	set desc = "Individually migrate the various player ranks from their legacy system to the SQL-based one."
-
-	if(!check_rights(R_PERMISSIONS | R_DEBUG | R_SERVER))
-		return
-
-	usr.client?.holder.migrate_player_ranks()
-
+ADMIN_VERB(migrate_player_ranks, R_ADMIN|R_DEBUG|R_SERVER, "Migrate Player Ranks", "Individually migrate the various player ranks from their legacy system to the SQL-based one.", ADMIN_CATEGORY_DEBUG)
+	user.mob.client?.holder.migrate_player_ranks()
 
 /datum/admins/proc/migrate_player_ranks()
 	if(IsAdminAdvancedProcCall())
 		return
 
-	if(!check_rights(R_PERMISSIONS | R_DEBUG | R_SERVER))
+	if(!check_rights(R_ADMIN | R_DEBUG | R_SERVER))
 		return
 
 	if(!CONFIG_GET(flag/sql_enabled))

@@ -1,19 +1,19 @@
 // THIS IS A SKYRAT UI FILE
 import {
-  FeatureChoiced,
-  FeatureDropdownInput,
-  Feature,
-  FeatureColorInput,
-  FeatureTextInput,
-  FeatureShortTextInput,
   CheckboxInput,
-  FeatureTriColorInput,
-  FeatureTriBoolInput,
-  FeatureToggle,
+  type Feature,
+  type FeatureChoiced,
+  type FeatureChoicedServerData,
+  FeatureColorInput,
   FeatureNumberInput,
-  FeatureValueProps,
-  FeatureChoicedServerData,
+  FeatureShortTextInput,
+  FeatureTextInput,
+  type FeatureToggle,
+  FeatureTriBoolInput,
+  FeatureTriColorInput,
+  type FeatureValueProps,
 } from '../../base';
+import { FeatureDropdownInput } from '../../dropdowns';
 
 export const feature_leg_type: FeatureChoiced = {
   name: 'Leg type',
@@ -36,46 +36,63 @@ export const feature_mcolor3: Feature<string> = {
 export const flavor_text: Feature<string> = {
   name: 'Flavor Text',
   description:
-    "Appears when your character is examined (but only if they're identifiable - try a gas mask).",
+    'Appears when examined, provides a visual description with personality, allowing other characters to form their first impression of you. Check the wiki guides for help.',
   component: FeatureTextInput,
 };
 
 export const silicon_flavor_text: Feature<string> = {
-  name: 'Flavor Text (Silicon)',
-  description: "Only appears if you're playing as a borg/AI.",
+  name: 'Silicon Flavor Text',
+  description: "Flavor text, but shows up when you're playing as a borg or AI.",
   component: FeatureTextInput,
 };
 
 export const ooc_notes: Feature<string> = {
   name: 'OOC Notes',
+  description:
+    'Covers your sexual preferences, information about you OOC, any additional art references, and other misc. details. Here, you introduce yourself, rather than your character.',
   component: FeatureTextInput,
 };
 
 export const custom_species: Feature<string> = {
   name: 'Custom Species Name',
   description:
-    'Appears on examine. If left blank, you will use your default species name (E.g. Human, Lizardperson).',
+    'The name of your custom species. If left blank, you will use your selected species name (E.g. Human, Lizardperson).',
   component: FeatureShortTextInput,
 };
 
 export const custom_species_lore: Feature<string> = {
   name: 'Custom Species Lore',
-  description: "Won't show up if there's no custom species.",
+  description:
+    "The lore for your custom species, if you aren't using the server's lore. Leave blank to use the lore for your selected species.",
   component: FeatureTextInput,
 };
+
+export const custom_taste: Feature<string> = {
+  name: 'Character Taste',
+  description: 'What does your character taste like when licked?',
+  component: FeatureShortTextInput,
+};
+
+export const custom_smell: Feature<string> = {
+  name: 'Character Smell',
+  description: 'What does your character smell like when sniffed?',
+  component: FeatureShortTextInput,
+};
+
 export const general_record: Feature<string> = {
   name: 'Records - General',
   description:
-    'Viewable with any records access. \
-    For general viewing-things like employment, qualifications, etc.',
+    'The first part of any record that describes you. \
+    For a quick description, your languages and origin, and birthday.',
   component: FeatureTextInput,
 };
 
 export const security_record: Feature<string> = {
-  name: 'Records - Security',
+  name: 'Records - Personnel',
   description:
-    'Viewable with security access. \
-  For criminal records, arrest history, things like that.',
+    'Privileged information accessible by Security, antags with information, Command and the NTC. \
+    Used to throw these roles a bone, and give more information to work with. \
+    For employment and criminal history, loyalties and exploitable tidbits, and more.',
   component: FeatureTextInput,
 };
 
@@ -84,22 +101,6 @@ export const medical_record: Feature<string> = {
   description:
     'Viewable with medical access. \
   For things like medical history, prescriptions, DNR orders, etc.',
-  component: FeatureTextInput,
-};
-
-export const exploitable_info: Feature<string> = {
-  name: 'Records - Exploitable',
-  description:
-    'Can be IC or OOC. Viewable by certain antagonists/OPFOR users, as well as ghosts. Generally contains \
-  things like weaknesses, strengths, important background, trigger words, etc. It ALSO may contain things like \
-  antagonist preferences, e.g. if you want to be antagonized, by whom, with what, etc.',
-  component: FeatureTextInput,
-};
-
-export const background_info: Feature<string> = {
-  name: 'Records - Background',
-  description:
-    'Only viewable by yourself and ghosts. You can have whatever you want in here - it may be valuable as a way to orient yourself to what your character is.',
   component: FeatureTextInput,
 };
 
@@ -113,6 +114,13 @@ export const pda_ringer: Feature<string> = {
 export const allow_mismatched_parts_toggle: FeatureToggle = {
   name: 'Allow Mismatched Parts',
   description: 'Allows parts from any species to be picked.',
+  component: CheckboxInput,
+};
+
+export const allow_mismatched_hair_color_toggle: FeatureToggle = {
+  name: 'Allow Mismatched Hair Color',
+  description:
+    'Allows species who normally have a fixed hair color to have different hair colors. This includes in-round sources such as dyeing hair, alter form, etc. Currently only applicable to slimes.',
   component: CheckboxInput,
 };
 
@@ -261,6 +269,18 @@ export const ears_emissive: Feature<boolean[]> = {
   name: 'Ears Emissives',
   description: 'Emissive parts glow in the dark.',
   component: FeatureTriBoolInput,
+};
+
+export const quad_eyes: FeatureToggle = {
+  name: 'Quad Eyes',
+  description:
+    'Gives the character four eyes, may have some oddities with custom eyes (Snail, moth, shadekin, akula, etc...) - ( ** v ** )',
+  component: CheckboxInput,
+};
+
+export const quad_eyes_offset: Feature<number> = {
+  name: 'Quad Eyes Offset',
+  component: FeatureNumberInput,
 };
 
 export const wings_toggle: FeatureToggle = {
@@ -632,6 +652,20 @@ export const taur_emissive: Feature<boolean[]> = {
   name: 'Taur Emissives',
   description: 'Emissive parts glow in the dark.',
   component: FeatureTriBoolInput,
+};
+
+export const naga_sole: FeatureToggle = {
+  name: 'Taur (Naga) disable hardened soles',
+  description:
+    'If using a serpentine taur body, determines if you are immune to caltrops and a few other effects of being barefoot.',
+  component: CheckboxInput,
+};
+
+export const synthetic_taur: FeatureToggle = {
+  name: 'Taur (Synthetic)',
+  description:
+    "If using a taur body, determines if the taur body is synthetic, doesn't apply to taur bodies that are already synthetic.",
+  component: CheckboxInput,
 };
 
 export const xenodorsal_toggle: FeatureToggle = {

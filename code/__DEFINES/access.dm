@@ -89,6 +89,8 @@
 #define ACCESS_PSYCHOLOGY "psychology"
 /// Access for the Chief Medical Officer's personal quarters in mapping, as well as some other CMO-related things.
 #define ACCESS_CMO "cmo"
+/// Access to the Paramedic dispatch.
+#define ACCESS_PARAMEDIC "paramedic"
 
 /// General access for Cargo, allows for entry to Cargo Bay and Cargo's Office.
 #define ACCESS_CARGO "cargo"
@@ -160,6 +162,8 @@
 #define ACCESS_AWAY_GENERIC2 "away_generic2"
 #define ACCESS_AWAY_GENERIC3 "away_generic3"
 #define ACCESS_AWAY_GENERIC4 "away_generic4"
+#define ACCESS_ROROCO "roroco"
+#define ACCESS_ROROCO_SECURE "roroco_secure"
 
 /// - - - MECH - - -
 	// Mech Access, allows maintanenace of internal components and altering keycard requirements.
@@ -181,7 +185,7 @@
 #define ACCESS_CENT_CAPTAIN "cent_captain"
 #define ACCESS_CENT_BAR "cent_bar"
 /// Special Ops. Captain's display case, Marauder and Seraph mechs.
-#define ACCESS_CENT_SPECOPS 188 ///Remind me to separate to captain, centcom, and syndicate mech access later -SonofSpace
+#define ACCESS_CENT_SPECOPS "cent_specops"
 
 /// - - - ANTAGONIST - - -
 /// SYNDICATE
@@ -192,6 +196,11 @@
 #define ACCESS_BLOODCULT "bloodcult"
 /// HUNTERS
 #define ACCESS_HUNTER "hunter"
+
+/// - - - MISC - - -
+	// These don't really fit anywhere else
+/// For things that aren't ever supposed to be accessed
+#define ACCESS_INACCESSIBLE "inaccessible"
 
 /// - - - END ACCESS IDS - - -
 
@@ -294,6 +303,7 @@
 	ACCESS_DETECTIVE, \
 	ACCESS_ENGINE_EQUIP, \
 	ACCESS_ENGINEERING, \
+	ACCESS_EVA, \
 	ACCESS_EXTERNAL_AIRLOCKS, \
 	ACCESS_GATEWAY, \
 	ACCESS_GENETICS, \
@@ -317,10 +327,10 @@
 	ACCESS_NETWORK, \
 	ACCESS_ORDNANCE, \
 	ACCESS_ORDNANCE_STORAGE, \
+	ACCESS_PARAMEDIC, \
 	ACCESS_PHARMACY, \
 	ACCESS_PLUMBING, \
 	ACCESS_PSYCHOLOGY, \
-	ACCESS_QM, \
 	ACCESS_RESEARCH, \
 	ACCESS_ROBOTICS, \
 	ACCESS_SCIENCE, \
@@ -454,6 +464,7 @@
 	ACCESS_MEDICAL, \
 	ACCESS_MORGUE, \
 	ACCESS_MORGUE_SECURE, \
+	ACCESS_PARAMEDIC, \
 	ACCESS_PHARMACY, \
 	ACCESS_PLUMBING, \
 	ACCESS_PSYCHOLOGY, \
@@ -464,6 +475,7 @@
 #define REGION_RESEARCH "Research"
 /// Used to seed the accesses_by_region list in SSid_access. A list of all research regional accesses that are overseen by the RD.
 #define REGION_ACCESS_RESEARCH list( \
+	ACCESS_AI_UPLOAD, \
 	ACCESS_GENETICS, \
 	ACCESS_MECH_SCIENCE, \
 	ACCESS_MINISAT, \
@@ -541,7 +553,6 @@
 	/obj/item/modular_computer/pda/clown = list(REGION_GENERAL), \
 	/obj/item/modular_computer/pda/mime = list(REGION_GENERAL), \
 	/obj/item/modular_computer/pda/medical = list(REGION_MEDBAY), \
-	/obj/item/modular_computer/pda/viro = list(REGION_MEDBAY), \
 	/obj/item/modular_computer/pda/coroner = list(REGION_MEDBAY), \
 	/obj/item/modular_computer/pda/engineering = list(REGION_ENGINEERING), \
 	/obj/item/modular_computer/pda/security = list(REGION_SECURITY), \
@@ -590,3 +601,8 @@
 #define FORCE_ADD_ALL 2
 /// Used in ID card access adding procs. Will stack trace on fail.
 #define ERROR_ON_FAIL 3
+
+#define ID_DATA(T) SSid_access.__in_character_record_id_information(T)
+#define SILICON_OVERRIDE "silicon_override"
+#define CHAMELEON_OVERRIDE "chameleon_override"
+#define ID_READ_FAILURE "id_read_failure"

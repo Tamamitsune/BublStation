@@ -2,7 +2,7 @@
 	target_mobtypes = list(/mob/living)
 	requires_bodypart_type = BODYTYPE_ORGANIC //SKYRAT EDIT CHANGE - ORIGINAL VALUE: requires_bodypart_type = FALSE
 	replaced_by = /datum/surgery
-	surgery_flags = SURGERY_IGNORE_CLOTHES | SURGERY_REQUIRE_RESTING | SURGERY_REQUIRE_LIMB
+	surgery_flags = SURGERY_IGNORE_CLOTHES | SURGERY_REQUIRE_RESTING
 	possible_locs = list(BODY_ZONE_CHEST)
 	steps = list(
 		/datum/surgery_step/incise,
@@ -18,8 +18,11 @@
 
 /datum/surgery/healing/can_start(mob/user, mob/living/patient)
 	. = ..()
+	if(!.)
+		return .
 	if(!(patient.mob_biotypes & (MOB_ORGANIC|MOB_HUMANOID)))
 		return FALSE
+	return .
 
 /datum/surgery/healing/New(surgery_target, surgery_location, surgery_bodypart)
 	..()
@@ -27,18 +30,20 @@
 		steps = list(
 			/datum/surgery_step/incise/nobleed,
 			healing_step_type, //hehe cheeky
-			/datum/surgery_step/close)
+			/datum/surgery_step/close,
+		)
 
 /datum/surgery_step/heal
 	name = "repair body (hemostat)"
 	implements = list(
 		TOOL_HEMOSTAT = 100,
 		TOOL_SCREWDRIVER = 65,
+		TOOL_WIRECUTTER = 60,
 		/obj/item/pen = 55)
 	repeatable = TRUE
-	time = 25
-	success_sound = 'sound/surgery/retractor2.ogg'
-	failure_sound = 'sound/surgery/organ2.ogg'
+	time = 2.5 SECONDS
+	success_sound = 'sound/items/handling/surgery/retractor2.ogg'
+	failure_sound = 'sound/items/handling/surgery/organ2.ogg'
 	var/brutehealing = 0
 	var/burnhealing = 0
 	var/brute_multiplier = 0 //multiplies the damage that the patient has. if 0 the patient wont get any additional healing from the damage he has.
@@ -81,10 +86,21 @@
 	var/brute_healed = brutehealing
 	var/burn_healed = burnhealing
 	var/dead_patient = FALSE
+	var/status_msg = list() // BUBBER EDIT ADDITION
+	feedback_value = null // BUBBER EDIT ADDITION
 	if(target.stat == DEAD) //dead patients get way less additional heal from the damage they have.
-		brute_healed += round((target.getBruteLoss() * (brute_multiplier * 0.2)),0.1)
-		burn_healed += round((target.getFireLoss() * (burn_multiplier * 0.2)),0.1)
+		// BUBBER EDIT CHANGE BEGIN - Husks get reduced bonus, but dead patients are full speed
+		//brute_healed += round((target.getBruteLoss() * (brute_multiplier * 0.2)),0.1)
+		//burn_healed += round((target.getFireLoss() * (burn_multiplier * 0.2)),0.1)
 		dead_patient = TRUE
+		if(HAS_TRAIT(target, TRAIT_HUSK))
+			brute_healed += round((target.getBruteLoss() * (brute_multiplier * 0.7)),0.1)
+			burn_healed += round((target.getFireLoss() * (burn_multiplier * 0.7)),0.1)
+			status_msg += "[target.p_are()] husked"
+		else
+			brute_healed += round((target.getBruteLoss() * brute_multiplier),0.1)
+			burn_healed += round((target.getFireLoss() * burn_multiplier),0.1)
+		// BUBBER EDIT CHANGE END
 	else
 		brute_healed += round((target.getBruteLoss() * brute_multiplier),0.1)
 		burn_healed += round((target.getFireLoss() * burn_multiplier),0.1)
@@ -92,11 +108,20 @@
 	if(!get_location_accessible(target, target_zone))
 		brute_healed *= 0.55
 		burn_healed *= 0.55
-		user_msg += " as best as you can while [target.p_they()] [target.p_have()] clothing on"
-		target_msg += " as best as [user.p_they()] can while [target.p_they()] [target.p_have()] clothing on"
+		status_msg += "[target.p_have()] clothing on"
+		//user_msg += " as best as you can while [target.p_they()] [target.p_have()] clothing on" // BUBBER EDIT REMOVAL
+		//target_msg += " as best as [user.p_they()] can while [target.p_they()] [target.p_have()] clothing on" // BUBBER EDIT REMOVAL
+	// BUBBER EDIT ADDITION BEGIN
+	if(length(status_msg) > 0)
+		user_msg += " as best as you can while [target.p_they()] [english_list(status_msg)]"
+		target_msg += " as best as [user.p_they()] can while [target.p_they()] [english_list(status_msg)]"
+	feedback_value = brute_healed + burn_healed
+
 	target.heal_bodypart_damage(brute_healed,burn_healed)
 
-	user_msg += get_progress(user, target, brute_healed, burn_healed)
+	if(!get_feedback_message(user, target))
+		user_msg += get_progress(user, target, brute_healed, burn_healed)
+	// BUBBER EDIT ADDITION END
 
 	if(HAS_MIND_TRAIT(user, TRAIT_MORBID) && ishuman(user) && !dead_patient) //Morbid folk don't care about tending the dead as much as tending the living
 		var/mob/living/carbon/human/morbid_weirdo = user
@@ -325,7 +350,7 @@
 	burnhealing = 3
 	brute_multiplier = 0.07
 	burn_multiplier = 0.07
-	time = 10
+	time = 1 SECONDS
 
 /datum/surgery_step/heal/combo/upgraded
 	brutehealing = 3

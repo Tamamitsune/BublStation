@@ -11,7 +11,7 @@
 /obj/effect/landmark/singularity_act()
 	return
 
-/obj/effect/landmark/singularity_pull()
+/obj/effect/landmark/singularity_pull(atom/singularity, current_size)
 	return
 
 INITIALIZE_IMMEDIATE(/obj/effect/landmark)
@@ -36,7 +36,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 
 /obj/effect/landmark/start/proc/after_round_start()
 	// We'd like to keep these around for unit tests, so we can check that they exist.
-#ifndef UNIT_TESTS
+#if !defined(UNIT_TESTS) && !defined(MAP_TEST)
 	if(delete_after_roundstart)
 		qdel(src)
 #endif
@@ -196,9 +196,6 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 	name = "Chief Medical Officer"
 	icon_state = "Chief Medical Officer"
 
-/obj/effect/landmark/start/virologist
-	name = "Virologist"
-	icon_state = "Virologist"
 
 /obj/effect/landmark/start/psychologist
 	name = "Psychologist"
@@ -298,6 +295,16 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark)
 	GLOB.nukeop_leader_start += loc
 	return INITIALIZE_HINT_QDEL
 
+/obj/effect/landmark/start/nukeop_overwatch
+	name = "nukeop overwatch"
+	icon = 'icons/effects/landmarks_static.dmi'
+	icon_state = "snukeop_leader_spawn"
+
+/obj/effect/landmark/start/nukeop_overwatch/Initialize(mapload)
+	..()
+	GLOB.nukeop_overwatch_start += loc
+	return INITIALIZE_HINT_QDEL
+
 // Must be immediate because players will
 // join before SSatom initializes everything.
 INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
@@ -309,6 +316,11 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
 	..()
 	GLOB.newplayer_start += loc
 	return INITIALIZE_HINT_QDEL
+
+/obj/effect/landmark/start/pun_pun
+	name = JOB_PUN_PUN
+	icon = 'icons/mob/human/human.dmi'
+	icon_state = "monkey"
 
 /obj/effect/landmark/latejoin
 	name = "JoinLate"
@@ -502,7 +514,6 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
 	return ..()
 
 /obj/effect/landmark/start/hangover/LateInitialize()
-	. = ..()
 	if(HAS_TRAIT(SSstation, STATION_TRAIT_BIRTHDAY))
 		party_debris += new /obj/effect/decal/cleanable/confetti(get_turf(src)) //a birthday celebration can also be a hangover
 		var/list/bonus_confetti = GLOB.alldirs
@@ -540,7 +551,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
 				continue
 			hangover_debris += new /obj/item/reagent_containers/cup/glass/bottle/beer/almost_empty(turf_to_spawn_on)
 
-///Spawns the mob with some drugginess/drunkeness, and some disgust.
+///Spawns the mob with some drugginess/drunkenness, and some disgust.
 /obj/effect/landmark/start/hangover/proc/make_hungover(mob/hangover_mob)
 	if(!iscarbon(hangover_mob))
 		return
@@ -555,22 +566,14 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
 		return
 
 /obj/effect/landmark/start/hangover/JoinPlayerHere(mob/joining_mob, buckle)
-	. = ..()
-	make_hungover(joining_mob)
-
-/obj/effect/landmark/start/hangover/closet
-	name = "hangover spawn closet"
-	icon_state = "hangover_spawn_closet"
-
-/obj/effect/landmark/start/hangover/closet/JoinPlayerHere(mob/joining_mob, buckle)
+	var/mob/created_joining_mob = ..()
+	make_hungover(created_joining_mob)
 	for(var/obj/structure/closet/closet in get_turf(src))
 		if(closet.opened)
 			continue
-		joining_mob.forceMove(closet)
-		make_hungover(joining_mob)
-		return
-
-	return ..() //Call parent as fallback
+		created_joining_mob.forceMove(closet)
+		return created_joining_mob
+	return created_joining_mob
 
 //Landmark that creates destinations for the navigate verb to path to
 /obj/effect/landmark/navigate_destination
@@ -583,7 +586,6 @@ INITIALIZE_IMMEDIATE(/obj/effect/landmark/start/new_player)
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/effect/landmark/navigate_destination/LateInitialize()
-	. = ..()
 	if(!location)
 		var/obj/machinery/door/airlock/A = locate(/obj/machinery/door/airlock) in loc
 		location = A ? format_text(A.name) : get_area_name(src, format_text = TRUE)

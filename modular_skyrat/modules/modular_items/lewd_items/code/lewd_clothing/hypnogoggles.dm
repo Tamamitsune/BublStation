@@ -24,7 +24,7 @@
 	victim = user
 	if(!(slot & ITEM_SLOT_EYES))
 		return
-	if(!(iscarbon(victim) && victim.client?.prefs?.read_preference(/datum/preference/toggle/erp/sex_toy)))
+	if(!(iscarbon(victim) && victim.client?.prefs?.read_preference(/datum/preference/toggle/erp/sex_toy) && victim.client?.prefs?.read_preference(/datum/preference/toggle/erp/hypnosis)))
 		return
 	if(codephrase != "")
 		victim.gain_trauma(new /datum/brain_trauma/very_special/induced_hypnosis(codephrase), TRAUMA_RESILIENCE_MAGIC)
@@ -40,12 +40,12 @@
 	victim = null
 
 /obj/item/clothing/glasses/hypno/Destroy()
-	. = ..()
 	if(!victim)
-		return
+		return ..()
 	if(!(victim.glasses == src))
-		return
+		return ..()
 	victim.cure_trauma_type(/datum/brain_trauma/very_special/induced_hypnosis, TRAUMA_RESILIENCE_MAGIC)
+	. = ..()
 
 /obj/item/clothing/glasses/hypno/attack_self(mob/user)//Setting up hypnotising phrase
 	. = ..()
@@ -58,24 +58,22 @@
 		"teal" = image(icon = src.icon, icon_state = "hypnogoggles_teal"))
 
 //to change model
-/obj/item/clothing/glasses/hypno/AltClick(mob/user)
+/obj/item/clothing/glasses/hypno/click_alt(mob/user)
 	if(color_changed)
-		return
-	. = ..()
-	if(.)
-		return
+		return CLICK_ACTION_BLOCKING
 	var/choice = show_radial_menu(user, src, hypnogoggles_designs, custom_check = CALLBACK(src, PROC_REF(check_menu), user), radius = 36, require_near = TRUE)
 	if(!choice)
-		return FALSE
+		return CLICK_ACTION_BLOCKING
 	current_hypnogoggles_color = choice
 	update_icon()
 	color_changed = TRUE
+	return CLICK_ACTION_SUCCESS
 
 //to check if we can change kinkphones's model
 /obj/item/clothing/glasses/hypno/proc/check_menu(mob/living/user)
 	if(!istype(user))
 		return FALSE
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return FALSE
 	return TRUE
 
@@ -140,7 +138,7 @@
 		return
 	switch(rand(1, 2))
 		if(1)
-			to_chat(owner, span_hypnophrase("<i>...[lowertext(hypnotic_phrase)]...</i>"))
+			to_chat(owner, span_hypnophrase("<i>...[LOWER_TEXT(hypnotic_phrase)]...</i>"))
 		if(2)
 			new /datum/hallucination/chat(owner, TRUE, FALSE, span_hypnophrase("[hypnotic_phrase]"))
 

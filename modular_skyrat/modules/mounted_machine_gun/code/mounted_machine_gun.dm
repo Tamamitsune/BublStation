@@ -15,7 +15,7 @@
 	buckle_lying = 0
 	SET_BASE_PIXEL(-8, -8)
 	layer = ABOVE_MOB_LAYER
-	plane = GAME_PLANE_UPPER
+	plane = ABOVE_GAME_PLANE
 	/// The extra range that this turret gives regarding viewrange.
 	var/view_range = 2.5
 	/// Sound to play when overheated
@@ -140,7 +140,7 @@
 
 //BUCKLE HOOKS
 /obj/machinery/mounted_machine_gun/unbuckle_mob(mob/living/buckled_mob, force = FALSE, can_fall = TRUE)
-	playsound(src,'sound/mecha/mechmove01.ogg', 50, TRUE)
+	playsound(src,'sound/vehicles/mecha/mechmove01.ogg', 50, TRUE)
 	for(var/obj/item/iterating_item in buckled_mob.held_items)
 		if(istype(iterating_item, /obj/item/gun_control))
 			qdel(iterating_item)
@@ -154,7 +154,7 @@
 	. = ..()
 
 /obj/machinery/mounted_machine_gun/user_buckle_mob(mob/living/user_to_buckle, mob/buckling_user, check_loc = TRUE)
-	if(user_to_buckle.incapacitated() || !istype(user_to_buckle))
+	if(user_to_buckle.incapacitated || !istype(user_to_buckle))
 		return
 	user_to_buckle.forceMove(get_turf(src))
 	. = ..()
@@ -164,43 +164,44 @@
 	register_user(user_to_buckle)
 
 	layer = ABOVE_MOB_LAYER
-	plane = GAME_PLANE_UPPER
+	plane = ABOVE_GAME_PLANE
 	setDir(SOUTH)
-	playsound(src,'sound/mecha/mechmove01.ogg', 50, TRUE)
+	playsound(src,'sound/vehicles/mecha/mechmove01.ogg', 50, TRUE)
 	set_anchored(TRUE)
 
 	update_positioning()
 
-/obj/machinery/mounted_machine_gun/AltClick(mob/user)
-	. = ..()
-	if(!can_interact(user))
-		return
+/obj/machinery/mounted_machine_gun/click_alt(mob/user)
 	toggle_cover(user)
+	return CLICK_ACTION_SUCCESS
 
 /obj/machinery/mounted_machine_gun/attack_hand_secondary(mob/living/user, list/modifiers)
 	. = ..()
+	if(. == SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN)
+		return
 	if(!istype(user))
 		return
 	if(!can_interact(user))
 		return
 	if(!cover_open)
 		balloon_alert(user, "cover closed!")
-		return
+		return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 	if(!ammo_box)
-		return
+		return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 	remove_ammo_box(user)
+	return SECONDARY_ATTACK_CANCEL_ATTACK_CHAIN
 
 /obj/machinery/mounted_machine_gun/attackby(obj/item/weapon, mob/user, params)
 	. = ..()
 	if(!istype(weapon, ammo_box_type))
 		return
 	if(ammo_box)
-		balloon_alert("already loaded!")
+		balloon_alert(user, "already loaded!")
 		return
 	ammo_box = weapon
 	weapon.forceMove(src)
 	playsound(src, 'modular_skyrat/modules/mounted_machine_gun/sound/insert_ammobox.ogg', 100)
-	balloon_alert("ammo box inserted!")
+	balloon_alert(user, "ammo box inserted!")
 
 /obj/machinery/mounted_machine_gun/proc/remove_ammo_box(mob/living/user)
 	ammo_box.forceMove(drop_location())
@@ -364,7 +365,7 @@
 		balloon_alert_to_viewers("barrel heatlocked!")
 		fire_result = FALSE
 	if(!fire_result)
-		playsound(src, 'sound/weapons/gun/general/dry_fire.ogg', 50, TRUE)
+		playsound(src, 'sound/items/weapons/gun/general/dry_fire.ogg', 50, TRUE)
 	if(!bolt && fire_result)
 		cock_bolt()
 	return fire_result
@@ -406,7 +407,7 @@
 			direction_track(current_user, target_turf)
 
 /obj/machinery/mounted_machine_gun/proc/direction_track(mob/user, atom/targeted)
-	if(user.incapacitated())
+	if(user.incapacitated)
 		return
 	setDir(get_dir(src, targeted))
 	user.setDir(dir)
@@ -423,7 +424,7 @@
 			user.pixel_y = -8
 		if(EAST)
 			layer = ABOVE_MOB_LAYER
-			plane = GAME_PLANE_UPPER
+			plane = ABOVE_GAME_PLANE
 			user.pixel_x = -22
 			user.pixel_y = 0
 		if(SOUTHEAST)
@@ -433,7 +434,7 @@
 			user.pixel_y = 14
 		if(SOUTH)
 			layer = ABOVE_MOB_LAYER
-			plane = GAME_PLANE_UPPER
+			plane = ABOVE_GAME_PLANE
 			user.pixel_x = 0
 			user.pixel_y = 22
 		if(SOUTHWEST)
@@ -443,7 +444,7 @@
 			user.pixel_y = 14
 		if(WEST)
 			layer = ABOVE_MOB_LAYER
-			plane = GAME_PLANE_UPPER
+			plane = ABOVE_GAME_PLANE
 			user.pixel_x = 22
 			user.pixel_y = 0
 		if(NORTHWEST)
@@ -468,3 +469,7 @@
 /obj/item/mounted_machine_gun_folded/Initialize(mapload)
 	. = ..()
 	AddComponent(/datum/component/deployable, deploy_time, type_to_deploy)
+
+#undef BARREL_HEAT_THRESHOLD_LOW
+#undef BARREL_HEAT_THRESHOLD_HIGH
+#undef REPAIR_WELDER_COST

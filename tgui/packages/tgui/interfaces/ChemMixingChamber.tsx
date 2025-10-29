@@ -1,4 +1,4 @@
-import { useBackend } from '../backend';
+import { useState } from 'react';
 import {
   AnimatedNumber,
   Box,
@@ -6,13 +6,14 @@ import {
   NumberInput,
   Section,
   Stack,
-} from '../components';
-import { Window } from '../layouts';
-import { round, toFixed } from 'common/math';
-import { BooleanLike } from 'common/react';
-import { useState } from 'react';
+} from 'tgui-core/components';
+import { round, toFixed } from 'tgui-core/math';
+import type { BooleanLike } from 'tgui-core/react';
 
-type Reagent = {
+import { useBackend } from '../backend';
+import { Window } from '../layouts';
+
+export type Reagent = {
   name: string;
   volume: number;
 };
@@ -45,6 +46,7 @@ export const ChemMixingChamber = (props) => {
                   <Stack.Item mt={0.3}>{'Target:'}</Stack.Item>
                   <Stack.Item>
                     <NumberInput
+                      tickWhileDragging
                       width="65px"
                       unit="K"
                       step={10}
@@ -52,7 +54,7 @@ export const ChemMixingChamber = (props) => {
                       value={round(targetTemp, 0.1)}
                       minValue={0}
                       maxValue={1000}
-                      onDrag={(e, value) =>
+                      onChange={(value) =>
                         act('temperature', {
                           target: value,
                         })
@@ -71,7 +73,7 @@ export const ChemMixingChamber = (props) => {
                     <Stack.Item grow>
                       <AnimatedNumber
                         value={temperature}
-                        format={(value) => toFixed(value) + ' K'}
+                        format={(value) => `${toFixed(value)} K`}
                       />
                     </Stack.Item>
                   </Stack>
@@ -118,13 +120,14 @@ export const ChemMixingChamber = (props) => {
                     </Stack.Item>
                     <Stack.Item>
                       <NumberInput
+                        tickWhileDragging
                         value={reagentQuantity}
                         minValue={1}
                         maxValue={100}
                         step={1}
                         stepPixelSize={3}
                         width="39px"
-                        onDrag={(e, value) => setReagentQuantity(value)}
+                        onChange={(value) => setReagentQuantity(value)}
                       />
                       <Box inline mr={1} />
                     </Stack.Item>
@@ -136,7 +139,7 @@ export const ChemMixingChamber = (props) => {
                       <Stack.Item key={reagent.name}>
                         <Stack fill>
                           <Stack.Item mt={0.25} textColor="label">
-                            {reagent.name + ':'}
+                            {`${reagent.name}:`}
                           </Stack.Item>
                           <Stack.Item mt={0.25} grow>
                             {reagent.volume}

@@ -169,11 +169,10 @@
 			new /obj/item/pen/sleepy(src)
 			new /obj/item/storage/fancy/cigarettes/cigpack_syndicate(src)
 		if(2) //Energy weapons + energy knives
-			new /obj/item/gun/energy/e_gun(src)
-			new /obj/item/gun/energy/e_gun(src)
-			new /obj/item/gun/energy/e_gun(src)
-			new /obj/item/gun/energy/e_gun/mini(src)
 			new /obj/item/gun/energy/recharge/ebow(src)
+			new /obj/item/gun/energy/recharge/ebow(src)
+			new /obj/item/melee/energy/sword(src)
+			new /obj/item/melee/energy/sword(src)
 			new /obj/item/melee/energy/sword(src)
 			new /obj/item/melee/energy/sword(src)
 		if(3) //Ballistics + knives
@@ -197,16 +196,15 @@
 			new /obj/item/mod/control/pre_equipped/mining(src)
 			new /obj/item/mod/control/pre_equipped/engineering(src)
 			new /obj/item/mod/control/pre_equipped/atmospheric(src)
-			new /obj/item/mod/control/pre_equipped/research(src)
 			new /obj/item/mod/control/pre_equipped/traitor(src)
 			new /obj/item/mod/control/pre_equipped/elite(src)
 		if(5) //Implants
 			new /obj/item/storage/box/cyber_implants(src)
-			new /obj/item/organ/internal/cyberimp/arm/combat(src)
-			new /obj/item/organ/internal/cyberimp/arm/surgery(src)
-			new /obj/item/organ/internal/cyberimp/arm/baton(src)
-			new /obj/item/organ/internal/cyberimp/arm/toolset(src)
-			new /obj/item/organ/internal/cyberimp/arm/gun/taser(src)
+			new /obj/item/organ/cyberimp/arm/toolkit/combat(src)
+			new /obj/item/organ/cyberimp/arm/toolkit/surgery(src)
+			new /obj/item/organ/cyberimp/arm/toolkit/baton(src)
+			new /obj/item/organ/cyberimp/arm/toolkit/toolset(src)
+			new /obj/item/organ/cyberimp/arm/toolkit/gun/taser(src)
 
 /obj/structure/closet/crate/secure/tradership_cargo_very_valuable
 	req_access = ACCESS_FACTION_COMMAND

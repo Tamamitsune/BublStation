@@ -14,7 +14,7 @@
 	on = 0;
 	shot_delay = 10
 	},
-/turf/closed/wall/r_wall/syndicate/nodiagonal,
+/turf/closed/wall/r_wall/plastitanium/syndicate/nodiagonal,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "ad" = (
 /obj/machinery/computer/operating,
@@ -55,7 +55,7 @@
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "an" = (
 /obj/structure/sign/warning/vacuum/external,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "ao" = (
 /turf/open/floor/carpet/royalblack,
@@ -65,7 +65,7 @@
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "aq" = (
 /obj/structure/sign/poster/contraband/syndicate_recruitment,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "ar" = (
 /obj/machinery/camera/xray{
@@ -203,7 +203,7 @@
 /turf/closed/mineral/random,
 /area/ruin/space)
 "bb" = (
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_cargopod)
 "bd" = (
 /obj/structure/closet/crate/secure/gear{
@@ -251,7 +251,7 @@
 /area/ruin/space/has_grav/syndicate_forgotten_cargopod)
 "bg" = (
 /obj/structure/sign/poster/contraband/syndicate_pistol,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "bh" = (
 /obj/structure/cable,
@@ -282,6 +282,7 @@
 /obj/item/paper,
 /obj/item/pen,
 /obj/machinery/light/directional/south,
+/obj/machinery/computer/security/telescreen/forgotten_ship/sci/directional/south,
 /turf/open/floor/carpet/royalblack,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "bp" = (
@@ -457,22 +458,12 @@
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "bR" = (
 /obj/structure/sign/poster/contraband/tools,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_cargopod)
 "bS" = (
 /obj/machinery/button/crematorium{
 	id = "fscremate";
 	pixel_x = -32
-	},
-/turf/open/floor/mineral/plastitanium,
-/area/ruin/space/has_grav/syndicate_forgotten_ship)
-"bT" = (
-/obj/structure/table/reinforced,
-/obj/machinery/computer/security/telescreen/interrogation{
-	name = "Cameras monitor";
-	network = list("fsci");
-	req_access = list("syndicate");
-	screen_loc = ""
 	},
 /turf/open/floor/mineral/plastitanium,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
@@ -482,7 +473,7 @@
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "bX" = (
 /obj/structure/sign/poster/contraband/c20r,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_cargopod)
 "bY" = (
 /obj/structure/closet/syndicate{
@@ -499,7 +490,7 @@
 /turf/open/floor/mineral/plastitanium,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "bZ" = (
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "ca" = (
 /obj/machinery/computer/crew/syndie{
@@ -571,7 +562,7 @@
 	on = 0;
 	shot_delay = 10
 	},
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "cj" = (
 /obj/machinery/stasis,
@@ -579,7 +570,7 @@
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "ck" = (
 /obj/structure/sign/departments/cargo,
-/turf/closed/wall/r_wall/syndicate,
+/turf/closed/wall/r_wall/plastitanium/syndicate,
 /area/ruin/space/has_grav/syndicate_forgotten_cargopod)
 "cm" = (
 /obj/machinery/door/airlock/grunge{
@@ -594,15 +585,14 @@
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "co" = (
 /obj/structure/filingcabinet,
-/obj/machinery/door/window{
-	dir = 8;
+/obj/machinery/door/window/left/directional/west{
 	name = "Syndicate Interior Door";
 	req_access = list("syndicate")
 	},
 /turf/open/floor/mineral/plastitanium/red,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "cp" = (
-/obj/machinery/door/window{
+/obj/machinery/door/window/left/directional/south{
 	name = "Control Room";
 	req_access = list("syndicate")
 	},
@@ -623,7 +613,7 @@
 /turf/open/floor/mineral/plastitanium,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "ct" = (
-/obj/machinery/vending/medical/syndicate_access/cybersun,
+/obj/machinery/vending/medical/syndicate/cybersun,
 /turf/open/floor/plastic,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "cu" = (
@@ -731,8 +721,7 @@
 /turf/open/floor/mineral/plastitanium,
 /area/ruin/space/has_grav/syndicate_forgotten_ship)
 "cJ" = (
-/obj/machinery/door/window{
-	dir = 1;
+/obj/machinery/door/window/left/directional/north{
 	name = "Spare Equipment";
 	req_access = list("syndicate")
 	},
@@ -2069,7 +2058,7 @@ bZ
 co
 bZ
 VF
-bT
+ah
 bg
 aD
 cF
